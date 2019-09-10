@@ -38,7 +38,7 @@
     border-radius: 10px;
     width: 236px;
     color: ${selectFont};
-    height: 43px; background: ${inputBg};
+    height: 41px; background: ${inputBg};
     --inputColor: ${selectFont};
     --placeholderColor: ${selectFont};
     --listBackground: ${inputBg};
@@ -73,7 +73,7 @@
 <style>
   input {
     height: 41px;
-    width: 185px;
+    width: 175px;
     border: none;
     border-radius: 5px;
     margin: 0;
@@ -153,7 +153,7 @@
     background-color: transparent;
     padding: 0;
     margin: 0;
-    width: 75px;
+    width: 85px;
     display: flex;
     justify-content: space-between;
     align-items: center;

@@ -9,7 +9,7 @@ export const lightTheme = {
   selectFont: "black",
   selectBorder: "#0B2E57",
   buttonBg: "#0B2E57 ",
-  buttonFont: "black",
+  buttonFont: "white",
   buttonBorder: "#000000",
   compareArrows: "black",
   selectArrow: "black"

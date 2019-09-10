@@ -10,7 +10,7 @@ import App from "./App.svelte";
 const app = new App({
   target: document.body,
   props: {
-    orientation: "vertical", // horizontal, vertical
+    orientation: "horizontal", // horizontal, vertical
     theme: "light", // light, dark
     colors: {}
   }
