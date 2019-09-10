@@ -1,0 +1,19 @@
+import App from "./App.svelte";
+// export { default as App } from "./App.svelte";
+
+// *****************************************
+// * Notice that the component is not instantiated and mounted to the document <body className="">
+// * Since the compiler is creating a custom element, we instead define and use the custom element
+// * in the index.html file to simulate the end-user experience.
+// ******************************************
+
+const app = new App({
+  target: document.body,
+  props: {
+    orientation: "vertical", // horizontal, vertical
+    theme: "light", // light, dark
+    colors: {}
+  }
+});
+
+export default app;
