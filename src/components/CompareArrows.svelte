@@ -1,6 +1,6 @@
 <script>
   import MdCompareArrows from "svelte-icons/md/MdCompareArrows.svelte";
-  import { lightTheme } from "../Colors";
+  import { lightTheme } from "../utils/Colors";
 
   export let orientation = "horizontal";
   export let colors = {};

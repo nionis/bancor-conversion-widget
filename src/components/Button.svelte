@@ -1,5 +1,5 @@
 <script>
-  import { lightTheme } from "../Colors";
+  import { lightTheme } from "../utils/Colors";
 
   export let colors = {};
   export let disabled = false;

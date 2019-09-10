@@ -2,7 +2,7 @@
   import CompareArrows from "./components/CompareArrows.svelte";
   import Button from "./components/Button.svelte";
   import Input from "./components/Input.svelte";
-  import Colors from "./Colors.js";
+  import Colors from "./utils/Colors.js";
 
   export let orientation = "horizontal";
   export let theme = "light";

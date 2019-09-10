@@ -1,7 +1,7 @@
 <script>
   import Select from "svelte-select";
   import MdArrowDropDown from "svelte-icons/md/MdArrowDropDown.svelte";
-  import { lightTheme } from "../Colors";
+  import { lightTheme } from "../utils/Colors";
 
   export let colors = {};
   export let orientation = "horizontal";
