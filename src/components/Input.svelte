@@ -16,7 +16,7 @@
     selectBg = lightTheme.selectBg,
     selectFont = lightTheme.selectFont,
     selectBorder = lightTheme.selectBorder,
-    selectArrowBg = lightTheme.selectArrowBg
+    selectArrow = lightTheme.selectArrow
   } = colors;
 
   let selectOpen = false;
@@ -56,6 +56,10 @@
     opacity: ${disabled ? 0.75 : 1}
   `;
 
+  $: selectArrowStyle = `
+    color: ${selectArrow};
+  `;
+
   const onSelectClick = () => {
     selectOpen = true;
   };
@@ -78,6 +82,12 @@
     text-align: center;
   }
 
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
   img {
     border-radius: 50px;
     height: 25px;
@@ -92,11 +102,14 @@
   .horizontal {
     justify-content: center;
     flex-direction: column;
+    height: 45px;
   }
 
   .vertical {
-    justify-content: space-between;
+    justify-content: flex-start;
     flex-direction: row;
+    height: 65px;
+    width: 100%;
   }
 
   .textContainer {
@@ -180,8 +193,8 @@
       <div class="btn">
         <img {src} alt="bancor logo" />
         <div style="color: {selectFont};">{selected}</div>
-        <div class="selectArrowContainer">
-          <MdArrowDropDown style="fill: {selectArrowBg};" />
+        <div class="selectArrowContainer" style={selectArrowStyle}>
+          <MdArrowDropDown />
         </div>
       </div>
     </div>

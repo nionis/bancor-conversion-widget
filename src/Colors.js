@@ -11,8 +11,8 @@ export const lightTheme = {
   buttonBg: "#0B2E57 ",
   buttonFont: "black",
   buttonBorder: "#000000",
-  compareArrowsBg: "black",
-  selectArrowBg: "black"
+  compareArrows: "black",
+  selectArrow: "black"
 };
 
 export const darkTheme = {
@@ -28,8 +28,8 @@ export const darkTheme = {
   buttonBg: "#474747",
   buttonFont: "white",
   buttonBorder: "#363636",
-  compareArrowsBg: "white",
-  selectArrowBg: "white"
+  compareArrows: "white",
+  selectArrow: "white"
 };
 
 const Colors = (theme, colors) => {

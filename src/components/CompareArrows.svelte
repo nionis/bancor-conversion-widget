@@ -5,20 +5,25 @@
   export let orientation = "horizontal";
   export let colors = {};
 
-  const { compareArrowsColor = lightTheme.compareArrowsColor } = colors;
+  const { compareArrows = lightTheme.compareArrows } = colors;
+  console.log("compareArrows", compareArrows, lightTheme.compareArrows, colors);
+  const arrowStyle = `color: ${compareArrows}`;
 </script>
 
 <style>
-  .container {
+  .horizontal {
     width: 40px;
     height: 40px;
   }
-
   .vertical {
+    width: 40px;
+    height: 40px;
     transform: rotate(-90deg);
   }
 </style>
 
-<div class="container {orientation}" style="color: {compareArrowsColor};">
-  <MdCompareArrows class="icon" />
+<div class="icon">
+  <div class={orientation} style={arrowStyle}>
+    <MdCompareArrows />
+  </div>
 </div>

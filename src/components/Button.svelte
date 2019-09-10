@@ -32,7 +32,7 @@
     height: 33px;
     font-size: 1em;
     border-radius: 20px;
-    padding-bottom: 2px;
+    padding-top: 1px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
   }
 </style>
