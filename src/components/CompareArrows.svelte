@@ -6,7 +6,6 @@
   export let colors = {};
 
   const { compareArrows = lightTheme.compareArrows } = colors;
-  console.log("compareArrows", compareArrows, lightTheme.compareArrows, colors);
   const arrowStyle = `color: ${compareArrows}`;
 </script>
 
