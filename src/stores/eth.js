@@ -2,15 +2,15 @@ import { Eth } from "web3x-es/eth";
 import { LegacyProviderAdapter } from "web3x-es/providers";
 import { writable, derived, get } from "svelte/store";
 
-const eth = writable(null);
+const eth = writable(undefined);
 const installed = writable(false);
 const accepted = writable(false);
-const account = writable(null);
-const networkId = writable(null);
+const account = writable(undefined);
+const networkId = writable(undefined);
 const isLoggedIn = derived(account, v => !!v);
 
 const getEth = async () => {
-  let _eth = null;
+  let _eth = undefined;
 
   if (window.ethereum) {
     console.log(`Injected ethereum detected.`);
@@ -30,7 +30,7 @@ const getEth = async () => {
 
 const getNetworkId = async () => {
   const _eth = get(eth);
-  if (!_eth) return null;
+  if (!_eth) return undefined;
 
   return _eth.getId();
 };
@@ -66,7 +66,7 @@ const getAccept = async () => {
 const getAccount = async () => {
   const accounts = (await get(eth).eth.getAccounts()) || [];
 
-  return accounts[0] || null;
+  return accounts[0] || undefined;
 };
 
 const sync = async () => {
@@ -85,7 +85,7 @@ const init = async () => {
 
   if (window.ethereum) {
     window.ethereum.on("accountsChanged", accounts => {
-      account.update(() => accounts[0] || null);
+      account.update(() => accounts[0] || undefined);
     });
 
     window.ethereum.on("networkChanged", _networkId => {

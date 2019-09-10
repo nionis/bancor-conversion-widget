@@ -4,7 +4,7 @@ import safeFetch from "../utils/safeFetch";
 import Contract from "../utils/Contract";
 import { addresses } from "../env";
 
-const registry = writable(null);
+const registry = writable(undefined);
 const numberOfTokens = writable(0);
 const tokens = writable(new Map());
 

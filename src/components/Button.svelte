@@ -1,26 +1,27 @@
 <script>
-  import { lightTheme } from "../utils/Colors";
+  import { createEventDispatcher } from "svelte";
+  import Required from "../utils/Required";
 
-  export let colors = {};
+  export let bgColor = Required("bgColor");
+  export let fontColor = Required("fontColor");
+  export let borderColor = Required("borderColor");
   export let disabled = false;
-  export let onClick;
 
-  const {
-    buttonBg = lightTheme.buttonBg,
-    buttonFont = lightTheme.buttonFont,
-    buttonBorder = lightThem.buttonBorder
-  } = colors;
-
-  // disable if onClick is not provided
-  disabled = disabled || !onClick;
-
-  let buttonStyle = `
-    background-color: ${buttonBg};
-    color: ${buttonFont};
+  const buttonStyle = `
+    color: ${fontColor};
+    background-color: ${bgColor};
     opacity: ${disabled ? 0.75 : 1};
-    border: ${buttonBorder} solid 1px;
-    cursor: ${disabled ? "not-allowed" : "pointer"};
+    border: ${borderColor} solid 1px;
+    cursor: ${disabled ? "default" : "pointer"};
   `;
+
+  const dispatch = createEventDispatcher();
+
+  const onClick = e => {
+    if (disabled) return;
+
+    dispatch("click", e);
+  };
 </script>
 
 <style>

@@ -3,6 +3,7 @@
 - hover, active styles
 - create token
 - typescript
+- store tokens
 
 - down arrow ui
 - select overlay

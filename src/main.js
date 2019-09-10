@@ -13,8 +13,8 @@ const app = new App({
   props: {
     orientation: "horizontal", // horizontal, vertical
     theme: "light", // light, dark
-    prefetch: true,
-    colors: {}
+    colors: {},
+    prefetch: true
   }
 });
 

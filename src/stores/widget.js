@@ -1,19 +1,27 @@
 import { writable, derived } from "svelte/store";
-import { tokens } from "./registry";
+import { tokens as tokensMap } from "./registry";
 
-const unselect = (tokens, token) => {
+const toItems = tokens => {
+  return Array.from(tokens.values()).map(token => ({
+    value: token.address,
+    label: token.name
+  }));
+};
+
+const pluck = (tokens, token) => {
   return derived([tokens, token], ([tokens, token]) => {
-    const arr = Array.from(tokens.values());
-    if (!token) return arr;
+    if (token) {
+      tokens.delete(token.address);
+    }
 
-    return arr.filter(_token => _token.address !== token.address);
+    return toItems(tokens);
   });
 };
 
-const tokenA = writable(null);
-const tokensA = unselect(tokens, tokenA);
+const tokenA = writable(undefined);
+const tokenB = writable(undefined);
 
-const tokenB = writable(null);
-const tokensB = unselect(tokens, tokenB);
+const tokensA = pluck(tokensMap, tokenB);
+const tokensB = pluck(tokensMap, tokenA);
 
 export { tokenA, tokensA, tokenB, tokensB };
