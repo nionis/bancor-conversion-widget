@@ -19,9 +19,9 @@
     ]
   },
   "dependencies": {
-    "ethjs": "^0.4.0",
     "svelte-icons": "^1.1.0",
-    "svelte-select": "^3.0.0"
+    "svelte-select": "^3.0.0",
+    "web3x-es": "^4.0.4"
   },
   "devDependencies": {
     "dom-testing-library": "^5.0.0",

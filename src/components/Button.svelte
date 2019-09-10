@@ -14,7 +14,7 @@
   // disable if onClick is not provided
   disabled = disabled || !onClick;
 
-  $: buttonStyle = `
+  let buttonStyle = `
     background-color: ${buttonBg};
     color: ${buttonFont};
     opacity: ${disabled ? 0.75 : 1};

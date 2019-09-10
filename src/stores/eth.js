@@ -1,4 +1,5 @@
-import Eth from "ethjs";
+import { Eth } from "web3x-es/eth";
+import { LegacyProviderAdapter } from "web3x-es/providers";
 import { writable, derived, get } from "svelte/store";
 
 const eth = writable(null);
@@ -8,8 +9,34 @@ const account = writable(null);
 const networkId = writable(null);
 const isLoggedIn = derived(account, v => !!v);
 
-const accept = () => {
-  return new Promise(resolve => {
+const getEth = async () => {
+  let _eth = null;
+
+  if (window.ethereum) {
+    console.log(`Injected ethereum detected.`);
+    _eth = new Eth(new LegacyProviderAdapter(window.ethereum));
+  } else if (window.web3) {
+    console.log(`Injected web3 detected.`);
+    _eth = new Eth(new LegacyProviderAdapter(window.web3.currentProvider));
+  }
+
+  if (_eth) {
+    eth.update(() => _eth);
+    installed.update(() => true);
+  }
+
+  return _eth;
+};
+
+const getNetworkId = async () => {
+  const _eth = get(eth);
+  if (!_eth) return null;
+
+  return _eth.getId();
+};
+
+const getAccept = async () => {
+  const _accepted = await new Promise(resolve => {
     if (window.ethereum) {
       console.log("Requesting accept.");
 
@@ -30,54 +57,30 @@ const accept = () => {
 
     resolve(true);
   });
-};
 
-const getEthFromWindow = async () => {
-  let _eth = null;
+  if (_accepted) accepted.update(() => _accepted);
 
-  if (window.ethereum) {
-    console.log(`Injected ethereum detected.`);
-    _eth = new Eth(window.ethereum);
-  } else if (window.web3) {
-    console.log(`Injected web3 detected.`);
-    _eth = new Eth(window.web3.currentProvider);
-  }
-
-  return _eth;
+  return _accepted;
 };
 
 const getAccount = async () => {
-  const accounts = (await get(eth).accounts()) || [];
+  const accounts = (await get(eth).eth.getAccounts()) || [];
 
   return accounts[0] || null;
 };
 
-const getNetworkId = async () => {
-  const networkId = get(eth).currentProvider.networkVersion;
-
-  return networkId;
-};
-
 const sync = async () => {
-  const _account = await getAccount();
-  account.update(() => _account);
-
   const _networkId = await getNetworkId();
   networkId.update(() => _networkId);
+
+  if (get(accepted)) {
+    const _account = await getAccount();
+    account.update(() => _account);
+  }
 };
 
 const init = async () => {
-  const [_eth, _accepted] = await Promise.all([getEthFromWindow(), accept()]);
-
-  if (_eth) {
-    eth.update(() => _eth);
-    installed.update(() => true);
-  }
-
-  if (_accepted) {
-    accepted.update(() => true);
-  }
-
+  const _eth = await getEth();
   await sync();
 
   if (window.ethereum) {
@@ -91,6 +94,17 @@ const init = async () => {
   } else {
     setInterval(sync, 1e3);
   }
+
+  return _eth;
 };
 
-export { eth, installed, accepted, account, networkId, isLoggedIn, init };
+export {
+  eth,
+  installed,
+  accepted,
+  account,
+  networkId,
+  isLoggedIn,
+  init,
+  getAccept
+};

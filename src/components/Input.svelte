@@ -1,5 +1,8 @@
 <script>
+  import { createEventDispatcher } from "svelte";
+  import { get } from "svelte/store";
   import Select from "svelte-select";
+  import Icon from "./Icon.svelte";
   import MdArrowDropDown from "svelte-icons/md/MdArrowDropDown.svelte";
   import { lightTheme } from "../utils/Colors";
 
@@ -7,7 +10,7 @@
   export let orientation = "horizontal";
   export let disabled = false;
   export let text = "";
-  export let items = ["BTC", "ETH", "BNC"];
+  export let tokens = [];
 
   const {
     inputBg = lightTheme.inputBg,
@@ -19,10 +22,13 @@
     selectArrow = lightTheme.selectArrow
   } = colors;
 
+  const dispatch = createEventDispatcher();
   let selectOpen = false;
+  let index = 0;
   let number = 0;
-  let src = "https://www.bancor.network/static/images/og_image.jpg";
-  let selected = "ETH";
+
+  $: items = $tokens.map(token => token.name);
+  $: selected = $tokens[index] || {};
 
   $: inputContainerStyle = `
     border: ${inputBorder} solid 1px;
@@ -66,7 +72,7 @@
 
   const onSelect = e => {
     selectOpen = false;
-    selected = items[e.detail.index];
+    index = e.detail.index;
   };
 </script>
 
@@ -174,6 +180,7 @@
     <div class="selectContainer" style={selectContainerStyle}>
       <Select
         {items}
+        optionIdentifier="name"
         containerStyles={selectStyle}
         listOpen={selectOpen}
         isFocused={selectOpen}
@@ -191,10 +198,12 @@
       style={customSelectStyle}
       on:click={onSelectClick}>
       <div class="btn">
-        <img {src} alt="bancor logo" />
-        <div style="color: {selectFont};">{selected}</div>
+        <img src={selected.img} alt="bancor logo" />
+        <div style="color: {selectFont};">{selected.symbol}</div>
         <div class="selectArrowContainer" style={selectArrowStyle}>
-          <MdArrowDropDown />
+          <Icon color={colors.selectArrow} size="100%">
+            <MdArrowDropDown />
+          </Icon>
         </div>
       </div>
     </div>

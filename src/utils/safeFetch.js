@@ -1,4 +1,4 @@
-const safeFetch = (...args) => {
+const safeFetch = async (...args) => {
   return fetch(...args).then(res => {
     if (res.ok) {
       return res.json();

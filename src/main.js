@@ -1,6 +1,7 @@
 import App from "./App.svelte";
-// export { default as App } from "./App.svelte";
 
+// custom element
+// export { default as App } from "./App.svelte";
 // *****************************************
 // * Notice that the component is not instantiated and mounted to the document <body className="">
 // * Since the compiler is creating a custom element, we instead define and use the custom element
@@ -12,6 +13,7 @@ const app = new App({
   props: {
     orientation: "horizontal", // horizontal, vertical
     theme: "light", // light, dark
+    prefetch: true,
     colors: {}
   }
 });

@@ -1,5 +1,10 @@
 <script>
-  import CompareArrows from "./components/CompareArrows.svelte";
+  import { onMount } from "svelte";
+  import MdCompareArrows from "svelte-icons/md/MdCompareArrows.svelte";
+  import * as ethStore from "./stores/eth";
+  import { init as registryInit, tokens as tokensMap } from "./stores/registry";
+  import { tokenA, tokensA, tokenB, tokensB } from "./stores/widget.js";
+  import Icon from "./components/Icon.svelte";
   import Button from "./components/Button.svelte";
   import Input from "./components/Input.svelte";
   import Colors from "./utils/Colors.js";
@@ -7,6 +12,7 @@
   export let orientation = "horizontal";
   export let theme = "light";
   export let colors = {};
+  export let prefetch = true;
 
   colors = Colors(theme, colors);
 
@@ -20,6 +26,14 @@
     background-color: ${colors.containerBg};
     border: ${colors.containerBorder} solid 1px;
   `;
+
+  onMount(async () => {
+    const eth = await ethStore.init();
+
+    if (prefetch) {
+      registryInit(eth);
+    }
+  });
 </script>
 
 <style>
@@ -68,13 +82,15 @@ We also have to include the "customElement: true" compiler setting in rollup con
 
 <div class="container {orientation}" style={backgroundStyle}>
   <div class={alignInputs}>
-    <Input {orientation} {colors} text="SEND" />
+    <Input {orientation} {colors} tokens={tokensA} text="SEND" />
   </div>
   <div class={arrowsContainer}>
-    <CompareArrows {orientation} {colors} />
+    <Icon {orientation} color={colors.compareArrows}>
+      <MdCompareArrows />
+    </Icon>
   </div>
   <div class={alignInputs}>
-    <Input {orientation} {colors} text="RECEIVE" />
+    <Input {orientation} {colors} tokens={tokensB} text="RECEIVE" />
   </div>
   <Button {colors}>Convert</Button>
 </div>
