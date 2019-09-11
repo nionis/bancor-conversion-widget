@@ -1,19 +1,19 @@
 <script>
   import cssVars from "svelte-css-vars";
+  import Required from "../utils/Required";
 
-  export let backgroundColor = "white";
-  export let hoverColor = "lightgray";
-  export let fontColor = "black";
+  export let item = Required("item");
+  export let tokens = Required("tokens");
+  export let backgroundColor = Required("backgroundColor");
+  export let hoverColor = Required("hoverColor");
+  export let fontColor = Required("fontColor");
+
+  const token = tokens.get(item.value);
 
   $: backgroundColors = {
     backgroundColor,
     hoverColor,
     fontColor
-  };
-
-  let token = {
-    img: "https://www.bancor.network/static/images/og_image.jpg",
-    name: "Ethereum"
   };
 </script>
 
@@ -28,11 +28,13 @@
     display: flex;
     color: var(--fontColor);
   }
+
   img {
     border-radius: 50px;
     height: 30px;
     margin: 10px;
   }
+
   .container:hover {
     background-color: var(--hoverColor);
   }

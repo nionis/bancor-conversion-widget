@@ -7,22 +7,15 @@ import {
   nonStandardTokenRegistry
 } from "./registry";
 
-const toItems = tokens => {
-  return Array.from(tokens.values()).map(token => ({
-    value: token.address,
-    label: token.name
-  }));
-};
-
 const derivedPluck = (tokens, token) => {
   return derived([tokens, token], ([tokens, token]) => {
-    tokens = new Map(tokens);
+    const newTokens = new Map(tokens);
 
     if (token) {
-      tokens.delete(token.address);
+      newTokens.delete(token.address);
     }
 
-    return toItems(tokens);
+    return newTokens;
   });
 };
 

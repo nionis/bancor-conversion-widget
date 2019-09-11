@@ -9,15 +9,21 @@
   export let fontColor = Required("fontColor");
   export let borderColor = Required("borderColor");
   export let hoverBackgroundColor = Required("hoverBackgroundColor");
+  export let tokens = Required("tokens");
   export let open = false;
-  export let items = [];
+
+  $: items = Array.from(tokens.values()).map(token => ({
+    value: token.address,
+    label: token.name
+  }));
 
   class Item extends SelectItem {
     constructor(ops) {
       super({
         ...ops,
         props: {
-          ...ops.props,
+          item: ops.props.item,
+          tokens,
           backgroundColor: listBgColor,
           hoverColor: hoverBackgroundColor,
           fontColor
@@ -38,7 +44,7 @@
     color: ${fontColor};
     border-radius: 5px;
     border: ${borderColor} solid 1px;
-        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
     background: ${listBgColor};
     --inputColor: ${fontColor};
     --placeholderColor: ${fontColor};
@@ -49,7 +55,6 @@
     --itemIsActiveColor: ${fontColor};
     --clearSelectColor: ${fontColor};
     --clearSelectHoverColor: ${fontColor};
-
   `;
 </script>
 

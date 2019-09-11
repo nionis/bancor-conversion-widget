@@ -3,3 +3,4 @@
 - create token
 - typescript
 - faster token load
+- on unfocus -> show OpenSelect

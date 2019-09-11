@@ -9,7 +9,7 @@
   export let orientation = Required("orientation");
   export let colors = Required("colors");
   export let text = Required("text");
-  export let tokens = Required("items");
+  export let tokens = Required("tokens");
   export let loading = false;
   export let open = false;
   export let selectedToken = {
@@ -43,7 +43,7 @@
     </NumberInput>
   {:else}
     <Select
-      items={tokens}
+      {tokens}
       bgColor={colors.selectBg}
       fontColor={colors.selectFont}
       borderColor={colors.inputBorder}
