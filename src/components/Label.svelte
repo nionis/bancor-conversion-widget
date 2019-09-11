@@ -15,10 +15,18 @@
 
   .horizontal {
     flex-direction: column;
+    padding-bottom: 18px;
   }
 
   .vertical {
     flex-direction: row;
+    width: 100%;
+    text-align: center;
+    justify-content: flex-start;
+  }
+
+  .vertical > span {
+    width: 140px;
   }
 </style>
 

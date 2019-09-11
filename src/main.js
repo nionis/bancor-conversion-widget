@@ -11,7 +11,7 @@ import App from "./App.svelte";
 const app = new App({
   target: document.body,
   props: {
-    orientation: "horizontal", // horizontal, vertical
+    orientation: "vertical", // horizontal, vertical
     theme: "light", // light, dark
     colors: {},
     prefetch: true

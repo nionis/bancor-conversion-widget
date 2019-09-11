@@ -7,6 +7,7 @@
   export let bgColor = Required("bgColor");
   export let fontColor = Required("fontColor");
   export let borderColor = Required("borderColor");
+  export let hoverBackgroundColor = Required("hoverBackgroundColor");
   export let open = false;
   export let items = [];
 
@@ -17,6 +18,16 @@
     elem.$$.ctx.container.click();
   });
 
+  //   --inputColor: ${fontColor};
+  // --placeholderColor: ${fontColor};
+  // --listBackground: ${listBgColor};
+  // --itemActiveBackground: ${bgColor};
+  // --itemHoverBG: ${bgColor};
+  // --itemIsActiveBG: ${bgColor};
+  // --itemIsActiveColor: ${fontColor};
+  // --clearSelectColor: ${fontColor};
+  // --clearSelectHoverColor: ${fontColor};
+
   const style = `
     width: 236px;
     color: ${fontColor};
@@ -26,12 +37,13 @@
     --inputColor: ${fontColor};
     --placeholderColor: ${fontColor};
     --listBackground: ${listBgColor};
-    --itemActiveBackground: ${bgColor};
-    --itemHoverBG: ${bgColor};
-    --itemIsActiveBG: ${bgColor};
+    --itemActiveBackground: ${listBgColor};
+    --itemHoverBG: ${hoverBackgroundColor};
+    --itemIsActiveBG: ${listBgColor};
     --itemIsActiveColor: ${fontColor};
     --clearSelectColor: ${fontColor};
     --clearSelectHoverColor: ${fontColor};
+    
   `;
 </script>
 

@@ -26,6 +26,7 @@
 <style>
   .vertical {
     transform: rotate(-90deg);
+    margin-left: 100px;
   }
 </style>
 

@@ -17,6 +17,17 @@
     img: ""
   };
 
+  tokens = [
+    {
+      value: 1,
+      label: "btn"
+    },
+    {
+      value: 2,
+      label: "eth"
+    }
+  ];
+
   const dispatch = createEventDispatcher();
 
   const onSelect = e => {
@@ -44,9 +55,10 @@
       items={tokens}
       bgColor={colors.selectBg}
       fontColor={colors.selectFont}
-      borderColor={colors.selectBorder}
+      borderColor={colors.inputBorder}
       listBgColor={colors.inputBg}
-      on:select={onSelect}
-      {open} />
+      hoverBackgroundColor={colors.selectBg}
+      {open}
+      on:select={onSelect} />
   {/if}
 </Label>
