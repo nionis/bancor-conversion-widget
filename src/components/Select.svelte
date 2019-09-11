@@ -33,6 +33,7 @@
     color: ${fontColor};
     border-radius: 5px;
     border: ${borderColor} solid 1px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
     background: ${listBgColor};
     --inputColor: ${fontColor};
     --placeholderColor: ${fontColor};
@@ -43,7 +44,7 @@
     --itemIsActiveColor: ${fontColor};
     --clearSelectColor: ${fontColor};
     --clearSelectHoverColor: ${fontColor};
-    
+
   `;
 </script>
 
