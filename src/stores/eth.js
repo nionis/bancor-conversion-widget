@@ -58,13 +58,16 @@ const getAccept = async () => {
     resolve(true);
   });
 
-  if (_accepted) accepted.update(() => _accepted);
+  if (_accepted) {
+    accepted.update(() => _accepted);
+    await sync();
+  }
 
   return _accepted;
 };
 
 const getAccount = async () => {
-  const accounts = (await get(eth).eth.getAccounts()) || [];
+  const accounts = (await get(eth).getAccounts()) || [];
 
   return accounts[0] || undefined;
 };

@@ -4,7 +4,13 @@
   import MdCompareArrows from "svelte-icons/md/MdCompareArrows.svelte";
   import * as ethStore from "./stores/eth";
   import { init as registryInit, tokens as tokensMap } from "./stores/registry";
-  import { tokenA, tokensA, tokenB, tokensB } from "./stores/widget.js";
+  import {
+    tokenA,
+    tokensA,
+    tokenB,
+    tokensB,
+    convert
+  } from "./stores/widget.js";
   import Icon from "./components/Icon.svelte";
   import Button from "./components/Button.svelte";
   import Token from "./components/Token.svelte";
@@ -41,6 +47,10 @@
 
     tokenA.update(() => _tokenB);
     tokenB.update(() => _tokenA);
+  };
+
+  const onConvert = e => {
+    convert();
   };
 </script>
 
@@ -86,7 +96,8 @@
   <Button
     bgColor={colors.buttonBg}
     fontColor={colors.buttonFont}
-    borderColor={colors.buttonBorder}>
+    borderColor={colors.buttonBorder}
+    on:click={onConvert}>
     Convert
   </Button>
 </div>
