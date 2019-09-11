@@ -17,17 +17,6 @@
     img: ""
   };
 
-  tokens = [
-    {
-      value: 1,
-      label: "btn"
-    },
-    {
-      value: 2,
-      label: "eth"
-    }
-  ];
-
   const dispatch = createEventDispatcher();
 
   const onSelect = e => {
