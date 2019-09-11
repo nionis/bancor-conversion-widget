@@ -8,7 +8,7 @@ const toItems = tokens => {
   }));
 };
 
-const pluck = (tokens, token) => {
+const derivedPluck = (tokens, token) => {
   return derived([tokens, token], ([tokens, token]) => {
     if (token) {
       tokens.delete(token.address);
@@ -20,8 +20,7 @@ const pluck = (tokens, token) => {
 
 const tokenA = writable(undefined);
 const tokenB = writable(undefined);
-
-const tokensA = pluck(tokensMap, tokenB);
-const tokensB = pluck(tokensMap, tokenA);
+const tokensA = derivedPluck(tokensMap, tokenB);
+const tokensB = derivedPluck(tokensMap, tokenA);
 
 export { tokenA, tokensA, tokenB, tokensB };

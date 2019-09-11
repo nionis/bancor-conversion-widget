@@ -13,7 +13,7 @@
   let elem;
 
   onMount(() => {
-    // open select
+    // focus select
     elem.$$.ctx.container.click();
   });
 

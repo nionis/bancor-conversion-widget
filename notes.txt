@@ -1,9 +1,7 @@
+- polish UI
 - convert
 - use with vanilla, react, vue
 - hover, active styles
 - create token
 - typescript
 - store tokens
-
-- down arrow ui
-- select overlay
