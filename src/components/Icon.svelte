@@ -28,6 +28,9 @@
     transform: rotate(-90deg);
     margin-left: 100px;
   }
+  div:hover {
+    opacity: 0.7 !important;
+  }
 </style>
 
 <div class={orientation} style={iconStyle} on:click={onClick}>

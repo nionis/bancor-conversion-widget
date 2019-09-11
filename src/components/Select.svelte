@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import Select from "svelte-select";
   import Required from "../utils/Required";
+  import SelectItem from "./SelectItem.svelte";
 
   export let listBgColor = Required("listBgColor");
   export let bgColor = Required("bgColor");
@@ -11,22 +12,26 @@
   export let open = false;
   export let items = [];
 
+  class Item extends SelectItem {
+    constructor(ops) {
+      super({
+        ...ops,
+        props: {
+          ...ops.props,
+          backgroundColor: listBgColor,
+          hoverColor: hoverBackgroundColor,
+          fontColor
+        }
+      });
+    }
+  }
+
   let elem;
 
   onMount(() => {
     // focus select
     elem.$$.ctx.container.click();
   });
-
-  //   --inputColor: ${fontColor};
-  // --placeholderColor: ${fontColor};
-  // --listBackground: ${listBgColor};
-  // --itemActiveBackground: ${bgColor};
-  // --itemHoverBG: ${bgColor};
-  // --itemIsActiveBG: ${bgColor};
-  // --itemIsActiveColor: ${fontColor};
-  // --clearSelectColor: ${fontColor};
-  // --clearSelectHoverColor: ${fontColor};
 
   const style = `
     width: 236px;
@@ -54,4 +59,5 @@
   listOpen={open}
   isFocused={open}
   bind:this={elem}
+  {Item}
   on:select />

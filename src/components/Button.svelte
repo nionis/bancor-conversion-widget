@@ -36,6 +36,9 @@
     padding-top: 1px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
   }
+  div:hover {
+    opacity: 0.8 !important;
+  }
 </style>
 
 <div on:click={onClick} style={buttonStyle}>

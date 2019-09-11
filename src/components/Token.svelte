@@ -10,6 +10,7 @@
   export let colors = Required("colors");
   export let text = Required("text");
   export let tokens = Required("items");
+  export let loading = false;
   export let open = false;
   export let selectedToken = {
     name: "?",
@@ -37,6 +38,7 @@
         borderColor={colors.selectBorder}
         arrowColor={colors.selectArrow}
         token={selectedToken}
+        {loading}
         on:click={() => (open = true)} />
     </NumberInput>
   {:else}
