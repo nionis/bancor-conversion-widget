@@ -6,24 +6,36 @@ import builtins from "rollup-plugin-node-builtins";
 import globals from "rollup-plugin-node-globals";
 import livereload from "rollup-plugin-livereload";
 import { terser } from "rollup-plugin-terser";
+import pkg from "./package.json";
 
 const production = !process.env.ROLLUP_WATCH;
 
+const name = pkg.name
+  .replace(/^(@\S+\/)?(svelte-)?(\S+)/, "$3")
+  .replace(/^\w/, m => m.toUpperCase())
+  .replace(/-\w/g, m => m[1].toUpperCase());
+
 export default {
-  input: "src/main.js",
-  output: {
-    sourcemap: !production,
-    format: "iife",
-    name: "app",
-    file: "public/bundle.js"
-  },
+  input: "src/index.svelte",
+  output: production
+    ? [
+        { file: pkg.module, format: "es" },
+        { file: pkg.main, format: "umd", name }
+      ]
+    : [
+        {
+          sourcemap: !production,
+          format: "iife",
+          name,
+          file: "example/bundle.js"
+        }
+      ],
   plugins: [
     json(),
 
     svelte({
       dev: !production,
-      // Tell the compiler to output a custom element.
-      customElement: false
+      customElement: false // TODO: gotta try this once react supports custom components fully
     }),
 
     resolve({
@@ -44,7 +56,7 @@ export default {
     globals(),
 
     // Enable live reloading in development mode
-    !production && livereload("public"),
+    !production && livereload("example"),
 
     // Minify the production build (npm run build)
     production && terser()

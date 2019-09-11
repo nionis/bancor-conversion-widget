@@ -1,13 +1,16 @@
 {
   "name": "bancor-conversion-widget",
+  "svelte": "src/index.svelte",
+  "module": "index.mjs",
+  "main": "index.js",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
     "build": "rollup -c",
     "autobuild": "rollup -c -w",
     "dev": "run-p start:dev autobuild",
-    "start": "sirv public",
-    "start:dev": "sirv public --dev",
+    "start": "sirv example",
+    "start:dev": "sirv example --dev",
     "test": "jest"
   },
   "jest": {
