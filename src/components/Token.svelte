@@ -12,17 +12,29 @@
   export let tokens = Required("tokens");
   export let value = Required("value");
   export let loading = false;
-  export let open = false;
   export let selectedToken = {
     name: "?",
     symbol: "?",
     img: ""
   };
 
+  let open = false;
+
   const dispatch = createEventDispatcher();
 
-  const onSelect = e => {
+  const onOpen = () => {
+    console.log("open");
+    open = true;
+  };
+
+  const onClose = () => {
+    console.log("close");
     open = false;
+  };
+
+  const onSelect = e => {
+    console.log("select");
+    onClose();
     dispatch("select", e.detail);
   };
 </script>
@@ -42,7 +54,7 @@
         arrowColor={colors.selectArrow}
         token={selectedToken}
         {loading}
-        on:click={() => (open = true)} />
+        on:click={onOpen} />
     </NumberInput>
   {:else}
     <Select
@@ -52,7 +64,7 @@
       borderColor={colors.inputBorder}
       listBgColor={colors.inputBg}
       hoverBackgroundColor={colors.selectBg}
-      {open}
+      on:blur={onClose}
       on:select={onSelect} />
   {/if}
 </Label>

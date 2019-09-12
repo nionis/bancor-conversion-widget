@@ -1,5 +1,5 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, createEventDispatcher } from "svelte";
   import Select from "svelte-select";
   import Required from "../utils/Required";
   import SelectItem from "./SelectItem.svelte";
@@ -10,12 +10,9 @@
   export let borderColor = Required("borderColor");
   export let hoverBackgroundColor = Required("hoverBackgroundColor");
   export let tokens = Required("tokens");
-  export let open = false;
+  export let open = true;
 
-  $: items = Array.from(tokens.values()).map(token => ({
-    value: token.address,
-    label: token.name
-  }));
+  const dispatch = createEventDispatcher();
 
   class Item extends SelectItem {
     constructor(ops) {
@@ -32,12 +29,29 @@
     }
   }
 
-  let elem;
+  $: items = Array.from(tokens.values()).map(token => ({
+    value: token.address,
+    label: token.name
+  }));
 
-  onMount(() => {
-    // focus select
-    elem.$$.ctx.container.click();
-  });
+  let elem;
+  let firstTime = true;
+
+  $: {
+    const listExists = elem && !elem.$$.ctx.container.querySelector("div");
+
+    if (firstTime && !open && listExists) {
+      elem.$$.ctx.container.click();
+      firstTime = false;
+      dispatch("focus");
+    } else if (!open && listExists) {
+      dispatch("blur");
+    } else if (!open && !listExists) {
+      elem.$$.ctx.container.click();
+    } else {
+      dispatch("focus");
+    }
+  }
 
   const style = `
     width: 236px;
@@ -60,9 +74,9 @@
 
 <Select
   {items}
-  containerStyles={style}
-  listOpen={open}
-  isFocused={open}
-  bind:this={elem}
   {Item}
+  containerStyles={style}
+  bind:this={elem}
+  bind:listOpen={open}
+  placeholder="Search name, symbol"
   on:select />
