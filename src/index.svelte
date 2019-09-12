@@ -1,14 +1,15 @@
 <script>
   import { onMount } from "svelte";
-  import { get } from "svelte/store";
+  import { derived, get } from "svelte/store";
   import MdCompareArrows from "svelte-icons/md/MdCompareArrows.svelte";
   import * as ethStore from "./stores/eth";
   import { init as registryInit, tokens as tokensMap } from "./stores/registry";
   import {
-    tokenA,
+    loading as widgetLoading,
+    tokenA as selectedTokenA,
     tokenAInput,
     tokensA,
-    tokenB,
+    tokenB as selectedTokenB,
     tokenBInput,
     tokensB,
     convert
@@ -23,6 +24,8 @@
   export let theme = "light";
   export let colors = {};
   export let prefetch = true;
+  export let tokenA = "ETH";
+  export let tokenB = "BNT";
 
   colors = Colors(theme, colors);
 
@@ -39,6 +42,26 @@
     }
   });
 
+  const gettingSelectedTokens = derived(tokensMap, _tokensMap => {
+    const tokens = Array.from(_tokensMap.values());
+
+    const foundA = tokens.find(t => t.symbol === tokenA);
+    const foundB = tokens.find(t => t.symbol === tokenB);
+
+    if (foundA) {
+      selectedTokenA.update(() => foundA);
+    }
+    if (foundB) {
+      selectedTokenB.update(() => foundB);
+    }
+
+    return !(foundA && foundB);
+  });
+
+  const loading = derived([gettingSelectedTokens, widgetLoading], ([a, b]) => {
+    return a || b;
+  });
+
   const OnSelect = token => e => {
     token.update(() => $tokensMap.get(e.detail.value));
   };
@@ -48,11 +71,11 @@
   };
 
   const onSwap = () => {
-    const _tokenA = $tokenA;
-    const _tokenB = $tokenB;
+    const _selectedTokenA = $selectedTokenA;
+    const _selectedTokenB = $selectedTokenB;
 
-    tokenA.update(() => _tokenB);
-    tokenB.update(() => _tokenA);
+    selectedTokenA.update(() => _selectedTokenB);
+    selectedTokenB.update(() => _selectedTokenA);
   };
 
   const onConvert = e => {
@@ -87,11 +110,17 @@
     {colors}
     text="SEND"
     tokens={$tokensA}
-    selectedToken={$tokenA}
-    on:select={OnSelect(tokenA)}
+    selectedToken={$selectedTokenA}
+    loading={$loading}
+    disabled={$loading}
+    on:select={OnSelect(selectedTokenA)}
     value={$tokenAInput}
     on:change={OnChange(tokenAInput)} />
-  <Icon {orientation} color={colors.compareArrows} on:click={onSwap}>
+  <Icon
+    {orientation}
+    color={colors.compareArrows}
+    on:click={onSwap}
+    disabled={$loading}>
     <MdCompareArrows />
   </Icon>
   <Token
@@ -99,15 +128,18 @@
     {colors}
     text="RECEIVE"
     tokens={$tokensB}
-    selectedToken={$tokenB}
-    on:select={OnSelect(tokenB)}
+    selectedToken={$selectedTokenB}
+    loading={$loading}
+    disabled={$loading}
+    on:select={OnSelect(selectedTokenB)}
     value={$tokenBInput}
     on:change={OnChange(tokenBInput)} />
   <Button
     bgColor={colors.buttonBg}
     fontColor={colors.buttonFont}
     borderColor={colors.buttonBorder}
-    on:click={onConvert}>
+    on:click={onConvert}
+    disabled={$loading}>
     Convert
   </Button>
 </div>

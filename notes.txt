@@ -1,7 +1,10 @@
 - convert
+- loading tokens error
 - resize
 - lazy load web3x-es?
 - faster token load
+- cleanup
+- select search
 - typescript
 - create token
 - create readme

@@ -53,7 +53,7 @@
     }
   }
 
-  const style = `
+  $: style = `
     width: 236px;
     color: ${fontColor};
     border-radius: 5px;

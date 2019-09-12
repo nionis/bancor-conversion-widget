@@ -1,18 +1,21 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import useCssVars from "svelte-css-vars";
   import Required from "../utils/Required";
+  import { Cursor, Opacity } from "../utils/Colors.js";
 
   export let color = Required("color");
   export let orientation = Required("orientation");
   export let size = "40px";
   export let disabled = false;
 
-  const iconStyle = `
-    width: ${size};
-    height: ${size};
-    color: ${color};
-    cursor: ${disabled ? "default" : "pointer"};
-  `;
+  $: cssVars = {
+    color,
+    size,
+    cursor: Cursor({ disabled }),
+    opacity: Opacity({ disabled }),
+    opacityHover: Opacity({ hover: true })
+  };
 
   const dispatch = createEventDispatcher();
 
@@ -24,15 +27,24 @@
 </script>
 
 <style>
+  div {
+    color: var(--color);
+    width: var(--size);
+    height: var(--size);
+    cursor: var(--cursor);
+    opacity: var(--opacity);
+  }
+
+  div:hover {
+    opacity: var(--opacityHover) !important;
+  }
+
   .vertical {
     transform: rotate(-90deg);
     margin-left: 100px;
   }
-  div:hover {
-    opacity: 0.7 !important;
-  }
 </style>
 
-<div class={orientation} style={iconStyle} on:click={onClick}>
+<div class={orientation} on:click={onClick} use:useCssVars={cssVars}>
   <slot />
 </div>

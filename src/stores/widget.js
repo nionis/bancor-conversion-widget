@@ -15,6 +15,7 @@ const derivedPluck = (tokens, token) => {
   });
 };
 
+const loading = writable(false);
 const tokenA = writable(undefined);
 const tokenAInput = writable("0");
 const tokenB = writable(undefined);
@@ -54,16 +55,16 @@ const path = derived([tokenA, tokenB], ([_tokenA, _tokenB]) => {
   }
 });
 
-const updateInputs = ({ fromToken, fromInput, toToken, toInput }) => {
-  fromInput.subscribe(async sendAmount => {
+const updateInputs = ({ fromInput, toInput }) => {
+  return fromInput.subscribe(async sendAmount => {
     sendAmount = toWei(sendAmount, "ether");
 
     const _selected = get(pairsAreSelected);
     if (!_selected) return;
 
+    loading.update(() => true);
+
     const _bancorNetwork = get(bancorNetwork);
-    const _fromToken = get(fromToken);
-    const _toToken = get(toToken);
 
     const { receiveAmount, fee } = await _bancorNetwork.methods
       .getReturnByPath(get(path), sendAmount)
@@ -74,15 +75,18 @@ const updateInputs = ({ fromToken, fromInput, toToken, toInput }) => {
       }));
 
     toInput.update(() => fromWei(receiveAmount, "ether"));
+    loading.update(() => false);
   });
 };
 
 updateInputs({
-  fromToken: tokenA,
   fromInput: tokenAInput,
-  toToken: tokenB,
   toInput: tokenBInput
 });
+// updateInputs({
+//   fromInput: tokenBInput,
+//   toInput: tokenAInput
+// });
 
 const convert = async (amount = "1") => {
   amount = toWei(amount, "ether");
@@ -109,12 +113,19 @@ const convert = async (amount = "1") => {
 
   const _bancorNetwork = get(bancorNetwork);
 
-  return _bancorNetwork.methods
-    .convert([_tokenA.address, _tokenB.address, _tokenB.address], amount, 1)
-    .send({
-      from: _account,
-      value: tokenAIsEth ? amount : 0
-    });
+  return _bancorNetwork.methods.convert(get(path), amount, 1).send({
+    from: _account,
+    value: tokenAIsEth ? amount : 0
+  });
 };
 
-export { tokenAInput, tokenA, tokensA, tokenB, tokenBInput, tokensB, convert };
+export {
+  loading,
+  tokenAInput,
+  tokenA,
+  tokensA,
+  tokenB,
+  tokenBInput,
+  tokensB,
+  convert
+};

@@ -4,6 +4,7 @@ import { networkId } from "./eth";
 import safeFetch from "../utils/safeFetch";
 import Contract from "../utils/Contract";
 import { addresses } from "../env";
+import * as tokenLoader from "./tokenLoader";
 
 const contractRegistry = writable(undefined);
 const converterRegistry = writable(undefined);
@@ -36,13 +37,13 @@ const getTokenData = async (eth, address) => {
 
   const tokenConverterCount = await _converter.methods
     .converterCount(address)
-    .call()
-    .then(r => Number(r));
+    .call();
 
-  if (tokenConverterCount > 0) {
+  if (Number(tokenConverterCount) > 0) {
     const tokenConverterAddress = await _converter.methods
-      .converterAddress(address, String(tokenConverterCount - 1))
-      .call();
+      .converterAddress(address, String(Number(tokenConverterCount) - 1))
+      .call()
+      .then(res => bufferToHex(res.buffer));
 
     const tokenConverter = await Contract(
       eth,
@@ -119,15 +120,6 @@ const init = async eth => {
       .then(res => bufferToHex(res.buffer))
   ]);
 
-  console.log({
-    ContractRegistry: _contractRegistry.address,
-    ConverterRegistry: _converterRegistry.address,
-    BancorNetworkAddr,
-    BNTTokenAddr,
-    BNTConverterAddr,
-    NonStandardTokenRegistryAddr
-  });
-
   const _bancorNetwork = await Contract(
     eth,
     "BancorNetwork",
@@ -175,10 +167,15 @@ const init = async eth => {
   // add bnt connectors
   const tokenCount = await _converterRegistry.methods.tokenCount().call();
 
+  // tokenLoader.init({
+  //   count: tokenCount,
+  //   converterRegistry: _converterRegistry
+  // });
+
   let i = Number(tokenCount);
   while (--i >= 0) {
     const tokenAddress = await _converterRegistry.methods
-      .tokens(i)
+      .tokens(String(i))
       .call()
       .then(res => bufferToHex(res.buffer));
 

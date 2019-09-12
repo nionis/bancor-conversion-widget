@@ -22,6 +22,7 @@
     ]
   },
   "dependencies": {
+    "lodash": "^4.17.15",
     "svelte-css-vars": "0.0.1",
     "svelte-icons": "^1.1.0",
     "svelte-select": "^3.0.0",

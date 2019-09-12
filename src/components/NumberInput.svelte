@@ -1,20 +1,29 @@
 <script>
+  import useCssVars from "svelte-css-vars";
   import Required from "../utils/Required";
+  import { Opacity } from "../utils/Colors.js";
 
   export let bgColor = Required("bgColor");
   export let fontColor = Required("fontColor");
   export let borderColor = Required("borderColor");
   export let value = Required("value");
+  export let disabled = false;
 
-  const containerStyle = `
-    background-color: ${bgColor};
-    border: ${borderColor} solid 1px;
-  `;
-
-  const inputStyle = `color: ${fontColor};`;
+  $: cssVars = {
+    bgColor,
+    opacity: Opacity({ disabled }),
+    borderColor,
+    fontColor
+  };
 </script>
 
 <style>
+  div {
+    background-color: var(--bgColor);
+    opacity: var(--opacity);
+    border: var(--borderColor) solid 1px;
+  }
+
   input {
     height: 41px;
     width: 175px;
@@ -24,6 +33,7 @@
     outline: none;
     background-color: transparent;
     text-align: center;
+    color: var(--fontColor);
   }
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
@@ -43,7 +53,7 @@
   }
 </style>
 
-<div class="container" style={containerStyle}>
-  <input type="number" style={inputStyle} min="0" {value} on:change />
+<div class="container" use:useCssVars={cssVars}>
+  <input type="number" min="0" {value} {disabled} on:change />
   <slot />
 </div>

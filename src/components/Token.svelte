@@ -12,6 +12,7 @@
   export let tokens = Required("tokens");
   export let value = Required("value");
   export let loading = false;
+  export let disabled = false;
   export let selectedToken = {
     name: "?",
     symbol: "?",
@@ -23,17 +24,14 @@
   const dispatch = createEventDispatcher();
 
   const onOpen = () => {
-    console.log("open");
     open = true;
   };
 
   const onClose = () => {
-    console.log("close");
     open = false;
   };
 
   const onSelect = e => {
-    console.log("select");
     onClose();
     dispatch("select", e.detail);
   };
@@ -46,6 +44,7 @@
       fontColor={colors.inputFont}
       borderColor={colors.inputBorder}
       {value}
+      {disabled}
       on:change>
       <OpenSelect
         bgColor={colors.selectBg}

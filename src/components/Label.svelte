@@ -1,12 +1,21 @@
 <script>
+  import useCssVars from "svelte-css-vars";
   import Required from "../utils/Required";
 
   export let orientation = Required("orientation");
   export let color = Required("color");
-  export let text = "";
+  export let text;
+
+  $: cssVars = {
+    spanColor: color
+  };
 </script>
 
 <style>
+  span {
+    color: var(--spanColor);
+  }
+
   .container {
     display: flex;
     align-items: center;
@@ -30,9 +39,9 @@
   }
 </style>
 
-<div class="container {orientation}">
+<div class="container {orientation}" use:useCssVars={cssVars}>
   {#if text}
-    <span style="color: {color};">{text}</span>
+    <span>{text}</span>
   {/if}
   <slot />
 </div>

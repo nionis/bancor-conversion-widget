@@ -1,5 +1,5 @@
 <script>
-  import cssVars from "svelte-css-vars";
+  import useCssVars from "svelte-css-vars";
   import Required from "../utils/Required";
 
   export let item = Required("item");
@@ -10,7 +10,7 @@
 
   const token = tokens.get(item.value);
 
-  $: backgroundColors = {
+  $: cssVars = {
     backgroundColor,
     hoverColor,
     fontColor
@@ -40,7 +40,7 @@
   }
 </style>
 
-<div class="container" use:cssVars={backgroundColors}>
+<div class="container" use:useCssVars={cssVars}>
   <img src={token.img} alt="{token.name} logo" />
   <div class="label">{token.name}</div>
 </div>

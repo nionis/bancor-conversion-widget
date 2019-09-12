@@ -1,19 +1,22 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import useCssVars from "svelte-css-vars";
   import Required from "../utils/Required";
+  import { Cursor, Opacity } from "../utils/Colors.js";
 
   export let bgColor = Required("bgColor");
   export let fontColor = Required("fontColor");
   export let borderColor = Required("borderColor");
   export let disabled = false;
 
-  const buttonStyle = `
-    color: ${fontColor};
-    background-color: ${bgColor};
-    opacity: ${disabled ? 0.75 : 1};
-    border: ${borderColor} solid 1px;
-    cursor: ${disabled ? "default" : "pointer"};
-  `;
+  $: cssVars = {
+    bgColor,
+    fontColor,
+    borderColor,
+    cursor: Cursor({ disabled }),
+    opacity: Opacity({ disabled }),
+    opacityHover: Opacity({ hover: true })
+  };
 
   const dispatch = createEventDispatcher();
 
@@ -35,12 +38,18 @@
     border-radius: 20px;
     padding-top: 1px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
+    color: var(--fontColor);
+    background-color: var(--bgColor);
+    opacity: var(--opacity);
+    border: var(--borderColor);
+    cursor: var(--cursor);
   }
+
   div:hover {
-    opacity: 0.8 !important;
+    opacity: var(--opacityHover) !important;
   }
 </style>
 
-<div on:click={onClick} style={buttonStyle}>
+<div on:click={onClick} use:useCssVars={cssVars}>
   <slot />
 </div>
