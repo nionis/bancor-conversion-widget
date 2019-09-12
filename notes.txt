@@ -1,5 +1,4 @@
 - convert
-- on unfocus -> show OpenSelect
 - resize
 - lazy load web3x-es?
 - faster token load

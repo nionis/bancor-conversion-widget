@@ -27,15 +27,42 @@ const getTokenImg = async symbol => {
 };
 
 const getTokenData = async (eth, address) => {
+  const _bancorNetwork = get(bancorNetwork);
+  const _bntToken = get(bntToken);
+  const _nonStandardTokenRegistry = get(nonStandardTokenRegistry);
+  const _converter = get(converterRegistry);
+
+  let relay = address;
+
+  const tokenConverterCount = await _converter.methods
+    .converterCount(address)
+    .call()
+    .then(r => Number(r));
+
+  if (tokenConverterCount > 0) {
+    const tokenConverterAddress = await _converter.methods
+      .converterAddress(address, String(tokenConverterCount - 1))
+      .call();
+
+    const tokenConverter = await Contract(
+      eth,
+      "BancorConverter",
+      tokenConverterAddress
+    );
+
+    relay = await tokenConverter.methods
+      .token()
+      .call()
+      .then(res => bufferToHex(res.buffer));
+  }
+
   const token = await Contract(eth, "ERC20Token", address);
 
-  const _bancorNetwork = get(bancorNetwork);
-  const _nonStandardTokenRegistry = get(nonStandardTokenRegistry);
-
-  const [name, symbol, isEth, isNSToken] = await Promise.all([
+  const [name, symbol, isEth, isBNT, isNSToken] = await Promise.all([
     token.methods.name().call(),
     token.methods.symbol().call(),
     _bancorNetwork.methods.etherTokens(token.address).call(),
+    token.address === _bntToken.address,
     _nonStandardTokenRegistry.methods.listedAddresses(token.address).call()
   ]);
 
@@ -45,7 +72,9 @@ const getTokenData = async (eth, address) => {
     address,
     name,
     symbol,
+    relay,
     isEth,
+    isBNT,
     isNSToken,
     img
   };
@@ -152,8 +181,6 @@ const init = async eth => {
       .tokens(i)
       .call()
       .then(res => bufferToHex(res.buffer));
-
-    // const latestConverter = await _converterRegistry.methods.converterCount(tokenAddress)
 
     const data = await getTokenData(eth, tokenAddress);
 

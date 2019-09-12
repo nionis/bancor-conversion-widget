@@ -1,7 +1,7 @@
 import { writable, derived, get } from "svelte/store";
 import { fromWei, toWei } from "web3x-es/utils";
 import { eth, account, getAccept } from "./eth";
-import { tokens as tokensMap, bancorNetwork } from "./registry";
+import { tokens as tokensMap, bancorNetwork, bntToken } from "./registry";
 
 const derivedPluck = (tokens, token) => {
   return derived([tokens, token], ([tokens, token]) => {
@@ -27,15 +27,30 @@ const pairsAreSelected = derived([tokenA, tokenB], ([_tokenA, _tokenB]) => {
 const path = derived([tokenA, tokenB], ([_tokenA, _tokenB]) => {
   if (!get(pairsAreSelected)) return [];
 
-  console.log({
-    tokenA: _tokenA,
-    tokenB: _tokenB
-  });
+  const _bntToken = get(tokensMap).get(get(bntToken).address);
+  const oneIsEth = _tokenA.isEth || _tokenB.isEth;
+  const oneIsBNT = _tokenA.isBNT || _tokenB.isBNT;
 
-  if (_tokenA.isEth) {
-    return [_tokenA.address, _tokenB.address, _tokenB.address];
+  if (oneIsEth) {
+    if (_tokenA.isEth) {
+      return [_tokenA.address, _tokenB.relay, _tokenB.address];
+    } else {
+      return [_tokenA.address, _tokenA.relay, _tokenB.address];
+    }
+  } else if (oneIsBNT) {
+    if (_tokenA.isBNT) {
+      return [_tokenA.address, _tokenB.relay, _tokenB.address];
+    } else {
+      return [_tokenA.address, _tokenA.relay, _tokenB.address];
+    }
   } else {
-    return [_tokenA.address, _tokenA.address, _tokenB.address];
+    return [
+      _tokenA.address,
+      _tokenA.relay,
+      _bntToken.address,
+      _bntToken.relay,
+      _tokenB.address
+    ];
   }
 });
 
@@ -49,13 +64,6 @@ const updateInputs = ({ fromToken, fromInput, toToken, toInput }) => {
     const _bancorNetwork = get(bancorNetwork);
     const _fromToken = get(fromToken);
     const _toToken = get(toToken);
-
-    console.log({
-      fromToken: _fromToken.address,
-      toToken: _toToken.address,
-      sendAmount,
-      path: get(path)
-    });
 
     const { receiveAmount, fee } = await _bancorNetwork.methods
       .getReturnByPath(get(path), sendAmount)
