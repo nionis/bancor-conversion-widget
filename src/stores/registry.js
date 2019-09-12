@@ -4,7 +4,7 @@ import { networkId } from "./eth";
 import safeFetch from "../utils/safeFetch";
 import Contract from "../utils/Contract";
 import { addresses } from "../env";
-import * as tokenLoader from "./tokenLoader";
+// import * as tokenLoader from "./tokenLoader";
 
 const contractRegistry = writable(undefined);
 const converterRegistry = writable(undefined);
