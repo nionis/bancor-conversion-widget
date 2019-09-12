@@ -6,6 +6,8 @@ import builtins from "rollup-plugin-node-builtins";
 import globals from "rollup-plugin-node-globals";
 import livereload from "rollup-plugin-livereload";
 import { terser } from "rollup-plugin-terser";
+import bundleVisualizer from "rollup-plugin-visualizer";
+import bundleSize from "rollup-plugin-bundle-size";
 import pkg from "./package.json";
 
 const production = !process.env.ROLLUP_WATCH;
@@ -17,19 +19,21 @@ const name = pkg.name
 
 export default {
   input: "src/index.svelte",
-  output: production
-    ? [
-        { file: pkg.module, format: "es" },
-        { file: pkg.main, format: "umd", name }
-      ]
-    : [
-        {
-          sourcemap: !production,
-          format: "iife",
-          name,
-          file: "example/bundle.js"
-        }
-      ],
+  output: [
+    {
+      sourcemap: !production,
+      format: "iife",
+      name,
+      file: "example/bundle.js"
+    }
+  ].concat(
+    production
+      ? [
+          { file: pkg.module, format: "es" },
+          { file: pkg.main, format: "umd", name }
+        ]
+      : []
+  ),
   plugins: [
     json(),
 
@@ -59,6 +63,15 @@ export default {
     !production && livereload("example"),
 
     // Minify the production build (npm run build)
-    production && terser()
+    production && terser(),
+
+    // Generate bundle visualization
+    production &&
+      bundleVisualizer({
+        template: "treemap"
+      }),
+
+    // Get bundle size
+    production && bundleSize()
   ]
 };
