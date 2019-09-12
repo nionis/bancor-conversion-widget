@@ -10,6 +10,7 @@
   export let colors = Required("colors");
   export let text = Required("text");
   export let tokens = Required("tokens");
+  export let value = Required("value");
   export let loading = false;
   export let open = false;
   export let selectedToken = {
@@ -31,7 +32,9 @@
     <NumberInput
       bgColor={colors.inputBg}
       fontColor={colors.inputFont}
-      borderColor={colors.inputBorder}>
+      borderColor={colors.inputBorder}
+      {value}
+      on:change>
       <OpenSelect
         bgColor={colors.selectBg}
         fontColor={colors.selectFont}

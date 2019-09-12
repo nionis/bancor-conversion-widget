@@ -1,13 +1,15 @@
-import { writable } from "svelte/store";
+import { writable, get } from "svelte/store";
 import { bufferToHex, utf8ToHex } from "web3x-es/utils";
+import { networkId } from "./eth";
 import safeFetch from "../utils/safeFetch";
 import Contract from "../utils/Contract";
 import { addresses } from "../env";
 
 const contractRegistry = writable(undefined);
+const converterRegistry = writable(undefined);
 const bancorNetwork = writable(undefined);
 const bntToken = writable(undefined);
-const bntConverterRegistry = writable(undefined);
+const bntConverter = writable(undefined);
 const nonStandardTokenRegistry = writable(undefined);
 const tokens = writable(new Map());
 
@@ -27,9 +29,14 @@ const getTokenImg = async symbol => {
 const getTokenData = async (eth, address) => {
   const token = await Contract(eth, "ERC20Token", address);
 
-  const [name, symbol] = await Promise.all([
+  const _bancorNetwork = get(bancorNetwork);
+  const _nonStandardTokenRegistry = get(nonStandardTokenRegistry);
+
+  const [name, symbol, isEth, isNSToken] = await Promise.all([
     token.methods.name().call(),
-    token.methods.symbol().call()
+    token.methods.symbol().call(),
+    _bancorNetwork.methods.etherTokens(token.address).call(),
+    _nonStandardTokenRegistry.methods.listedAddresses(token.address).call()
   ]);
 
   const img = await getTokenImg(symbol);
@@ -38,6 +45,8 @@ const getTokenData = async (eth, address) => {
     address,
     name,
     symbol,
+    isEth,
+    isNSToken,
     img
   };
 };
@@ -46,9 +55,16 @@ const init = async eth => {
   const _contractRegistry = await Contract(
     eth,
     "ContractRegistry",
-    addresses["7000"].ContractRegistry
+    addresses[get(networkId)].ContractRegistry
   );
   contractRegistry.update(() => _contractRegistry);
+
+  const _converterRegistry = await Contract(
+    eth,
+    "BancorConverterRegistry",
+    addresses[get(networkId)].ConverterRegistry
+  );
+  converterRegistry.update(() => _converterRegistry);
 
   const [
     BancorNetworkAddr,
@@ -74,6 +90,15 @@ const init = async eth => {
       .then(res => bufferToHex(res.buffer))
   ]);
 
+  console.log({
+    ContractRegistry: _contractRegistry.address,
+    ConverterRegistry: _converterRegistry.address,
+    BancorNetworkAddr,
+    BNTTokenAddr,
+    BNTConverterAddr,
+    NonStandardTokenRegistryAddr
+  });
+
   const _bancorNetwork = await Contract(
     eth,
     "BancorNetwork",
@@ -84,12 +109,12 @@ const init = async eth => {
   const _bntToken = await Contract(eth, "SmartToken", BNTTokenAddr);
   bntToken.update(() => _bntToken);
 
-  const _bntConverterRegistry = await Contract(
+  const _bntConverter = await Contract(
     eth,
     "BancorConverter",
     BNTConverterAddr
   );
-  bntConverterRegistry.update(() => _bntConverterRegistry);
+  bntConverter.update(() => _bntConverter);
 
   const _nonStandardTokenRegistry = await Contract(
     eth,
@@ -97,6 +122,18 @@ const init = async eth => {
     NonStandardTokenRegistryAddr
   );
   nonStandardTokenRegistry.update(() => _nonStandardTokenRegistry);
+
+  // add eth
+  const ethAddress = await _bntConverter.methods
+    .connectorTokens(0)
+    .call()
+    .then(res => bufferToHex(res.buffer));
+  const ethTokenData = await getTokenData(eth, ethAddress);
+  tokens.update(v => {
+    v.set(ethAddress, ethTokenData);
+
+    return v;
+  });
 
   // add bnt
   const bntTokenData = await getTokenData(eth, _bntToken.address);
@@ -107,21 +144,21 @@ const init = async eth => {
   });
 
   // add bnt connectors
-  const connectorCount = await _bntConverterRegistry.methods
-    .connectorTokenCount()
-    .call();
+  const tokenCount = await _converterRegistry.methods.tokenCount().call();
 
-  let i = Number(connectorCount);
+  let i = Number(tokenCount);
   while (--i >= 0) {
-    const address = await _bntConverterRegistry.methods
-      .connectorTokens(i)
+    const tokenAddress = await _converterRegistry.methods
+      .tokens(i)
       .call()
       .then(res => bufferToHex(res.buffer));
 
-    const data = await getTokenData(eth, address);
+    // const latestConverter = await _converterRegistry.methods.converterCount(tokenAddress)
+
+    const data = await getTokenData(eth, tokenAddress);
 
     tokens.update(v => {
-      v.set(address, data);
+      v.set(tokenAddress, data);
 
       return v;
     });
@@ -130,9 +167,10 @@ const init = async eth => {
 
 export {
   contractRegistry,
+  converterRegistry,
   bancorNetwork,
   bntToken,
-  bntConverterRegistry,
+  bntConverter,
   nonStandardTokenRegistry,
   tokens,
   init

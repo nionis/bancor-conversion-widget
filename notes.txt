@@ -1,6 +1,9 @@
 - convert
-- use with vanilla, react, vue
-- create token
-- typescript
-- faster token load
 - on unfocus -> show OpenSelect
+- resize
+- lazy load web3x-es?
+- faster token load
+- typescript
+- create token
+- create readme
+  - examples: with vanilla, react, vue

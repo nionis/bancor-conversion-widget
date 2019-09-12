@@ -6,8 +6,10 @@
   import { init as registryInit, tokens as tokensMap } from "./stores/registry";
   import {
     tokenA,
+    tokenAInput,
     tokensA,
     tokenB,
+    tokenBInput,
     tokensB,
     convert
   } from "./stores/widget.js";
@@ -39,6 +41,10 @@
 
   const OnSelect = token => e => {
     token.update(() => $tokensMap.get(e.detail.value));
+  };
+
+  const OnChange = tokenInput => e => {
+    tokenInput.update(() => e.target.value);
   };
 
   const onSwap = () => {
@@ -82,7 +88,9 @@
     text="SEND"
     tokens={$tokensA}
     selectedToken={$tokenA}
-    on:select={OnSelect(tokenA)} />
+    on:select={OnSelect(tokenA)}
+    value={$tokenAInput}
+    on:change={OnChange(tokenAInput)} />
   <Icon {orientation} color={colors.compareArrows} on:click={onSwap}>
     <MdCompareArrows />
   </Icon>
@@ -92,7 +100,9 @@
     text="RECEIVE"
     tokens={$tokensB}
     selectedToken={$tokenB}
-    on:select={OnSelect(tokenB)} />
+    on:select={OnSelect(tokenB)}
+    value={$tokenBInput}
+    on:change={OnChange(tokenBInput)} />
   <Button
     bgColor={colors.buttonBg}
     fontColor={colors.buttonFont}

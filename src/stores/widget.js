@@ -1,11 +1,7 @@
 import { writable, derived, get } from "svelte/store";
+import { fromWei, toWei } from "web3x-es/utils";
 import { eth, account, getAccept } from "./eth";
-import {
-  tokens as tokensMap,
-  bancorNetwork,
-  bntConverterRegistry,
-  nonStandardTokenRegistry
-} from "./registry";
+import { tokens as tokensMap, bancorNetwork } from "./registry";
 
 const derivedPluck = (tokens, token) => {
   return derived([tokens, token], ([tokens, token]) => {
@@ -20,11 +16,69 @@ const derivedPluck = (tokens, token) => {
 };
 
 const tokenA = writable(undefined);
+const tokenAInput = writable("0");
 const tokenB = writable(undefined);
+const tokenBInput = writable("0");
 const tokensA = derivedPluck(tokensMap, tokenB);
 const tokensB = derivedPluck(tokensMap, tokenA);
+const pairsAreSelected = derived([tokenA, tokenB], ([_tokenA, _tokenB]) => {
+  return _tokenA && _tokenB;
+});
+const path = derived([tokenA, tokenB], ([_tokenA, _tokenB]) => {
+  if (!get(pairsAreSelected)) return [];
+
+  console.log({
+    tokenA: _tokenA,
+    tokenB: _tokenB
+  });
+
+  if (_tokenA.isEth) {
+    return [_tokenA.address, _tokenB.address, _tokenB.address];
+  } else {
+    return [_tokenA.address, _tokenA.address, _tokenB.address];
+  }
+});
+
+const updateInputs = ({ fromToken, fromInput, toToken, toInput }) => {
+  fromInput.subscribe(async sendAmount => {
+    sendAmount = toWei(sendAmount, "ether");
+
+    const _selected = get(pairsAreSelected);
+    if (!_selected) return;
+
+    const _bancorNetwork = get(bancorNetwork);
+    const _fromToken = get(fromToken);
+    const _toToken = get(toToken);
+
+    console.log({
+      fromToken: _fromToken.address,
+      toToken: _toToken.address,
+      sendAmount,
+      path: get(path)
+    });
+
+    const { receiveAmount, fee } = await _bancorNetwork.methods
+      .getReturnByPath(get(path), sendAmount)
+      .call()
+      .then(res => ({
+        receiveAmount: res["0"],
+        fee: res["1"]
+      }));
+
+    toInput.update(() => fromWei(receiveAmount, "ether"));
+  });
+};
+
+updateInputs({
+  fromToken: tokenA,
+  fromInput: tokenAInput,
+  toToken: tokenB,
+  toInput: tokenBInput
+});
 
 const convert = async (amount = "1") => {
+  amount = toWei(amount, "ether");
+
   const _eth = get(eth);
   if (!_eth) {
     throw Error("eth does not exist");
@@ -46,22 +100,6 @@ const convert = async (amount = "1") => {
   }
 
   const _bancorNetwork = get(bancorNetwork);
-  const _bntConverterRegistry = get(bntConverterRegistry);
-  const _nonStandardTokenRegistry = get(nonStandardTokenRegistry);
-
-  const [tokenAIsEth, tokenBIsEth, tokenAIsNS, tokenBIsNS] = await Promise.all([
-    _bancorNetwork.methods.etherTokens(_tokenA.address).call(),
-    _bancorNetwork.methods.etherTokens(_tokenB.address).call(),
-    _nonStandardTokenRegistry.methods.listedAddresses(_tokenA.address).call(),
-    _nonStandardTokenRegistry.methods.listedAddresses(_tokenB.address).call()
-  ]);
-
-  console.log({
-    tokenA: _tokenA.address,
-    tokenB: _tokenB.address
-  });
-
-  console.log({ tokenAIsEth, tokenBIsEth, tokenAIsNS, tokenBIsNS });
 
   return _bancorNetwork.methods
     .convert([_tokenA.address, _tokenB.address, _tokenB.address], amount, 1)
@@ -69,26 +107,6 @@ const convert = async (amount = "1") => {
       from: _account,
       value: tokenAIsEth ? amount : 0
     });
-
-  // if (tokenAIsEth) {
-  //   return _bancorNetwork.methods
-  //     .convert([_tokenA.address, _tokenB.address, _tokenB.address], amount, 1)
-  //     .send({
-  //       from: _account,
-  //       value: tokenAIsEth ? amount : 0
-  //     });
-  // } else {
-  //   return _bntConverterRegistry.methods
-  //     .quickConvert(
-  //       [_tokenA.address, _tokenB.address, _tokenB.address],
-  //       amount,
-  //       1
-  //     )
-  //     .send({
-  //       from: _account,
-  //       value: tokenAIsEth ? amount : 0
-  //     });
-  // }
 };
 
-export { tokenA, tokensA, tokenB, tokensB, convert };
+export { tokenAInput, tokenA, tokensA, tokenB, tokenBInput, tokensB, convert };

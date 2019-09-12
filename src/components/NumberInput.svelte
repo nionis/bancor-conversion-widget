@@ -4,7 +4,7 @@
   export let bgColor = Required("bgColor");
   export let fontColor = Required("fontColor");
   export let borderColor = Required("borderColor");
-  export let value = 0;
+  export let value = Required("value");
 
   const containerStyle = `
     background-color: ${bgColor};
@@ -44,6 +44,6 @@
 </style>
 
 <div class="container" style={containerStyle}>
-  <input type="number" style={inputStyle} min="0" bind:value on:change />
+  <input type="number" style={inputStyle} min="0" {value} on:change />
   <slot />
 </div>
