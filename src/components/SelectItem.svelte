@@ -8,7 +8,8 @@
   export let hoverColor = Required("hoverColor");
   export let fontColor = Required("fontColor");
 
-  const token = tokens.get(item.value);
+  // TODO: investigate
+  $: token = tokens.get(item.value) || {};
 
   $: cssVars = {
     backgroundColor,
@@ -41,6 +42,6 @@
 </style>
 
 <div class="container" use:useCssVars={cssVars}>
-  <img src={token.img} alt="{token.name} logo" />
-  <div class="label">{token.name}</div>
+  <img src={token.img} alt="{token.symbol} logo" />
+  <div class="label">{item.label}</div>
 </div>

@@ -1,11 +1,12 @@
 - convert
 - loading tokens error
-- resize
-- use $
-- lazy load web3x-es?
 - faster token load
-- cleanup
-- select search
+- resize
+- lazy load web3x-es?
+- onchange -> updateReturn
+- show if has metamask, locked, etc
+- max input
+- cleanup & organize
 - typescript
 - create token
 - create readme

@@ -2,6 +2,7 @@ import { writable, derived, get } from "svelte/store";
 import { fromWei, toWei } from "web3x-es/utils";
 import { eth, account, getAccept } from "./eth";
 import { tokens as tokensMap, bancorNetwork, bntToken } from "./registry";
+import Required from "../utils/Required";
 
 const derivedPluck = (tokens, token) => {
   return derived([tokens, token], ([tokens, token]) => {
@@ -32,7 +33,7 @@ const path = derived([tokenA, tokenB], ([_tokenA, _tokenB]) => {
   const oneIsEth = _tokenA.isEth || _tokenB.isEth;
   const oneIsBNT = _tokenA.isBNT || _tokenB.isBNT;
 
-  if (oneIsEth) {
+  if (oneIsEth && oneIsBNT) {
     if (_tokenA.isEth) {
       return [_tokenA.address, _tokenB.relay, _tokenB.address];
     } else {
@@ -44,51 +45,60 @@ const path = derived([tokenA, tokenB], ([_tokenA, _tokenB]) => {
     } else {
       return [_tokenA.address, _tokenA.relay, _tokenB.address];
     }
+  } else if (oneIsEth) {
+    if (_tokenA.isEth) {
+      return [
+        _tokenA.address,
+        _bntToken.relay,
+        _bntToken.address,
+        _tokenB.relay,
+        _tokenB.address
+      ];
+    } else {
+      return [
+        _tokenA.address,
+        _tokenA.relay,
+        _bntToken.address,
+        _bntToken.relay,
+        _tokenB.address
+      ];
+    }
   } else {
     return [
       _tokenA.address,
       _tokenA.relay,
       _bntToken.address,
-      _bntToken.relay,
+      _tokenB.relay,
       _tokenB.address
     ];
   }
 });
 
-const updateInputs = ({ fromInput, toInput }) => {
-  return fromInput.subscribe(async sendAmount => {
-    sendAmount = toWei(sendAmount, "ether");
+const updateReturn = async o => {
+  const _selected = get(pairsAreSelected);
+  if (!_selected) return;
 
-    const _selected = get(pairsAreSelected);
-    if (!_selected) return;
+  const sendAmount = toWei(get(o.inputA), "ether");
+  loading.update(() => true);
 
-    loading.update(() => true);
+  const _path = get(path);
+  const currentPath =
+    get(o.tokenA).address === get(tokenA).address ? _path : _path.reverse();
 
-    const _bancorNetwork = get(bancorNetwork);
+  const _bancorNetwork = get(bancorNetwork);
+  const { receiveAmount, fee } = await _bancorNetwork.methods
+    .getReturnByPath(currentPath, sendAmount)
+    .call()
+    .then(res => ({
+      receiveAmount: fromWei(res["0"], "ether"),
+      fee: res["1"]
+    }));
 
-    const { receiveAmount, fee } = await _bancorNetwork.methods
-      .getReturnByPath(get(path), sendAmount)
-      .call()
-      .then(res => ({
-        receiveAmount: res["0"],
-        fee: res["1"]
-      }));
-
-    toInput.update(() => fromWei(receiveAmount, "ether"));
-    loading.update(() => false);
-  });
+  o.inputB.update(() => receiveAmount);
+  loading.update(() => false);
 };
 
-updateInputs({
-  fromInput: tokenAInput,
-  toInput: tokenBInput
-});
-// updateInputs({
-//   fromInput: tokenBInput,
-//   toInput: tokenAInput
-// });
-
-const convert = async (amount = "1") => {
+const convert = async (amount = Required("amount")) => {
   amount = toWei(amount, "ether");
 
   const _eth = get(eth);
@@ -115,7 +125,7 @@ const convert = async (amount = "1") => {
 
   return _bancorNetwork.methods.convert(get(path), amount, 1).send({
     from: _account,
-    value: tokenAIsEth ? amount : 0
+    value: _tokenA.isEth ? amount : 0
   });
 };
 
@@ -128,5 +138,6 @@ export {
   tokenBInput,
   tokensB,
   convert,
-  pairsAreSelected
+  pairsAreSelected,
+  updateReturn
 };

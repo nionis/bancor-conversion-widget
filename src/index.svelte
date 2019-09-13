@@ -13,7 +13,8 @@
     tokenBInput,
     tokensB,
     convert,
-    pairsAreSelected
+    pairsAreSelected,
+    updateReturn
   } from "./stores/widget.js";
   import Icon from "./components/Icon.svelte";
   import Button from "./components/Button.svelte";
@@ -44,7 +45,7 @@
   });
 
   const gettingSelectedTokens = derived(tokensMap, _tokensMap => {
-    if (get(pairsAreSelected)) return false;
+    if ($pairsAreSelected) return false;
 
     const tokens = Array.from(_tokensMap.values());
 
@@ -62,15 +63,29 @@
   });
 
   const loading = derived([gettingSelectedTokens, widgetLoading], ([a, b]) => {
-    return a || b;
+    return Boolean(a || b);
   });
 
   const OnSelect = token => e => {
     token.update(() => $tokensMap.get(e.detail.value));
+
+    updateReturn({
+      tokenA: selectedTokenA,
+      tokenB: selectedTokenB,
+      inputA: tokenAInput,
+      inputB: tokenBInput
+    });
   };
 
-  const OnChange = tokenInput => e => {
-    tokenInput.update(() => e.target.value);
+  const OnChange = ({ tokenA, tokenB, inputA, inputB }) => e => {
+    inputA.update(() => e.target.value);
+
+    updateReturn({
+      tokenA,
+      tokenB,
+      inputA,
+      inputB
+    });
   };
 
   const onSwap = () => {
@@ -79,10 +94,17 @@
 
     selectedTokenA.update(() => _selectedTokenB);
     selectedTokenB.update(() => _selectedTokenA);
+
+    updateReturn({
+      tokenA: selectedTokenA,
+      tokenB: selectedTokenB,
+      inputA: tokenAInput,
+      inputB: tokenBInput
+    });
   };
 
   const onConvert = e => {
-    convert();
+    convert(get(tokenAInput));
   };
 </script>
 
@@ -118,7 +140,12 @@
     disabled={$loading}
     on:select={OnSelect(selectedTokenA)}
     value={$tokenAInput}
-    on:change={OnChange(tokenAInput)} />
+    on:change={OnChange({
+      tokenA: selectedTokenA,
+      tokenB: selectedTokenB,
+      inputA: tokenAInput,
+      inputB: tokenBInput
+    })} />
   <Icon
     {orientation}
     color={colors.compareArrows}
@@ -136,7 +163,12 @@
     disabled={$loading}
     on:select={OnSelect(selectedTokenB)}
     value={$tokenBInput}
-    on:change={OnChange(tokenBInput)} />
+    on:change={OnChange({
+      tokenA: selectedTokenB,
+      tokenB: selectedTokenA,
+      inputA: tokenBInput,
+      inputB: tokenAInput
+    })} />
   <Button
     bgColor={colors.buttonBg}
     fontColor={colors.buttonFont}

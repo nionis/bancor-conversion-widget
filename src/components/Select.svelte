@@ -31,7 +31,7 @@
 
   $: items = Array.from(tokens.values()).map(token => ({
     value: token.address,
-    label: token.name
+    label: `${token.name} (${token.symbol})`
   }));
 
   let elem;
