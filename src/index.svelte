@@ -76,6 +76,7 @@
   const loading = derived([gettingSelectedTokens, widgetLoading], ([a, b]) => {
     return Boolean(a || b);
   });
+  $: disabledConvert = $loading || $tokenAInput === "0";
 
   const OnSelect = token => e => {
     const value = e.detail.value;
@@ -209,7 +210,7 @@
         fontColor={colors.buttonFont}
         borderColor={colors.buttonBorder}
         on:click={onConvert}
-        disabled={$loading}>
+        disabled={disabledConvert}>
         Convert
       </Button>
     </div>
