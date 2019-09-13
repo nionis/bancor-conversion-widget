@@ -1,4 +1,7 @@
 <script>
+  /*
+    Select tokens
+  */
   import { onMount, createEventDispatcher } from "svelte";
   import Select from "svelte-select";
   import Required from "../utils/Required";
@@ -14,11 +17,13 @@
   export let loading = false;
 
   const dispatch = createEventDispatcher();
+  // this is a pseudo item to show "loading" withing Select
   const loadingItem = {
     value: "__LOADING",
     label: "loading"
   };
 
+  // wrap SelectItem so we can provide it with custom data
   class Item extends SelectItem {
     constructor(ops) {
       super({
@@ -41,6 +46,7 @@
       label: `${token.name} (${token.symbol})`
     }));
 
+    // if we are still fetching tokens, add pseudo "loading" item
     if (loading) {
       _items.unshift(loadingItem);
     }
@@ -51,6 +57,7 @@
   let elem;
   let firstTime = true;
 
+  // a workaround for an issue when opening "svelte-select"
   $: {
     const listExists = elem && !elem.$$.ctx.container.querySelector("div");
 

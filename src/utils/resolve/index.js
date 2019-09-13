@@ -1,18 +1,19 @@
+/*
+  recursively resolve promises in batches
+  until it's all done or reaches max tries
+*/
 import chunk from "lodash/chunk";
 import flatten from "lodash/flatten";
 import rBatches from "./batches";
 
-const recursiveOps = {
+const ops = {
   maxTries: 2,
   chunkSize: 5
 };
 
-const recursive = (
+const resolve = (
   items,
-  {
-    maxTries = recursiveOps.maxTries,
-    chunkSize = recursiveOps.chunkSize
-  } = recursiveOps
+  { maxTries = ops.maxTries, chunkSize = ops.chunkSize } = ops
 ) => {
   if (maxTries === 0) return [];
 
@@ -33,7 +34,7 @@ const recursive = (
     }, []);
 
     if (newItems.length)
-      return recursive(newItems, {
+      return resolve(newItems, {
         maxTries: --maxTries,
         chunkSize
       });
@@ -41,4 +42,4 @@ const recursive = (
   });
 };
 
-export default recursive;
+export default resolve;

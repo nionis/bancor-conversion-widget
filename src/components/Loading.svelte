@@ -1,4 +1,8 @@
 <script>
+  /*
+    Simple loading circle
+  */
+
   import useCssVars from "svelte-css-vars";
 
   export let color = Required("color");
@@ -10,17 +14,17 @@
 
 <style>
   .loadingContainer {
-    border: none;
-    background-color: transparent;
     width: 100%;
     align-items: center;
+    border: none;
+    background-color: transparent;
   }
 
   .loading {
     display: inline-block;
     text-align: center;
-    padding: 1em;
     vertical-align: top;
+    padding: 1em;
   }
 
   svg {

@@ -1,20 +1,24 @@
+/*
+  A store to manage token fetching
+*/
 import { writable, get } from "svelte/store";
 import { bufferToHex, utf8ToHex } from "web3x-es/utils";
-import { networkId } from "./eth";
+import * as ethStore from "./eth";
 import safeFetch from "../utils/safeFetch";
 import Contract from "../utils/Contract";
-import { addresses } from "../env";
 import resolve from "../utils/resolve";
+import { addresses } from "../env";
 
-const contractRegistry = writable(undefined);
-const converterRegistry = writable(undefined);
-const bancorNetwork = writable(undefined);
-const bntToken = writable(undefined);
-const bntConverter = writable(undefined);
-const nonStandardTokenRegistry = writable(undefined);
-const fetchingTokens = writable(false);
-const tokens = writable(new Map());
+const contractRegistry = writable(undefined); // contractRegistry instance
+const converterRegistry = writable(undefined); // converterRegistry instance
+const bancorNetwork = writable(undefined); // bancorNetwork instance
+const bntToken = writable(undefined); // bancorNetwork's token instance
+const bntConverter = writable(undefined); // bancorNetwork's token converter instance
+const nonStandardTokenRegistry = writable(undefined); // nonStandardTokenRegistry instance
+const fetchingTokens = writable(false); // are we currently fetching tokens
+const tokens = writable(new Map()); // all tokens keyed by address
 
+// using Bancor's API, get token's img url
 const getTokenImg = async symbol => {
   return safeFetch(`https://api.bancor.network/0.1/currencies/${symbol}`).then(
     res => {
@@ -28,6 +32,7 @@ const getTokenImg = async symbol => {
   );
 };
 
+// get relevant token data
 const getTokenData = async (eth, address) => {
   const _bancorNetwork = get(bancorNetwork);
   const _bntToken = get(bntToken);
@@ -82,21 +87,30 @@ const getTokenData = async (eth, address) => {
   };
 };
 
+// TODO: improve speed
 const init = async eth => {
+  tokens.update(() => new Map());
+
+  const _networkId = get(ethStore.networkId);
+  // only mainnet or localhost
+  if (!addresses[_networkId]) return;
+
+  // initialize contracts
   const _contractRegistry = await Contract(
     eth,
     "ContractRegistry",
-    addresses[get(networkId)].ContractRegistry
+    addresses[_networkId].ContractRegistry
   );
   contractRegistry.update(() => _contractRegistry);
 
   const _converterRegistry = await Contract(
     eth,
     "BancorConverterRegistry",
-    addresses[get(networkId)].ConverterRegistry
+    addresses[_networkId].ConverterRegistry
   );
   converterRegistry.update(() => _converterRegistry);
 
+  // get other contract's addresses using contractRegistry
   const [
     BancorNetworkAddr,
     BNTTokenAddr,
@@ -145,7 +159,7 @@ const init = async eth => {
   );
   nonStandardTokenRegistry.update(() => _nonStandardTokenRegistry);
 
-  // add ETH
+  // get and add ETH
   _bntConverter.methods
     .connectorTokens(0)
     .call()
@@ -201,6 +215,11 @@ const init = async eth => {
     });
 };
 
+// when network changes, reinitialize
+ethStore.networkId.subscribe(_networkId => {
+  if (_networkId) init(get(ethStore.eth));
+});
+
 export {
   contractRegistry,
   converterRegistry,
@@ -208,7 +227,9 @@ export {
   bntToken,
   bntConverter,
   nonStandardTokenRegistry,
-  tokens,
   fetchingTokens,
+  tokens,
+  getTokenImg,
+  getTokenData,
   init
 };

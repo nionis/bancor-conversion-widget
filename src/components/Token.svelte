@@ -1,4 +1,8 @@
 <script>
+  /*
+    Using NumberInput, OpenSelect, Select
+    to represent one token
+  */
   import { createEventDispatcher } from "svelte";
   import Label from "./Label.svelte";
   import NumberInput from "./NumberInput.svelte";
@@ -14,6 +18,7 @@
   export let loading = false;
   export let fetchingTokens = false;
   export let disabled = false;
+  // default selected token (should never show)
   export let selectedToken = {
     name: "?",
     symbol: "?",

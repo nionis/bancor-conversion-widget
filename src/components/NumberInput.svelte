@@ -19,20 +19,20 @@
 
 <style>
   div {
+    border: var(--borderColor) solid 1px;
     background-color: var(--bgColor);
     opacity: var(--opacity);
-    border: var(--borderColor) solid 1px;
   }
 
   input {
     height: 41px;
     width: 175px;
+    text-align: center;
+    margin: 0;
     border: none;
     border-radius: 5px;
-    margin: 0;
     outline: none;
     background-color: transparent;
-    text-align: center;
     color: var(--fontColor);
   }
   input[type="number"]::-webkit-inner-spin-button,

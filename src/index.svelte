@@ -1,14 +1,17 @@
 <script>
+  /*
+    Our widget component
+  */
   import { onMount } from "svelte";
   import { derived, get } from "svelte/store";
   import useCssVars from "svelte-css-vars";
   import MdCompareArrows from "svelte-icons/md/MdCompareArrows.svelte";
-  import * as ethStore from "./stores/eth";
+  import { init as ethInit } from "./stores/eth";
   import {
     init as registryInit,
     tokens as tokensMap,
     fetchingTokens
-  } from "./stores/registry";
+  } from "./stores/tokens";
   import {
     loading as widgetLoading,
     tokenA as selectedTokenA,
@@ -41,10 +44,13 @@
   };
 
   onMount(async () => {
-    const eth = await ethStore.init();
-    registryInit(eth);
+    // initialize ethStore
+    // once networkId is set
+    // it will initialize tokensStore
+    await ethInit();
   });
 
+  // dynamically update orientation if screen width is less than 800
   const initialOrientation = orientation;
   let offsetWidth;
   $: {
@@ -55,6 +61,7 @@
     }
   }
 
+  // true once default selected tokens are found
   const gettingSelectedTokens = derived(tokensMap, _tokensMap => {
     if ($pairsAreSelected) return false;
 
@@ -78,6 +85,7 @@
   });
   $: disabledConvert = $loading || $tokenAInput === "0";
 
+  // called when user selects token
   const OnSelect = token => e => {
     const value = e.detail.value;
     if (!$tokensMap.has(value)) return;
@@ -92,6 +100,7 @@
     });
   };
 
+  // called when user updates amount input
   const OnChange = ({ tokenA, tokenB, inputA, inputB }) => e => {
     inputA.update(() => e.target.value || "0");
 
@@ -103,6 +112,7 @@
     });
   };
 
+  // called when user swaps tokens
   const onSwap = () => {
     const _selectedTokenA = $selectedTokenA;
     const _selectedTokenB = $selectedTokenB;

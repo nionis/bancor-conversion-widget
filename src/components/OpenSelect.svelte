@@ -1,4 +1,8 @@
 <script>
+  /*
+    Indicates which token is selected,
+    when clicked it toggles "Select" component
+  */
   import { createEventDispatcher } from "svelte";
   import useCssVars from "svelte-css-vars";
   import Select from "svelte-select";
@@ -42,17 +46,18 @@
   }
 
   .container {
-    background-color: var(--bgColor);
-    border: var(--borderColor) solid 1px;
-    opacity: var(--opacity);
-    cursor: var(--cursor);
-    height: 30px;
-    border-radius: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-right: 6px;
+    text-align: center;
+    height: 30px;
     width: 85px;
+    border: var(--borderColor) solid 1px;
+    background-color: var(--bgColor);
+    opacity: var(--opacity);
+    cursor: var(--cursor);
+    border-radius: 5px;
+    margin-right: 6px;
   }
 
   .container:hover {
@@ -60,14 +65,14 @@
   }
 
   .button {
-    border: none;
-    background-color: transparent;
-    padding: 0;
-    margin: 0;
-    width: 85px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 85px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background-color: transparent;
   }
 
   .arrowContainer {

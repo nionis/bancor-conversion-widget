@@ -1,3 +1,7 @@
+/*
+  our default colors and some style related utils
+*/
+
 export const lightTheme = {
   containerBg: "#FFFEFE",
   containerFont: "black",
@@ -32,8 +36,12 @@ export const darkTheme = {
   selectArrow: "white"
 };
 
-export const Cursor = ({ disabled, loading }) =>
-  disabled || loading ? "default" : "pointer";
+export const Cursor = ({ disabled, loading }) => {
+  if (disabled || loading) return "default";
+
+  return "pointer";
+};
+
 export const Opacity = ({ disabled, hover }) => {
   if (disabled || hover) return 0.75;
 

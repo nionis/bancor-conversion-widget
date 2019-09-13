@@ -1,3 +1,9 @@
+/*
+  create a contract instance of name and address
+  abi is downloaded from Bancor's github
+  abi is cached
+*/
+
 import { Contract as EthContract, ContractAbi } from "web3x-es/contract";
 import safeFetch from "../utils/safeFetch";
 import { commit } from "../env";
