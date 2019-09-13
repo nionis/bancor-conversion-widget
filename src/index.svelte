@@ -146,9 +146,10 @@
 
   .vertical {
     flex-direction: column;
-    min-width: 450px;
+    min-width: 375px;
     height: 325px;
     max-width: 800px;
+    overflow: hidden;
   }
   .vertical > div {
     display: flex;
