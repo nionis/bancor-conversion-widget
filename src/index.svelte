@@ -45,6 +45,16 @@
     registryInit(eth);
   });
 
+  const initialOrientation = orientation;
+  let offsetWidth;
+  $: {
+    if (offsetWidth <= 800) {
+      orientation = "vertical";
+    } else if (offsetWidth > 800 && initialOrientation === "horizontal") {
+      orientation = "horizontal";
+    }
+  }
+
   const gettingSelectedTokens = derived(tokensMap, _tokensMap => {
     if ($pairsAreSelected) return false;
 
@@ -134,21 +144,6 @@
     width: 1225px;
   }
 
-  @media (max-width: 800px) {
-    .horizontal {
-      flex-direction: column;
-      min-width: 450px;
-      height: 325px;
-    }
-    .horizontal > div {
-      width: 450px;
-      height: 325px;
-      justify-content: space-evenly;
-      align-items: center;
-      display: flex;
-      flex-direction: column;
-    }
-  }
   .vertical {
     flex-direction: column;
     width: 450px !important;
@@ -156,57 +151,58 @@
   }
 </style>
 
-<div class="container {orientation}" use:useCssVars={cssVars}>
-  <div>
-    <Token
-      {orientation}
-      {colors}
-      text="SEND"
-      tokens={$tokensA}
-      selectedToken={$selectedTokenA}
-      loading={$loading}
-      disabled={$loading}
-      fetchingTokens={$fetchingTokens}
-      on:select={OnSelect(selectedTokenA)}
-      value={$tokenAInput}
-      on:change={OnChange({
-        tokenA: selectedTokenA,
-        tokenB: selectedTokenB,
-        inputA: tokenAInput,
-        inputB: tokenBInput
-      })} />
-    <Icon
-      {orientation}
-      color={colors.compareArrows}
-      on:click={onSwap}
-      disabled={$loading}>
-      <MdCompareArrows />
-    </Icon>
-    <Token
-      {orientation}
-      {colors}
-      text="RECEIVE"
-      tokens={$tokensB}
-      selectedToken={$selectedTokenB}
-      loading={$loading}
-      disabled={$loading}
-      fetchingTokens={$fetchingTokens}
-      on:select={OnSelect(selectedTokenB)}
-      value={$tokenBInput}
-      on:change={OnChange({
-        tokenA: selectedTokenB,
-        tokenB: selectedTokenA,
-        inputA: tokenBInput,
-        inputB: tokenAInput
-      })} />
-    <Button
-      bgColor={colors.buttonBg}
-      fontColor={colors.buttonFont}
-      borderColor={colors.buttonBorder}
-      on:click={onConvert}
-      disabled={$loading}>
-      Convert
-    </Button>
+<div bind:offsetWidth>
+  <div class="container {orientation}" use:useCssVars={cssVars}>
+    <div>
+      <Token
+        {orientation}
+        {colors}
+        text="SEND"
+        tokens={$tokensA}
+        selectedToken={$selectedTokenA}
+        loading={$loading}
+        disabled={$loading}
+        fetchingTokens={$fetchingTokens}
+        on:select={OnSelect(selectedTokenA)}
+        value={$tokenAInput}
+        on:change={OnChange({
+          tokenA: selectedTokenA,
+          tokenB: selectedTokenB,
+          inputA: tokenAInput,
+          inputB: tokenBInput
+        })} />
+      <Icon
+        {orientation}
+        color={colors.compareArrows}
+        on:click={onSwap}
+        disabled={$loading}>
+        <MdCompareArrows />
+      </Icon>
+      <Token
+        {orientation}
+        {colors}
+        text="RECEIVE"
+        tokens={$tokensB}
+        selectedToken={$selectedTokenB}
+        loading={$loading}
+        disabled={$loading}
+        fetchingTokens={$fetchingTokens}
+        on:select={OnSelect(selectedTokenB)}
+        value={$tokenBInput}
+        on:change={OnChange({
+          tokenA: selectedTokenB,
+          tokenB: selectedTokenA,
+          inputA: tokenBInput,
+          inputB: tokenAInput
+        })} />
+      <Button
+        bgColor={colors.buttonBg}
+        fontColor={colors.buttonFont}
+        borderColor={colors.buttonBorder}
+        on:click={onConvert}
+        disabled={$loading}>
+        Convert
+      </Button>
+    </div>
   </div>
-
 </div>

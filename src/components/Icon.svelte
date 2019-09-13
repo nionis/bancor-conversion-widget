@@ -40,13 +40,6 @@
     opacity: var(--opacityHover) !important;
   }
 
-  @media (max-width: 800px) {
-    .horizontal {
-      transform: rotate(-90deg);
-      margin-left: 100px;
-    }
-  }
-
   .vertical {
     transform: rotate(-90deg);
     margin-left: 100px;

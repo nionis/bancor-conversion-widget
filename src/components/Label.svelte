@@ -30,19 +30,6 @@
     padding-right: 10px;
   }
 
-  @media (max-width: 800px) {
-    .horizontal {
-      flex-direction: row;
-      width: 100%;
-      text-align: center;
-      justify-content: flex-start;
-    }
-
-    .horizontal > span {
-      width: 140px;
-    }
-  }
-
   .vertical {
     flex-direction: row;
     width: 100%;
