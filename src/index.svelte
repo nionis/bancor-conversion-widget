@@ -12,7 +12,8 @@
     tokenB as selectedTokenB,
     tokenBInput,
     tokensB,
-    convert
+    convert,
+    pairsAreSelected
   } from "./stores/widget.js";
   import Icon from "./components/Icon.svelte";
   import Button from "./components/Button.svelte";
@@ -43,6 +44,8 @@
   });
 
   const gettingSelectedTokens = derived(tokensMap, _tokensMap => {
+    if (get(pairsAreSelected)) return false;
+
     const tokens = Array.from(_tokensMap.values());
 
     const foundA = tokens.find(t => t.symbol === tokenA);

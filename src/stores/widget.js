@@ -23,7 +23,7 @@ const tokenBInput = writable("0");
 const tokensA = derivedPluck(tokensMap, tokenB);
 const tokensB = derivedPluck(tokensMap, tokenA);
 const pairsAreSelected = derived([tokenA, tokenB], ([_tokenA, _tokenB]) => {
-  return _tokenA && _tokenB;
+  return Boolean(_tokenA && _tokenB);
 });
 const path = derived([tokenA, tokenB], ([_tokenA, _tokenB]) => {
   if (!get(pairsAreSelected)) return [];
@@ -127,5 +127,6 @@ export {
   tokenB,
   tokenBInput,
   tokensB,
-  convert
+  convert,
+  pairsAreSelected
 };

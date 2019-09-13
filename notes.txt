@@ -1,6 +1,7 @@
 - convert
 - loading tokens error
 - resize
+- use $
 - lazy load web3x-es?
 - faster token load
 - cleanup
