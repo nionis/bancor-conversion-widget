@@ -27,7 +27,9 @@
     align-items: center;
     flex-direction: row;
     display: flex;
+    text-align: left;
     color: var(--fontColor);
+    cursor: pointer;
   }
 
   img {

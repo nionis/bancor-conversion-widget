@@ -1,6 +1,6 @@
-- convert
 - loading tokens error
 - faster token load
+- convert
 - resize
 - lazy load web3x-es?
 - onchange -> updateReturn
