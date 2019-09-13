@@ -26,8 +26,6 @@
   .horizontal {
     flex-direction: column;
     padding-bottom: 18px;
-    padding-left: 10px;
-    padding-right: 10px;
   }
 
   .vertical {

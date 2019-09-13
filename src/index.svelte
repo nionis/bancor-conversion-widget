@@ -146,7 +146,16 @@
 
   .vertical {
     flex-direction: column;
-    width: 450px !important;
+    min-width: 450px;
+    height: 325px;
+    max-width: 800px;
+  }
+  .vertical > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 450px;
     height: 325px;
   }
 </style>
