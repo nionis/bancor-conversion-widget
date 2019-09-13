@@ -1,9 +1,8 @@
 # todo
 - test convert
-- resize
+- fee, rate
 - some tokens loading error
 - clean number input
-- fee, rate
 
 # at the end
 - cleanup & organize
