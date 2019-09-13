@@ -54,7 +54,7 @@
   }
 
   $: style = `
-    width: 236px;
+    height: 45px;
     color: ${fontColor};
     border-radius: 5px;
     border: ${borderColor} solid 1px;

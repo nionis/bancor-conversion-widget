@@ -37,11 +37,17 @@
   .vertical > span {
     width: 140px;
   }
+
+  .childrenContainer{
+    width: 272px;
+    height: 47px;
+  }
 </style>
 
 <div class="container {orientation}" use:useCssVars={cssVars}>
   {#if text}
     <span>{text}</span>
   {/if}
-  <slot />
+  <div class="childrenContainer"><slot /></div>
+  
 </div>
