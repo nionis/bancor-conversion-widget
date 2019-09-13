@@ -9,68 +9,56 @@
 </script>
 
 <style>
-  @keyframes lds-rolling {
-    0% {
-      -webkit-transform: translate(-50%, -50%) rotate(0deg);
-      transform: translate(-50%, -50%) rotate(0deg);
-    }
-    100% {
-      -webkit-transform: translate(-50%, -50%) rotate(360deg);
-      transform: translate(-50%, -50%) rotate(360deg);
-    }
-  }
-  @-webkit-keyframes lds-rolling {
-    0% {
-      -webkit-transform: translate(-50%, -50%) rotate(0deg);
-      transform: translate(-50%, -50%) rotate(0deg);
-    }
-    100% {
-      -webkit-transform: translate(-50%, -50%) rotate(360deg);
-      transform: translate(-50%, -50%) rotate(360deg);
-    }
-  }
-  .lds-rolling {
-    position: relative;
-  }
-  .lds-rolling div,
-  .lds-rolling div:after {
-    position: absolute;
-    width: 100px;
-    height: 100px;
-    border: 14px solid var(--color);
-    border-top-color: transparent;
-    border-radius: 50%;
-  }
-  .lds-rolling div {
-    -webkit-animation: lds-rolling 1.3s linear infinite;
-    animation: lds-rolling 1.3s linear infinite;
-    top: 100px;
-    left: 100px;
-  }
-  .lds-rolling div:after {
-    -webkit-transform: rotate(90deg);
-    transform: rotate(90deg);
-  }
-  .lds-rolling {
-    width: 24px !important;
-    height: 24px !important;
-    -webkit-transform: translate(-12px, -12px) scale(0.12) translate(12px, 12px);
-    transform: translate(-12px, -12px) scale(0.12) translate(12px, 12px);
-  }
   .loadingContainer {
     border: none;
     background-color: transparent;
-    width: 85px;
-    display: flex;
-    justify-content: center;
+    width: 100%;
     align-items: center;
+  }
+
+  .loading {
+    display: inline-block;
+    text-align: center;
+    padding: 1em;
+    vertical-align: top;
+  }
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  svg path {
+    fill: var(--color);
   }
 </style>
 
 <div class="loadingContainer" use:useCssVars={cssVars}>
-  <div class="lds-css ng-scope">
-    <div style="width:100%;height:100%" class="lds-rolling">
-      <div />
-    </div>
+  <div class="loading" title="2">
+    <svg
+      version="1.1"
+      id="loader-1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      x="0px"
+      y="0px"
+      width="40px"
+      height="40px"
+      viewBox="0 0 50 50"
+      style="enable-background:new 0 0 50 50;"
+      xml:space="preserve">
+      <path
+        fill="#000"
+        d="M43.935,25.145c0-10.318-8.364-18.683-18.683-18.683c-10.318,0-18.683,8.365-18.683,18.683h4.068c0-8.071,6.543-14.615,14.615-14.615c8.072,0,14.615,6.543,14.615,14.615H43.935z">
+        <animateTransform
+          attributeType="xml"
+          attributeName="transform"
+          type="rotate"
+          from="0 25 25"
+          to="360 25 25"
+          dur="0.6s"
+          repeatCount="indefinite" />
+      </path>
+    </svg>
   </div>
 </div>

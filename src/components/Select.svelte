@@ -11,8 +11,13 @@
   export let hoverBackgroundColor = Required("hoverBackgroundColor");
   export let tokens = Required("tokens");
   export let open = true;
+  export let loading = false;
 
   const dispatch = createEventDispatcher();
+  const loadingItem = {
+    value: "__LOADING",
+    label: "loading"
+  };
 
   class Item extends SelectItem {
     constructor(ops) {
@@ -20,6 +25,7 @@
         ...ops,
         props: {
           item: ops.props.item,
+          isLoading: ops.props.item.value === loadingItem.value,
           tokens,
           backgroundColor: listBgColor,
           hoverColor: hoverBackgroundColor,
@@ -29,10 +35,18 @@
     }
   }
 
-  $: items = Array.from(tokens.values()).map(token => ({
-    value: token.address,
-    label: `${token.name} (${token.symbol})`
-  }));
+  $: items = (() => {
+    const _items = Array.from(tokens.values()).map(token => ({
+      value: token.address,
+      label: `${token.name} (${token.symbol})`
+    }));
+
+    if (loading) {
+      _items.unshift(loadingItem);
+    }
+
+    return _items;
+  })();
 
   let elem;
   let firstTime = true;

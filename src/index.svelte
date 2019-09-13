@@ -4,7 +4,11 @@
   import useCssVars from "svelte-css-vars";
   import MdCompareArrows from "svelte-icons/md/MdCompareArrows.svelte";
   import * as ethStore from "./stores/eth";
-  import { init as registryInit, tokens as tokensMap } from "./stores/registry";
+  import {
+    init as registryInit,
+    tokens as tokensMap,
+    fetchingTokens
+  } from "./stores/registry";
   import {
     loading as widgetLoading,
     tokenA as selectedTokenA,
@@ -64,7 +68,10 @@
   });
 
   const OnSelect = token => e => {
-    token.update(() => $tokensMap.get(e.detail.value));
+    const value = e.detail.value;
+    if (!$tokensMap.has(value)) return;
+
+    token.update(() => $tokensMap.get(value));
 
     updateReturn({
       tokenA: selectedTokenA,
@@ -137,6 +144,7 @@
     selectedToken={$selectedTokenA}
     loading={$loading}
     disabled={$loading}
+    fetchingTokens={$fetchingTokens}
     on:select={OnSelect(selectedTokenA)}
     value={$tokenAInput}
     on:change={OnChange({
@@ -160,6 +168,7 @@
     selectedToken={$selectedTokenB}
     loading={$loading}
     disabled={$loading}
+    fetchingTokens={$fetchingTokens}
     on:select={OnSelect(selectedTokenB)}
     value={$tokenBInput}
     on:change={OnChange({

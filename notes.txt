@@ -1,19 +1,19 @@
 # todo
 - test convert
 - resize
-- lazy load web3x-es?
 - onchange -> updateReturn
 - some tokens loading error
 - clean number input
-- loading tokens
 
 # at the end
 - cleanup & organize
 - create readme
   - examples: with vanilla, react, vue
+- version
 
 # extra
 - create token
 - typescript
 - show if has metamask, locked, etc
 - max input
+- lazy load web3x-es?

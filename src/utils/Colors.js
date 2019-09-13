@@ -32,7 +32,8 @@ export const darkTheme = {
   selectArrow: "white"
 };
 
-export const Cursor = ({ disabled }) => (disabled ? "default" : "pointer");
+export const Cursor = ({ disabled, loading }) =>
+  disabled || loading ? "default" : "pointer";
 export const Opacity = ({ disabled, hover }) => {
   if (disabled || hover) return 0.75;
 
