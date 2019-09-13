@@ -1,6 +1,6 @@
 .DS_Store
 node_modules
 example/bundle.*
-index.js
-index.mjs
-stats.html
+/index.js
+/index.mjs
+/stats.html

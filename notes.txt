@@ -1,13 +1,17 @@
-- loading tokens error
-- faster token load
-- convert
+# todo
+- test convert
 - resize
 - lazy load web3x-es?
 - onchange -> updateReturn
-- show if has metamask, locked, etc
-- max input
+- some tokens loading error
+
+# at the end
 - cleanup & organize
-- typescript
-- create token
 - create readme
   - examples: with vanilla, react, vue
+
+# extra
+- create token
+- typescript
+- show if has metamask, locked, etc
+- max input

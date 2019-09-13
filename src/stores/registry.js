@@ -4,7 +4,7 @@ import { networkId } from "./eth";
 import safeFetch from "../utils/safeFetch";
 import Contract from "../utils/Contract";
 import { addresses } from "../env";
-// import * as tokenLoader from "./tokenLoader";
+import resolve from "../utils/resolve";
 
 const contractRegistry = writable(undefined);
 const converterRegistry = writable(undefined);
@@ -167,26 +167,25 @@ const init = async eth => {
   // add bnt connectors
   const tokenCount = await _converterRegistry.methods.tokenCount().call();
 
-  // tokenLoader.init({
-  //   count: tokenCount,
-  //   converterRegistry: _converterRegistry
-  // });
+  return resolve(
+    Array.from(Array(Number(tokenCount))).map((v, i) => ({
+      id: i,
+      fn: async () => {
+        const tokenAddress = await _converterRegistry.methods
+          .tokens(String(i))
+          .call()
+          .then(res => bufferToHex(res.buffer));
 
-  let i = Number(tokenCount);
-  while (--i >= 0) {
-    const tokenAddress = await _converterRegistry.methods
-      .tokens(String(i))
-      .call()
-      .then(res => bufferToHex(res.buffer));
+        const data = await getTokenData(eth, tokenAddress);
 
-    const data = await getTokenData(eth, tokenAddress);
+        tokens.update(v => {
+          v.set(tokenAddress, data);
 
-    tokens.update(v => {
-      v.set(tokenAddress, data);
-
-      return v;
-    });
-  }
+          return v;
+        });
+      }
+    }))
+  );
 };
 
 export {
