@@ -1,8 +1,7 @@
 # todo
 - test convert
-- fee, rate
-- some tokens loading error
-- clean number input
+- convert link
+- handle any decimals
 
 # at the end
 - cleanup & organize
@@ -16,3 +15,9 @@
 - show if has metamask, locked, etc
 - max input
 - lazy load web3x-es?
+- fee, rate
+- listener events
+- clean number input
+- some tokens loading error
+- min return
+- approve every time?

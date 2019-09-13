@@ -1,4 +1,9 @@
 <script>
+  /*
+    Icon wrapper
+    Gives icon's functionality like onClick and orientation
+  */
+
   import { createEventDispatcher } from "svelte";
   import useCssVars from "svelte-css-vars";
   import Required from "../utils/Required";
@@ -28,10 +33,10 @@
 
 <style>
   div {
-    color: var(--color);
+    height: var(--size);
     width: var(--size);
     min-width: 40px;
-    height: var(--size);
+    color: var(--color);
     cursor: var(--cursor);
     opacity: var(--opacity);
   }

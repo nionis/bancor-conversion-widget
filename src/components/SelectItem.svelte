@@ -1,4 +1,7 @@
 <script>
+  /*
+    Used by "Select" component's list
+  */
   import useCssVars from "svelte-css-vars";
   import Required from "../utils/Required";
   import Loading from "./Loading.svelte";
@@ -11,35 +14,35 @@
   export let fontColor = Required("fontColor");
   export let isLoading = false;
 
-  // TODO: investigate
+  // TODO: investigate why sometimes token is not found
   $: token = (!isLoading && tokens.get(item.value)) || {};
 
   $: cssVars = {
+    textAlign: isLoading ? "center" : "left",
     backgroundColor,
     hoverColor: isLoading ? backgroundColor : hoverColor,
     fontColor,
-    textAlign: isLoading ? "center" : "left",
     cursor: Cursor({ loading: isLoading })
   };
 </script>
 
 <style>
   .container {
-    background-color: var(--backgroundColor);
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: row;
+    align-items: center;
+    text-align: var(--textAlign);
     width: 270px;
     height: 50px;
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: row;
-    display: flex;
-    text-align: var(--textAlign);
+    background-color: var(--backgroundColor);
     color: var(--fontColor);
     cursor: var(--cursor);
   }
 
   img {
-    border-radius: 50px;
     height: 30px;
+    border-radius: 50px;
     margin: 10px;
   }
 

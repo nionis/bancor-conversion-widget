@@ -1,4 +1,9 @@
 <script>
+  /*
+    Label wrapper
+    Adds a label to a component
+  */
+
   import useCssVars from "svelte-css-vars";
   import Required from "../utils/Required";
 
@@ -13,8 +18,8 @@
 
 <style>
   span {
-    color: var(--spanColor);
     font-size: calc(14px + 0.35vw);
+    color: var(--spanColor);
   }
 
   .container {
@@ -29,10 +34,10 @@
   }
 
   .vertical {
-    flex-direction: row;
     width: 100%;
-    text-align: center;
+    flex-direction: row;
     justify-content: flex-start;
+    text-align: center;
   }
 
   .vertical > span {
@@ -52,5 +57,4 @@
   <div class="childrenContainer">
     <slot />
   </div>
-
 </div>

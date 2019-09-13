@@ -1,13 +1,18 @@
+/*
+  A store to initialize and listen to ethereum events.
+  Account and network changes all dynamically updated.
+*/
+
 import { Eth } from "web3x-es/eth";
 import { LegacyProviderAdapter } from "web3x-es/providers";
 import { writable, derived, get } from "svelte/store";
 
-const eth = writable(undefined);
-const installed = writable(false);
-const accepted = writable(false);
-const account = writable(undefined);
-const networkId = writable(undefined);
-const isLoggedIn = derived(account, v => !!v);
+const eth = writable(undefined); // ethereum instance
+const installed = writable(false); // metamask is installed on user's browser
+const accepted = writable(false); // user has accepted this website on metamask
+const account = writable(undefined); // current account address
+const networkId = writable(undefined); // current networkId
+const isLoggedIn = derived(account, v => !!v); // is user logged in (account exists)
 
 const getEth = async () => {
   let _eth = undefined;
@@ -72,16 +77,16 @@ const getAccount = async () => {
   return accounts[0] || undefined;
 };
 
+// check and update data
 const sync = async () => {
   const _networkId = await getNetworkId();
   networkId.update(() => _networkId);
 
-  if (get(accepted)) {
-    const _account = await getAccount();
-    account.update(() => _account);
-  }
+  const _account = await getAccount();
+  account.update(() => _account);
 };
 
+// initialize and subscribe to ethereum events
 const init = async () => {
   const _eth = await getEth();
   await sync();
@@ -108,6 +113,10 @@ export {
   account,
   networkId,
   isLoggedIn,
-  init,
-  getAccept
+  getEth,
+  getNetworkId,
+  getAccept,
+  getAccount,
+  sync,
+  init
 };
