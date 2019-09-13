@@ -82,7 +82,7 @@
   };
 
   const OnChange = ({ tokenA, tokenB, inputA, inputB }) => e => {
-    inputA.update(() => e.target.value);
+    inputA.update(() => e.target.value || "0");
 
     updateReturn({
       tokenA,

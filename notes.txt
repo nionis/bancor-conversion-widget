@@ -1,9 +1,9 @@
 # todo
 - test convert
 - resize
-- onchange -> updateReturn
 - some tokens loading error
 - clean number input
+- fee, rate
 
 # at the end
 - cleanup & organize

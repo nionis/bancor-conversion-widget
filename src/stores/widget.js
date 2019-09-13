@@ -74,14 +74,18 @@ const path = derived([tokenA, tokenB], ([_tokenA, _tokenB]) => {
   }
 });
 
+const resetInputs = () => {
+  tokenAInput.update(() => "0");
+  tokenBInput.update(() => "0");
+};
+
 const updateReturn = async o => {
   const _selected = get(pairsAreSelected);
   if (!_selected) return;
 
-  const sendAmount = toWei(get(o.inputA), "ether");
+  const sendAmount = toWei(get(o.inputA), "ether") || "0";
   if (sendAmount === "0") {
-    o.inputB.update(() => "0");
-    return;
+    return resetInputs();
   }
 
   loading.update(() => true);
@@ -91,13 +95,20 @@ const updateReturn = async o => {
     get(o.tokenA).address === get(tokenA).address ? _path : _path.reverse();
 
   const _bancorNetwork = get(bancorNetwork);
-  const { receiveAmount, fee } = await _bancorNetwork.methods
+
+  const { receiveAmount = "0", fee = "0" } = await _bancorNetwork.methods
     .getReturnByPath(currentPath, sendAmount)
     .call()
     .then(res => ({
       receiveAmount: fromWei(res["0"], "ether"),
       fee: res["1"]
-    }));
+    }))
+    .catch(err => {
+      console.error(err);
+      resetInputs();
+
+      return {};
+    });
 
   o.inputB.update(() => receiveAmount);
   loading.update(() => false);
