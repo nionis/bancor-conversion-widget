@@ -79,6 +79,11 @@ const updateReturn = async o => {
   if (!_selected) return;
 
   const sendAmount = toWei(get(o.inputA), "ether");
+  if (sendAmount === "0") {
+    o.inputB.update(() => "0");
+    return;
+  }
+
   loading.update(() => true);
 
   const _path = get(path);

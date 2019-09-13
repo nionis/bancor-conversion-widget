@@ -4,6 +4,9 @@
 - lazy load web3x-es?
 - onchange -> updateReturn
 - some tokens loading error
+- when 0 no loading
+- initial load speed
+- clean number input
 
 # at the end
 - cleanup & organize
