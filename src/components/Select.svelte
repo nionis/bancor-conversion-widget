@@ -48,8 +48,6 @@
       dispatch("blur");
     } else if (!open && !listExists) {
       elem.$$.ctx.container.click();
-    } else {
-      dispatch("focus");
     }
   }
 

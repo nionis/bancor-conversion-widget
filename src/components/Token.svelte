@@ -25,10 +25,14 @@
 
   const onOpen = () => {
     open = true;
+
+    dispatch("open");
   };
 
   const onClose = () => {
     open = false;
+
+    dispatch("close");
   };
 
   const onSelect = e => {
@@ -53,6 +57,7 @@
         arrowColor={colors.selectArrow}
         token={selectedToken}
         {loading}
+        {disabled}
         on:click={onOpen} />
     </NumberInput>
   {:else}
@@ -63,6 +68,7 @@
       borderColor={colors.inputBorder}
       listBgColor={colors.inputBg}
       hoverBackgroundColor={colors.selectBg}
+      on:focus={onOpen}
       on:blur={onClose}
       on:select={onSelect} />
   {/if}

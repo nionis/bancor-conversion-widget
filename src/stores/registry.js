@@ -144,48 +144,55 @@ const init = async eth => {
   );
   nonStandardTokenRegistry.update(() => _nonStandardTokenRegistry);
 
-  // add eth
-  const ethAddress = await _bntConverter.methods
+  // add ETH
+  _bntConverter.methods
     .connectorTokens(0)
     .call()
-    .then(res => bufferToHex(res.buffer));
-  const ethTokenData = await getTokenData(eth, ethAddress);
-  tokens.update(v => {
-    v.set(ethAddress, ethTokenData);
+    .then(res => bufferToHex(res.buffer))
+    .then(async address => {
+      const data = await getTokenData(eth, address);
 
-    return v;
+      tokens.update(v => {
+        v.set(address, data);
+
+        return v;
+      });
+    });
+
+  // add BNT
+  getTokenData(eth, _bntToken.address).then(data => {
+    tokens.update(v => {
+      v.set(_bntToken.address, data);
+
+      return v;
+    });
   });
 
-  // add bnt
-  const bntTokenData = await getTokenData(eth, _bntToken.address);
-  tokens.update(v => {
-    v.set(_bntToken.address, bntTokenData);
+  // add tokens registered in converter
+  _converterRegistry.methods
+    .tokenCount()
+    .call()
+    .then(count => {
+      return resolve(
+        Array.from(Array(Number(count))).map((v, i) => ({
+          id: i,
+          fn: async () => {
+            const tokenAddress = await _converterRegistry.methods
+              .tokens(String(i))
+              .call()
+              .then(res => bufferToHex(res.buffer));
 
-    return v;
-  });
+            const data = await getTokenData(eth, tokenAddress);
 
-  // add bnt connectors
-  const tokenCount = await _converterRegistry.methods.tokenCount().call();
+            tokens.update(v => {
+              v.set(tokenAddress, data);
 
-  return resolve(
-    Array.from(Array(Number(tokenCount))).map((v, i) => ({
-      id: i,
-      fn: async () => {
-        const tokenAddress = await _converterRegistry.methods
-          .tokens(String(i))
-          .call()
-          .then(res => bufferToHex(res.buffer));
-
-        const data = await getTokenData(eth, tokenAddress);
-
-        tokens.update(v => {
-          v.set(tokenAddress, data);
-
-          return v;
-        });
-      }
-    }))
-  );
+              return v;
+            });
+          }
+        }))
+      );
+    });
 };
 
 export {

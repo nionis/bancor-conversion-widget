@@ -24,7 +24,10 @@ const recursive = (
     const newItems = resultItems.reduce((result, item) => {
       if (item.success) return result;
 
-      result.push(items.find(_item => _item.id === item.id));
+      result.push({
+        id: item.id,
+        fn: item.fn
+      });
 
       return result;
     }, []);

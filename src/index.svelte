@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { derived, get } from "svelte/store";
+  import useCssVars from "svelte-css-vars";
   import MdCompareArrows from "svelte-icons/md/MdCompareArrows.svelte";
   import * as ethStore from "./stores/eth";
   import { init as registryInit, tokens as tokensMap } from "./stores/registry";
@@ -25,23 +26,19 @@
   export let orientation = "horizontal";
   export let theme = "light";
   export let colors = {};
-  export let prefetch = true;
   export let tokenA = "ETH";
   export let tokenB = "BNT";
 
   colors = Colors(theme, colors);
 
-  const containerStyle = `
-    background-color: ${colors.containerBg};
-    border: ${colors.containerBorder} solid 1px;
-  `;
+  $: cssVars = {
+    containerBg: colors.containerBg,
+    containerBorder: colors.containerBorder
+  };
 
   onMount(async () => {
     const eth = await ethStore.init();
-
-    if (prefetch) {
-      registryInit(eth);
-    }
+    registryInit(eth);
   });
 
   const gettingSelectedTokens = derived(tokensMap, _tokensMap => {
@@ -114,6 +111,8 @@
     justify-content: space-evenly;
     align-items: center;
     border-radius: 10px;
+    background-color: var(--containerBg);
+    border: var(--containerBorder) solid 1px;
   }
 
   .horizontal {
@@ -129,7 +128,7 @@
   }
 </style>
 
-<div class="container {orientation}" style={containerStyle}>
+<div class="container {orientation}" use:useCssVars={cssVars}>
   <Token
     {orientation}
     {colors}
