@@ -1,20 +1,25 @@
 <script>
   import useCssVars from "svelte-css-vars";
   import Required from "../utils/Required";
+  import Loading from "./Loading.svelte";
+  import { Cursor } from "../utils/Colors.js";
 
   export let item = Required("item");
   export let tokens = Required("tokens");
   export let backgroundColor = Required("backgroundColor");
   export let hoverColor = Required("hoverColor");
   export let fontColor = Required("fontColor");
+  export let isLoading = false;
 
   // TODO: investigate
-  $: token = tokens.get(item.value) || {};
+  $: token = (!isLoading && tokens.get(item.value)) || {};
 
   $: cssVars = {
     backgroundColor,
-    hoverColor,
-    fontColor
+    hoverColor: isLoading ? backgroundColor : hoverColor,
+    fontColor,
+    textAlign: isLoading ? "center" : "left",
+    cursor: Cursor({ loading: isLoading })
   };
 </script>
 
@@ -27,9 +32,9 @@
     align-items: center;
     flex-direction: row;
     display: flex;
-    text-align: left;
+    text-align: var(--textAlign);
     color: var(--fontColor);
-    cursor: pointer;
+    cursor: var(--cursor);
   }
 
   img {
@@ -44,6 +49,10 @@
 </style>
 
 <div class="container" use:useCssVars={cssVars}>
-  <img src={token.img} alt="{token.symbol} logo" />
-  <div class="label">{item.label}</div>
+  {#if isLoading}
+    <Loading color={fontColor} />
+  {:else}
+    <img src={token.img} alt="{token.symbol} logo" />
+    <div class="label">{item.label}</div>
+  {/if}
 </div>

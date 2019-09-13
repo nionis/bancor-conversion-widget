@@ -12,6 +12,7 @@ const bancorNetwork = writable(undefined);
 const bntToken = writable(undefined);
 const bntConverter = writable(undefined);
 const nonStandardTokenRegistry = writable(undefined);
+const fetchingTokens = writable(false);
 const tokens = writable(new Map());
 
 const getTokenImg = async symbol => {
@@ -173,6 +174,8 @@ const init = async eth => {
     .tokenCount()
     .call()
     .then(count => {
+      fetchingTokens.update(() => true);
+
       return resolve(
         Array.from(Array(Number(count))).map((v, i) => ({
           id: i,
@@ -192,6 +195,9 @@ const init = async eth => {
           }
         }))
       );
+    })
+    .finally(() => {
+      fetchingTokens.update(() => false);
     });
 };
 
@@ -203,5 +209,6 @@ export {
   bntConverter,
   nonStandardTokenRegistry,
   tokens,
+  fetchingTokens,
   init
 };

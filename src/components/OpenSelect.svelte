@@ -52,6 +52,7 @@
     justify-content: center;
     align-items: center;
     margin-right: 6px;
+    width: 85px;
   }
 
   .container:hover {
@@ -77,7 +78,9 @@
 </style>
 
 <div class="container" on:click={onClick} use:useCssVars={cssVars}>
-  {#if !loading}
+  {#if loading}
+    <Loading color={arrowColor} />
+  {:else}
     <div class="button">
       <img src={token.img} alt="{token.symbol} logo" />
       <div style="color: {fontColor};">{token.symbol}</div>
@@ -85,8 +88,6 @@
         <MdArrowDropDown />
       </div>
     </div>
-  {:else}
-    <Loading color={arrowColor} />
   {/if}
 
 </div>

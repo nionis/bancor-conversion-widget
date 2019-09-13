@@ -12,6 +12,7 @@
   export let tokens = Required("tokens");
   export let value = Required("value");
   export let loading = false;
+  export let fetchingTokens = false;
   export let disabled = false;
   export let selectedToken = {
     name: "?",
@@ -68,6 +69,7 @@
       borderColor={colors.inputBorder}
       listBgColor={colors.inputBg}
       hoverBackgroundColor={colors.selectBg}
+      loading={fetchingTokens}
       on:focus={onOpen}
       on:blur={onClose}
       on:select={onSelect} />
