@@ -33,8 +33,9 @@
     justify-content: center;
     align-items: center;
     width: 90px;
+    min-width: 90px;
     height: 33px;
-    font-size: 1em;
+    font-size: calc(14px + 0.3vw);
     border-radius: 20px;
     padding-top: 1px;
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);

@@ -14,6 +14,7 @@
 <style>
   span {
     color: var(--spanColor);
+    font-size: calc(14px + 0.35vw);
   }
 
   .container {
@@ -25,6 +26,21 @@
   .horizontal {
     flex-direction: column;
     padding-bottom: 18px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  @media (max-width: 800px) {
+    .horizontal {
+      flex-direction: row;
+      width: 100%;
+      text-align: center;
+      justify-content: flex-start;
+    }
+
+    .horizontal > span {
+      width: 140px;
+    }
   }
 
   .vertical {
@@ -38,7 +54,7 @@
     width: 140px;
   }
 
-  .childrenContainer{
+  .childrenContainer {
     width: 272px;
     height: 47px;
   }
@@ -48,6 +64,8 @@
   {#if text}
     <span>{text}</span>
   {/if}
-  <div class="childrenContainer"><slot /></div>
-  
+  <div class="childrenContainer">
+    <slot />
+  </div>
+
 </div>

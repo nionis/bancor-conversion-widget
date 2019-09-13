@@ -30,6 +30,7 @@
   div {
     color: var(--color);
     width: var(--size);
+    min-width: 40px;
     height: var(--size);
     cursor: var(--cursor);
     opacity: var(--opacity);
@@ -37,6 +38,13 @@
 
   div:hover {
     opacity: var(--opacityHover) !important;
+  }
+
+  @media (max-width: 800px) {
+    .horizontal {
+      transform: rotate(-90deg);
+      margin-left: 100px;
+    }
   }
 
   .vertical {
