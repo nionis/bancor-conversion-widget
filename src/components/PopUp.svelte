@@ -1,20 +1,33 @@
 <script>
-  import PopUpStep from "./PopUpStep.svelte";
+  import { createEventDispatcher } from "svelte";
+  import { derived, get } from "svelte/store";
   import useCssVars from "svelte-css-vars";
+  import PopUpStep from "./PopUpStep.svelte";
+  import Required from "../utils/Required.js";
 
-  export let colors;
+  export let bgColor = Required("bgColor");
+  export let fontColor = Required("fontColor");
+  export let borderColor = Required("borderColor");
+  export let buttonBgColor = Required("buttonBgColor");
+  export let buttonFontColor = Required("buttonFontColor");
+  export let buttonBorderColor = Required("buttonBorderColor");
+  export let steps = Required("steps");
+  export let activeIndex = required("activeIndex");
 
-  export let bgColor = "white";
-  export let fontColor = "black";
-  export let borderColor = "grey";
   $: cssVars = {
-    borderColor: colors.containerBorder,
-    bgColor: colors.containerBg
+    bgColor,
+    borderColor
+  };
+
+  const dispatch = createEventDispatcher();
+
+  const onClose = () => {
+    dispatch("close");
   };
 </script>
 
 <style>
-  /* .container {
+  .container {
     position: absolute;
     display: flex;
     justify-content: center;
@@ -25,24 +38,34 @@
     height: 100vh;
     width: 100vw;
     z-index: 5;
-  } */
+  }
+
   .popup {
-    border-radius: 10px;
-    background-color: var(--bgColor);
-    border: var(--borderColor) solid 3px;
+    position: absolute;
+    display: flex;
     flex-direction: column;
     width: 375px;
     height: 325px;
-    display: flex;
-    position: absolute;
+    border-radius: 10px;
+    border: var(--borderColor) solid 3px;
+    background-color: var(--bgColor);
   }
 </style>
 
-<!-- <div class="container"> -->
-<div class="popup" use:useCssVars={cssVars}>
-  <PopUpStep {colors} done={true} />
-  <PopUpStep {colors} />
-  <PopUpStep {colors} active={false} />
-  <PopUpStep {colors} active={false} border={false} />
+<div class="container" on:click={onClose} use:useCssVars={cssVars}>
+  <div class="popup">
+    {#each steps as step, i}
+      <PopUpStep
+        {bgColor}
+        {fontColor}
+        {borderColor}
+        {buttonBgColor}
+        {buttonFontColor}
+        {buttonBorderColor}
+        {step}
+        active={activeIndex === i}
+        position={i + 1}
+        border={steps.length !== i - 1} />
+    {/each}
+  </div>
 </div>
-<!-- </div> -->

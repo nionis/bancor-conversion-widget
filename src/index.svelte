@@ -24,10 +24,16 @@
     pairsAreSelected,
     updateReturn
   } from "./stores/widget.js";
+  import {
+    isOpen as isPopupOpen,
+    close as closePopup,
+    steps
+  } from "./stores/popup.js";
   import Icon from "./components/Icon.svelte";
   import Button from "./components/Button.svelte";
   import Token from "./components/Token.svelte";
   import Select from "./components/Select.svelte";
+  import PopUp from "./components/PopUp.svelte";
   import Colors from "./utils/Colors.js";
 
   export let orientation = "horizontal";
@@ -86,6 +92,12 @@
     return Boolean(a || b);
   });
   $: disabledConvert = $loading || $tokenAInput === "0";
+
+  const activeIndex = derived(steps, _steps => {
+    return _steps.findIndex(step => {
+      return get(step).success === undefined;
+    });
+  });
 
   // called when user selects token
   const OnSelect = token => e => {
@@ -189,7 +201,19 @@
   }
 </style>
 
+<!-- on:close={closePopup} -->
 <div bind:offsetWidth>
+  {#if $isPopupOpen}
+    <PopUp
+      bgColor={colors.containerBg}
+      fontColor={colors.containerFont}
+      borderColor={colors.containerBorder}
+      buttonBgColor={colors.buttonBg}
+      buttonFontColor={colors.buttonFont}
+      buttonBorderColor={colors.buttonBorder}
+      steps={$steps}
+      activeIndex={$activeIndex} />
+  {/if}
   <div class="container {orientation}" use:useCssVars={cssVars}>
     <div>
       <Token

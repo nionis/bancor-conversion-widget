@@ -3,43 +3,48 @@
   import useCssVars from "svelte-css-vars";
   import MdCheck from "svelte-icons/md/MdCheck.svelte";
 
-  export let colors;
+  export let bgColor = Required("bgColor");
+  export let fontColor = Required("fontColor");
+  export let borderColor = Required("borderColor");
+  export let buttonBgColor = Required("buttonBgColor");
+  export let buttonFontColor = Required("buttonFontColor");
+  export let buttonBorderColor = Required("buttonBorderColor");
+  export let step = Required("step");
+  export let position = Required("position");
+  export let active = Required("active");
   export let border = true;
-  export let active = true;
-  export let done = false;
-
-  let buttonBg = colors.buttonBg;
-  let buttonFont = colors.buttonFont;
-  let buttonBorder = colors.buttonBorder;
 
   $: cssVars = {
-    borderColor: colors.containerBorder,
-    fontColor: colors.containerFont,
+    borderColor,
+    fontColor,
     border: border ? "3px" : "0px",
-    opacity: active ? 1 : 0.5,
-    iconColor: colors.buttonBg
+    opacity: active || $step.pending ? 1 : 0.5,
+    iconColor: buttonBgColor
   };
+
+  $: disabled = !active || $step.success;
 </script>
 
 <style>
   .container {
-    border-bottom: var(--borderColor) solid var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-grow: 1;
-    padding-right: 20px;
+    border-bottom: var(--borderColor) solid var(--border);
     color: var(--fontColor);
     opacity: var(--opacity);
+    padding-left: 20px;
+    padding-right: 20px;
   }
   .step {
-    padding: 20px;
+    max-height: 30px;
+    width: 30px;
+    text-align: left;
     padding-right: 0;
     color: var(--fontColor);
-    text-align: center;
-    width: 30px;
-    max-height: 30px;
   }
+
   .icon {
     color: var(--iconColor);
   }
@@ -47,15 +52,20 @@
 
 <div class="container" use:useCssVars={cssVars}>
   <div class="step">
-    {#if done}
+    {#if $step.success}
       <div class="icon">
         <MdCheck />
       </div>
-    {:else}1{/if}
-
+    {:else}{position}{/if}
   </div>
-  <div class="text">This is the question?</div>
-  <Button bgColor={buttonBg} fontColor={buttonFont} borderColor={buttonBorder}>
+  <div class="text">{$step.text}</div>
+  <Button
+    bgColor={buttonBgColor}
+    fontColor={buttonFontColor}
+    borderColor={buttonBorderColor}
+    loading={$step.pending}
+    {disabled}
+    on:click={$step.fn}>
     Accept
   </Button>
 </div>

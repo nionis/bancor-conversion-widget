@@ -1,14 +1,17 @@
 <script>
   import { createEventDispatcher } from "svelte";
   import useCssVars from "svelte-css-vars";
+  import Loading from "./Loading.svelte";
   import Required from "../utils/Required";
   import { Cursor, Opacity } from "../utils/Colors.js";
 
   export let bgColor = Required("bgColor");
   export let fontColor = Required("fontColor");
   export let borderColor = Required("borderColor");
-  export let disabled = false;
   export let orientation = "vertical";
+  export let text = "";
+  export let disabled = false;
+  export let loading = false;
 
   $: cssVars = {
     bgColor,
@@ -34,6 +37,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
     width: 90px;
     min-width: 90px;
     height: 33px;
@@ -73,13 +77,18 @@
   }
 </style>
 
-<div class="centeringContainer">
+<div class="centeringContainer" use:useCssVars={cssVars}>
 
   <div class="btnContainer">
-    <div class="btn" on:click={onClick} use:useCssVars={cssVars}>
-      <slot />
+    <div class="btn" on:click={onClick}>
+      {#if loading}
+        <Loading color={fontColor} />
+      {:else}
+        <slot />
+      {/if}
     </div>
   </div>
-
-  <div class="underBtnText">some message here</div>
+  {#if text}
+    <div class="underBtnText">{text}</div>
+  {/if}
 </div>

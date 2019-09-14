@@ -1,7 +1,7 @@
 # todo
 - test convert
 - convert link
-- handle any decimals
+- minAmount / approve amount
 
 # at the end
 - cleanup & organize

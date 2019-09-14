@@ -5,6 +5,7 @@ import { writable, derived, get } from "svelte/store";
 import { toBN, fromWei, toWei } from "web3x-es/utils";
 import * as ethStore from "./eth";
 import * as tokensStore from "./tokens";
+import * as popupStore from "./popup";
 import Contract from "../utils/Contract";
 import Required from "../utils/Required";
 import derivedPluck from "../utils/derivedPluck";
@@ -117,7 +118,7 @@ const convert = async (amount = Required("amount")) => {
   errorMsg.update(() => undefined);
   amount = toWei(amount) || "0";
 
-  const _eth = get(eth);
+  const _eth = get(ethStore.eth);
   if (!_eth) {
     throw Error("eth does not exist");
   }
@@ -139,6 +140,8 @@ const convert = async (amount = Required("amount")) => {
 
   const _bancorNetwork = get(tokensStore.bancorNetwork);
 
+  loading.update(() => true);
+
   const token = await Contract(
     _eth,
     _tokenA.isEth ? "EtherToken" : "ERC20Token",
@@ -159,14 +162,7 @@ const convert = async (amount = Required("amount")) => {
     (!enoughBalance && !_tokenA.isEth) ||
     (!enoughBalance && _tokenA.isEth && !enoughEthBalance);
 
-  console.log({
-    ethBalance,
-    balance,
-    enoughBalance,
-    insufficientBalance,
-    allowance,
-    isAllowed
-  });
+  loading.update(() => false);
 
   // insufficient funds
   if (insufficientBalance) {
@@ -174,28 +170,64 @@ const convert = async (amount = Required("amount")) => {
     return;
   }
 
+  popupStore.open();
+
+  const steps = [];
+
   if (!enoughBalance && _tokenA.isEth) {
-    console.log("depositing eth");
-    return token.methods.deposit().send({
-      from: _account,
-      value: amount
-    });
-  } else if (!isAllowed && !toBN(allowance).isZero()) {
-    console.log("reset approve");
-    return token.methods.approve(_bancorNetwork.address, 0).send({
-      from: _account
-    });
-  } else if (!isAllowed) {
-    console.log("approve amount");
-    return token.methods.approve(_bancorNetwork.address, amount).send({
-      from: _account
-    });
-  } else {
-    console.log("claim and convert");
-    return _bancorNetwork.methods.claimAndConvert(get(path), amount, 1).send({
-      from: _account
-    });
+    steps.push(
+      popupStore.Step({
+        text: "Deposit ETH.",
+        fn: popupStore.SyncStep(async () => {
+          return token.methods.deposit().send({
+            from: _account,
+            value: amount
+          });
+        })
+      })
+    );
   }
+
+  if (!isAllowed && !toBN(allowance).isZero()) {
+    steps.push(
+      popupStore.Step({
+        text: "Reset token allowance to 0.",
+        fn: popupStore.SyncStep(async () => {
+          return token.methods.approve(_bancorNetwork.address, 0).send({
+            from: _account
+          });
+        })
+      })
+    );
+  }
+
+  if (!isAllowed) {
+    steps.push(
+      popupStore.Step({
+        text: "Approve token withdrawal.",
+        fn: popupStore.SyncStep(async () => {
+          return token.methods.approve(_bancorNetwork.address, amount).send({
+            from: _account
+          });
+        })
+      })
+    );
+  }
+
+  steps.push(
+    popupStore.Step({
+      text: "Exchange.",
+      fn: popupStore.SyncStep(async () => {
+        return _bancorNetwork.methods
+          .claimAndConvert(get(path), amount, 1)
+          .send({
+            from: _account
+          });
+      })
+    })
+  );
+
+  popupStore.addSteps(steps);
 };
 
 export {
