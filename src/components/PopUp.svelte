@@ -1,4 +1,8 @@
 <script>
+  /*
+    Popup shows after clicking "convert"
+  */
+
   import { createEventDispatcher } from "svelte";
   import { derived, get } from "svelte/store";
   import useCssVars from "svelte-css-vars";

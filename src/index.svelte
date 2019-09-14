@@ -99,6 +99,8 @@
     });
   });
 
+  const swapMessage = "⠀";
+
   // called when user selects token
   const OnSelect = token => e => {
     const value = e.detail.value;
@@ -184,12 +186,8 @@
     width: 450px;
     height: 325px;
   }
-  .conversionText {
-    width: 200px;
-    margin-left: var(--textAlign);
-  }
 
-  .centeringContainer {
+  .swapContainer {
     flex-direction: column;
     height: 66px;
     margin-top: var(--margin);
@@ -198,6 +196,11 @@
     display: flex;
     text-align: center;
     width: 100px;
+  }
+
+  .swapText {
+    width: 200px;
+    margin-left: var(--textAlign);
   }
 </style>
 
@@ -233,7 +236,7 @@
           inputA: tokenAInput,
           inputB: tokenBInput
         })} />
-      <div class="centeringContainer">
+      <div class="swapContainer">
         <Icon
           {orientation}
           color={colors.compareArrows}
@@ -242,7 +245,9 @@
           <MdCompareArrows />
 
         </Icon>
-        <div class="conversionText">conversion message</div>
+        {#if swapMessage}
+          <div class="swapText">{swapMessage}</div>
+        {/if}
       </div>
       <Token
         {orientation}
@@ -261,7 +266,6 @@
           inputA: tokenBInput,
           inputB: tokenAInput
         })} />
-
       <Button
         {orientation}
         bgColor={colors.buttonBg}
@@ -271,7 +275,6 @@
         disabled={disabledConvert}>
         Convert
       </Button>
-
     </div>
   </div>
 </div>

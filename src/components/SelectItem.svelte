@@ -2,6 +2,7 @@
   /*
     Used by "Select" component's list
   */
+
   import useCssVars from "svelte-css-vars";
   import Required from "../utils/Required";
   import Loading from "./Loading.svelte";
@@ -40,14 +41,14 @@
     cursor: var(--cursor);
   }
 
+  .container:hover {
+    background-color: var(--hoverColor);
+  }
+
   img {
     height: 30px;
     border-radius: 50px;
     margin: 10px;
-  }
-
-  .container:hover {
-    background-color: var(--hoverColor);
   }
 </style>
 

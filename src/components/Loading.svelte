@@ -14,8 +14,8 @@
 
 <style>
   .loadingContainer {
-    width: 100%;
     align-items: center;
+    width: 100%;
     border: none;
     background-color: transparent;
   }

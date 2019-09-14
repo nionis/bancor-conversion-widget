@@ -3,6 +3,7 @@
     Indicates which token is selected,
     when clicked it toggles "Select" component
   */
+
   import { createEventDispatcher } from "svelte";
   import useCssVars from "svelte-css-vars";
   import Select from "svelte-select";

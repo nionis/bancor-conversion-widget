@@ -34,10 +34,10 @@
   }
 
   .vertical {
-    width: 100%;
     flex-direction: row;
     justify-content: flex-start;
     text-align: center;
+    width: 100%;
   }
 
   .vertical > span {

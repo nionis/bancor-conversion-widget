@@ -9,7 +9,7 @@
   export let fontColor = Required("fontColor");
   export let borderColor = Required("borderColor");
   export let orientation = "vertical";
-  export let text = "";
+  export let message = "⠀";
   export let disabled = false;
   export let loading = false;
 
@@ -33,6 +33,24 @@
 </script>
 
 <style>
+  .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    text-align: center;
+    height: 66px;
+    width: 100px;
+    margin-top: var(--margin);
+  }
+
+  .btnContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 47px;
+  }
+
   .btn {
     display: flex;
     justify-content: center;
@@ -55,30 +73,13 @@
   .btn:hover {
     opacity: var(--opacityHover) !important;
   }
-  .underBtnText {
-    width: 200px;
-  }
-  .btnContainer {
-    height: 47px;
-    justify-content: center;
-    align-items: center;
-    display: flex;
-  }
 
-  .centeringContainer {
-    flex-direction: column;
-    height: 66px;
-    margin-top: var(--margin);
-    justify-content: flex-end;
-    align-items: center;
-    display: flex;
-    text-align: center;
-    width: 100px;
+  .message {
+    width: 200px;
   }
 </style>
 
-<div class="centeringContainer" use:useCssVars={cssVars}>
-
+<div class="container" use:useCssVars={cssVars}>
   <div class="btnContainer">
     <div class="btn" on:click={onClick}>
       {#if loading}
@@ -88,7 +89,7 @@
       {/if}
     </div>
   </div>
-  {#if text}
-    <div class="underBtnText">{text}</div>
+  {#if message}
+    <div class="message">{message}</div>
   {/if}
 </div>

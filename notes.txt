@@ -1,7 +1,6 @@
 # todo
 - test convert
 - convert link
-- minAmount / approve amount
 
 # at the end
 - cleanup & organize
@@ -21,3 +20,5 @@
 - some tokens loading error
 - min return
 - approve every time?
+- minAmount
+- remove "⠀" from messages
