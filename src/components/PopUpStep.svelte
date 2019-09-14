@@ -56,7 +56,7 @@
       <div class="icon">
         <MdCheck />
       </div>
-    {:else}{position}{/if}
+    {:else}{position}.{/if}
   </div>
   <div class="text">{$step.text}</div>
   <Button
@@ -65,6 +65,8 @@
     borderColor={buttonBorderColor}
     loading={$step.pending}
     {disabled}
+    message={undefined}
+    orientation="horizontal"
     on:click={$step.fn}>
     Accept
   </Button>

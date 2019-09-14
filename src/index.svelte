@@ -22,12 +22,16 @@
     tokensB,
     convert,
     pairsAreSelected,
-    updateReturn
+    updateReturn,
+    errorMsg as widgetErrorMsg
   } from "./stores/widget.js";
   import {
     isOpen as isPopupOpen,
+    open as openPopup,
     close as closePopup,
-    steps
+    steps,
+    onStep,
+    done
   } from "./stores/popup.js";
   import Icon from "./components/Icon.svelte";
   import Button from "./components/Button.svelte";
@@ -92,12 +96,6 @@
     return Boolean(a || b);
   });
   $: disabledConvert = $loading || $tokenAInput === "0";
-
-  const activeIndex = derived(steps, _steps => {
-    return _steps.findIndex(step => {
-      return get(step).success === undefined;
-    });
-  });
 
   const swapMessage = "⠀";
 
@@ -215,7 +213,8 @@
       buttonFontColor={colors.buttonFont}
       buttonBorderColor={colors.buttonBorder}
       steps={$steps}
-      activeIndex={$activeIndex} />
+      activeIndex={$onStep}
+      on:close={closePopup} />
   {/if}
   <div class="container {orientation}" use:useCssVars={cssVars}>
     <div>
@@ -243,7 +242,6 @@
           on:click={onSwap}
           disabled={$loading}>
           <MdCompareArrows />
-
         </Icon>
         {#if swapMessage}
           <div class="swapText">{swapMessage}</div>
@@ -272,7 +270,8 @@
         fontColor={colors.buttonFont}
         borderColor={colors.buttonBorder}
         on:click={onConvert}
-        disabled={disabledConvert}>
+        disabled={disabledConvert}
+        message={$widgetErrorMsg || '⠀'}>
         Convert
       </Button>
     </div>

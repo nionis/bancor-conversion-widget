@@ -1,5 +1,4 @@
-import { writable } from "svelte/store";
-import {} from "web3x-es";
+import { writable, derived } from "svelte/store";
 
 const isOpen = writable(false);
 const open = () => {
@@ -72,6 +71,10 @@ const SyncStep = fn => step => {
             success: true,
             pending: false
           }));
+
+          onStep.update(val => {
+            return ++val;
+          });
         })
         .catch(err => {
           console.error(err);
@@ -85,8 +88,13 @@ const SyncStep = fn => step => {
 };
 
 const steps = writable([]);
+const onStep = writable(0);
+const done = derived([steps, onStep], (_steps, _onStep) => {
+  return Boolean(_steps.length <= _onStep);
+});
+
 const addSteps = _steps => {
   steps.update(() => _steps);
 };
 
-export { isOpen, open, close, steps, Step, SyncStep, addSteps };
+export { isOpen, open, close, steps, onStep, done, Step, SyncStep, addSteps };

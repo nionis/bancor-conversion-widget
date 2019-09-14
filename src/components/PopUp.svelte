@@ -5,8 +5,10 @@
 
   import { createEventDispatcher } from "svelte";
   import { derived, get } from "svelte/store";
+  import MdClose from "svelte-icons/md/MdClose.svelte";
   import useCssVars from "svelte-css-vars";
   import PopUpStep from "./PopUpStep.svelte";
+  import Icon from "./Icon.svelte";
   import Required from "../utils/Required.js";
 
   export let bgColor = Required("bgColor");
@@ -49,15 +51,26 @@
     display: flex;
     flex-direction: column;
     width: 375px;
-    height: 325px;
+    height: 425px;
     border-radius: 10px;
     border: var(--borderColor) solid 3px;
     background-color: var(--bgColor);
   }
+
+  .exitContainer {
+    position: absolute;
+    width: 100%;
+    z-index: 6;
+  }
 </style>
 
-<div class="container" on:click={onClose} use:useCssVars={cssVars}>
+<div class="container" use:useCssVars={cssVars}>
   <div class="popup">
+    <div class="exitContainer">
+      <Icon orientation="horizontal" color={fontColor} on:click={onClose}>
+        <MdClose />
+      </Icon>
+    </div>
     {#each steps as step, i}
       <PopUpStep
         {bgColor}
@@ -69,7 +82,7 @@
         {step}
         active={activeIndex === i}
         position={i + 1}
-        border={steps.length !== i - 1} />
+        border={steps.length !== i + 1} />
     {/each}
   </div>
 </div>
