@@ -40,7 +40,9 @@
 
   $: cssVars = {
     containerBg: colors.containerBg,
-    containerBorder: colors.containerBorder
+    containerBorder: colors.containerBorder,
+    textAlign: orientation === "vertical" ? "100px" : "0px",
+    margin: orientation === "vertical" ? "0px" : "19px"
   };
 
   onMount(async () => {
@@ -170,6 +172,21 @@
     width: 450px;
     height: 325px;
   }
+  .conversionText {
+    width: 200px;
+    margin-left: var(--textAlign);
+  }
+
+  .centeringContainer {
+    flex-direction: column;
+    height: 66px;
+    margin-top: var(--margin);
+    justify-content: flex-end;
+    align-items: center;
+    display: flex;
+    text-align: center;
+    width: 100px;
+  }
 </style>
 
 <div bind:offsetWidth>
@@ -192,13 +209,17 @@
           inputA: tokenAInput,
           inputB: tokenBInput
         })} />
-      <Icon
-        {orientation}
-        color={colors.compareArrows}
-        on:click={onSwap}
-        disabled={$loading}>
-        <MdCompareArrows />
-      </Icon>
+      <div class="centeringContainer">
+        <Icon
+          {orientation}
+          color={colors.compareArrows}
+          on:click={onSwap}
+          disabled={$loading}>
+          <MdCompareArrows />
+
+        </Icon>
+        <div class="conversionText">conversion message</div>
+      </div>
       <Token
         {orientation}
         {colors}
@@ -216,7 +237,9 @@
           inputA: tokenBInput,
           inputB: tokenAInput
         })} />
+
       <Button
+        {orientation}
         bgColor={colors.buttonBg}
         fontColor={colors.buttonFont}
         borderColor={colors.buttonBorder}
@@ -224,6 +247,7 @@
         disabled={disabledConvert}>
         Convert
       </Button>
+
     </div>
   </div>
 </div>

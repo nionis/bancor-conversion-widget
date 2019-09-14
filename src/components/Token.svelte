@@ -47,6 +47,12 @@
   };
 </script>
 
+<style>
+  .text {
+    text-align: center;
+  }
+</style>
+
 <Label {orientation} color={colors.containerFont} {text}>
   {#if !open}
     <NumberInput
@@ -79,4 +85,5 @@
       on:blur={onClose}
       on:select={onSelect} />
   {/if}
+  <div class="text">error messages</div>
 </Label>

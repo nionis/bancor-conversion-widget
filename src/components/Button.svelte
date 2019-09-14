@@ -8,6 +8,7 @@
   export let fontColor = Required("fontColor");
   export let borderColor = Required("borderColor");
   export let disabled = false;
+  export let orientation = "vertical";
 
   $: cssVars = {
     bgColor,
@@ -15,7 +16,8 @@
     borderColor,
     cursor: Cursor({ disabled }),
     opacity: Opacity({ disabled }),
-    opacityHover: Opacity({ hover: true })
+    opacityHover: Opacity({ hover: true }),
+    margin: orientation === "vertical" ? "0px" : "19px"
   };
 
   const dispatch = createEventDispatcher();
@@ -28,7 +30,7 @@
 </script>
 
 <style>
-  div {
+  .btn {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -46,11 +48,38 @@
     cursor: var(--cursor);
   }
 
-  div:hover {
+  .btn:hover {
     opacity: var(--opacityHover) !important;
+  }
+  .underBtnText {
+    width: 200px;
+  }
+  .btnContainer {
+    height: 47px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+  }
+
+  .centeringContainer {
+    flex-direction: column;
+    height: 66px;
+    margin-top: var(--margin);
+    justify-content: flex-end;
+    align-items: center;
+    display: flex;
+    text-align: center;
+    width: 100px;
   }
 </style>
 
-<div on:click={onClick} use:useCssVars={cssVars}>
-  <slot />
+<div class="centeringContainer">
+
+  <div class="btnContainer">
+    <div class="btn" on:click={onClick} use:useCssVars={cssVars}>
+      <slot />
+    </div>
+  </div>
+
+  <div class="underBtnText">some message here</div>
 </div>
