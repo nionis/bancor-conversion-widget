@@ -131,7 +131,7 @@ const convert = async (amount = Required("amount")) => {
 
   let _account = get(ethStore.account);
   if (!_account) {
-    await getAccept();
+    await ethStore.getAccept();
     _account = get(ethStore.account);
   }
   if (!_account) {
