@@ -6,11 +6,10 @@
 
   import { createEventDispatcher } from "svelte";
   import useCssVars from "svelte-css-vars";
-  import Required from "../utils/Required";
   import { Cursor, Opacity } from "../utils/Colors.js";
+  import Required from "../utils/Required";
 
   export let color = Required("color");
-  export let orientation = Required("orientation");
   export let size = "40px";
   export let disabled = false;
 
@@ -45,12 +44,11 @@
     opacity: var(--opacityHover) !important;
   }
 
-  .vertical {
-    transform: rotate(-90deg);
-    margin-left: 100px;
+  .container {
+    transform: rotate(90deg);
   }
 </style>
 
-<div class={orientation} on:click={onClick} use:useCssVars={cssVars}>
+<div class="container" use:useCssVars={cssVars} on:click={onClick}>
   <slot />
 </div>

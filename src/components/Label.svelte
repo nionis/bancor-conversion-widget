@@ -5,52 +5,48 @@
   */
 
   import useCssVars from "svelte-css-vars";
+  import { emptyChar } from "../utils";
   import Required from "../utils/Required";
 
-  export let orientation = Required("orientation");
-  export let color = Required("color");
-  export let text;
+  export let bgColor = Required("bgColor");
+  export let fontColor = Required("fontColor");
+  export let text = emptyChar;
 
   $: cssVars = {
-    spanColor: color
+    bgColor,
+    fontColor
   };
 </script>
 
 <style>
   span {
-    font-size: calc(14px + 0.35vw);
-    color: var(--spanColor);
+    font-size: calc(26px + 0.35vw);
+    font-weight: lighter;
+    color: var(--fontColor);
   }
 
   .container {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .horizontal {
-    flex-direction: column;
-    padding-bottom: 18px;
-  }
-
-  .vertical {
-    flex-direction: row;
-    justify-content: flex-start;
-    text-align: center;
     width: 100%;
-  }
-
-  .vertical > span {
-    width: 140px;
+    height: 150px;
+    padding: 20px;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center;
+    align-items: flex-start;
+    background-color: var(--bgColor);
+    box-sizing: border-box;
   }
 
   .childrenContainer {
-    width: 272px;
-    height: 47px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
   }
 </style>
 
-<div class="container {orientation}" use:useCssVars={cssVars}>
+<div class="container" use:useCssVars={cssVars}>
   {#if text}
     <span>{text}</span>
   {/if}

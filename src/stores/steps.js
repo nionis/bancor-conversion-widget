@@ -58,8 +58,8 @@ const SyncStep = fn => step => {
             txHash
           }));
         })
-        .catch(err => {
-          console.error(err);
+        .catch(error => {
+          console.error(error);
           fail();
         });
 
@@ -76,13 +76,13 @@ const SyncStep = fn => step => {
             return ++val;
           });
         })
-        .catch(err => {
-          console.error(err);
+        .catch(error => {
+          console.error(error);
           fail();
         });
     })
-    .catch(err => {
-      console.error(err);
+    .catch(error => {
+      console.error(error);
       fail();
     });
 };

@@ -52,8 +52,8 @@ const getAccept = async () => {
 
           resolve(true);
         })
-        .catch(err => {
-          console.error(err);
+        .catch(error => {
+          console.error(error);
           console.log(`Rejected.`);
 
           resolve(false);

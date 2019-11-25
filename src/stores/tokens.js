@@ -83,12 +83,13 @@ const getTokenData = async (eth, address) => {
     isEth,
     isBNT,
     isNSToken,
+    isRelay: relay === address,
     img
   };
 };
 
 // TODO: improve speed
-const init = async eth => {
+const init = async (eth, showRelayTokens = false) => {
   tokens.update(() => new Map());
 
   const _networkId = get(ethStore.networkId);
@@ -201,6 +202,9 @@ const init = async eth => {
 
             const data = await getTokenData(eth, tokenAddress);
 
+            // hide relay tokens
+            if (!showRelayTokens && data.isRelay) return;
+
             tokens.update(v => {
               v.set(tokenAddress, data);
 
@@ -214,11 +218,6 @@ const init = async eth => {
       fetchingTokens.update(() => false);
     });
 };
-
-// when network changes, reinitialize
-ethStore.networkId.subscribe(_networkId => {
-  if (_networkId) init(get(ethStore.eth));
-});
 
 export {
   contractRegistry,

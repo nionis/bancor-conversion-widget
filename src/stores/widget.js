@@ -5,84 +5,90 @@ import { writable, derived, get } from "svelte/store";
 import { toBN, fromWei, toWei } from "web3x-es/utils";
 import * as ethStore from "./eth";
 import * as tokensStore from "./tokens";
-import * as popupStore from "./popup";
+import * as stepsStore from "./steps";
 import Contract from "../utils/Contract";
 import Required from "../utils/Required";
 import derivedPluck from "../utils/derivedPluck";
 
 const loading = writable(false); // is widget loading
 const errorMsg = writable(undefined); // error message to be displayed
-const tokenA = writable(undefined);
-const tokenAInput = writable("0");
-const tokenB = writable(undefined);
-const tokenBInput = writable("0");
-const tokensA = derivedPluck(tokensStore.tokens, tokenB); // a Map of all tokens except tokenB (used in "Select")
-const tokensB = derivedPluck(tokensStore.tokens, tokenA); // a Map of all tokens except tokenA (used in "Select")
-const pairsAreSelected = derived([tokenA, tokenB], ([_tokenA, _tokenB]) => {
-  return Boolean(_tokenA && _tokenB);
-}); // true if both pairs are selected
-const path = derived([tokenA, tokenB], ([_tokenA, _tokenB]) => {
-  if (!get(pairsAreSelected)) return [];
-
-  const _bntToken = get(tokensStore.tokens).get(
-    get(tokensStore.bntToken).address
-  );
-  const oneIsEth = _tokenA.isEth || _tokenB.isEth;
-  const oneIsBNT = _tokenA.isBNT || _tokenB.isBNT;
-
-  if (oneIsEth && oneIsBNT) {
-    if (_tokenA.isEth) {
-      return [_tokenA.address, _tokenB.relay, _tokenB.address];
-    } else {
-      return [_tokenA.address, _tokenA.relay, _tokenB.address];
-    }
-  } else if (oneIsBNT) {
-    if (_tokenA.isBNT) {
-      return [_tokenA.address, _tokenB.relay, _tokenB.address];
-    } else {
-      return [_tokenA.address, _tokenA.relay, _tokenB.address];
-    }
-  } else if (oneIsEth) {
-    if (_tokenA.isEth) {
-      return [
-        _tokenA.address,
-        _bntToken.relay,
-        _bntToken.address,
-        _tokenB.relay,
-        _tokenB.address
-      ];
-    } else {
-      return [
-        _tokenA.address,
-        _tokenA.relay,
-        _bntToken.address,
-        _bntToken.relay,
-        _tokenB.address
-      ];
-    }
-  } else {
-    return [
-      _tokenA.address,
-      _tokenA.relay,
-      _bntToken.address,
-      _tokenB.relay,
-      _tokenB.address
-    ];
+const tokenSend = writable(undefined);
+const tokenSendInput = writable("0");
+const tokenReceive = writable(undefined);
+const tokenReceiveInput = writable("0");
+const tokensSend = derivedPluck(tokensStore.tokens, tokenReceive); // a Map of all tokens except tokenReceive (used in "Select")
+const tokensReceive = derivedPluck(tokensStore.tokens, tokenSend); // a Map of all tokens except tokenSend (used in "Select")
+const pairsAreSelected = derived(
+  [tokenSend, tokenReceive],
+  ([_tokenSend, _tokenReceive]) => {
+    return Boolean(_tokenSend && _tokenReceive);
   }
-}); // BancorNetwork path to be used for exchanging
+); // true if both pairs are selected
+const path = derived(
+  [tokenSend, tokenReceive],
+  ([_tokenSend, _tokenReceive]) => {
+    if (!get(pairsAreSelected)) return [];
+
+    const _bntToken = get(tokensStore.tokens).get(
+      get(tokensStore.bntToken).address
+    );
+    const oneIsEth = _tokenSend.isEth || _tokenReceive.isEth;
+    const oneIsBNT = _tokenSend.isBNT || _tokenReceive.isBNT;
+
+    if (oneIsEth && oneIsBNT) {
+      if (_tokenSend.isEth) {
+        return [_tokenSend.address, _tokenReceive.relay, _tokenReceive.address];
+      } else {
+        return [_tokenSend.address, _tokenSend.relay, _tokenReceive.address];
+      }
+    } else if (oneIsBNT) {
+      if (_tokenSend.isBNT) {
+        return [_tokenSend.address, _tokenReceive.relay, _tokenReceive.address];
+      } else {
+        return [_tokenSend.address, _tokenSend.relay, _tokenReceive.address];
+      }
+    } else if (oneIsEth) {
+      if (_tokenSend.isEth) {
+        return [
+          _tokenSend.address,
+          _bntToken.relay,
+          _bntToken.address,
+          _tokenReceive.relay,
+          _tokenReceive.address
+        ];
+      } else {
+        return [
+          _tokenSend.address,
+          _tokenSend.relay,
+          _bntToken.address,
+          _bntToken.relay,
+          _tokenReceive.address
+        ];
+      }
+    } else {
+      return [
+        _tokenSend.address,
+        _tokenSend.relay,
+        _bntToken.address,
+        _tokenReceive.relay,
+        _tokenReceive.address
+      ];
+    }
+  }
+); // BancorNetwork path to be used for exchanging
 
 // reset both inputs
 const resetInputs = () => {
-  tokenAInput.update(() => "0");
-  tokenBInput.update(() => "0");
+  tokenSendInput.update(() => "0");
+  tokenReceiveInput.update(() => "0");
 };
 
-// update the other input with exchange amount
+// update the other input with convert amount
 const updateReturn = async o => {
   const _selected = get(pairsAreSelected);
   if (!_selected) return;
 
-  const sendAmount = toWei(get(o.inputA)) || "0";
+  const sendAmount = toWei(get(o.inputSend)) || "0";
   if (sendAmount === "0") {
     return resetInputs();
   }
@@ -91,7 +97,9 @@ const updateReturn = async o => {
 
   const _path = get(path);
   const currentPath =
-    get(o.tokenA).address === get(tokenA).address ? _path : _path.reverse();
+    get(o.tokenSend).address === get(tokenSend).address
+      ? _path
+      : _path.reverse();
 
   const _bancorNetwork = get(tokensStore.bancorNetwork);
 
@@ -102,18 +110,18 @@ const updateReturn = async o => {
       receiveAmount: fromWei(res["0"], "ether"),
       fee: res["1"]
     }))
-    .catch(err => {
-      console.error(err);
+    .catch(error => {
+      console.error(error);
       resetInputs();
 
       return {};
     });
 
-  o.inputB.update(() => receiveAmount);
+  o.inputReceive.update(() => receiveAmount);
   loading.update(() => false);
 };
 
-// exchange tokens
+// convert tokens
 const convert = async (amount = Required("amount")) => {
   errorMsg.update(() => undefined);
   amount = toWei(amount) || "0";
@@ -123,9 +131,9 @@ const convert = async (amount = Required("amount")) => {
     throw Error("eth does not exist");
   }
 
-  const _tokenA = get(tokenA);
-  const _tokenB = get(tokenB);
-  if (!_tokenA || !_tokenB) {
+  const _tokenSend = get(tokenSend);
+  const _tokenReceive = get(tokenReceive);
+  if (!_tokenSend || !_tokenReceive) {
     throw Error("pairs not selected");
   }
 
@@ -144,8 +152,8 @@ const convert = async (amount = Required("amount")) => {
 
   const token = await Contract(
     _eth,
-    _tokenA.isEth ? "EtherToken" : "ERC20Token",
-    _tokenA.address
+    _tokenSend.isEth ? "EtherToken" : "ERC20Token",
+    _tokenSend.address
   );
 
   // TODO: error msgs
@@ -159,8 +167,8 @@ const convert = async (amount = Required("amount")) => {
   const enoughEthBalance = toBN(ethBalance).gte(toBN(amount));
   const isAllowed = toBN(allowance).gte(toBN(amount));
   const insufficientBalance =
-    (!enoughBalance && !_tokenA.isEth) ||
-    (!enoughBalance && _tokenA.isEth && !enoughEthBalance);
+    (!enoughBalance && !_tokenSend.isEth) ||
+    (!enoughBalance && _tokenSend.isEth && !enoughEthBalance);
 
   loading.update(() => false);
 
@@ -170,15 +178,15 @@ const convert = async (amount = Required("amount")) => {
     return;
   }
 
-  popupStore.open();
+  stepsStore.open();
 
   const steps = [];
 
-  if (!enoughBalance && _tokenA.isEth) {
+  if (!enoughBalance && _tokenSend.isEth) {
     steps.push(
-      popupStore.Step({
+      stepsStore.Step({
         text: "Deposit ETH.",
-        fn: popupStore.SyncStep(async () => {
+        fn: stepsStore.SyncStep(async () => {
           return token.methods.deposit().send({
             from: _account,
             value: amount
@@ -190,9 +198,9 @@ const convert = async (amount = Required("amount")) => {
 
   if (!isAllowed && !toBN(allowance).isZero()) {
     steps.push(
-      popupStore.Step({
+      stepsStore.Step({
         text: "Reset token allowance to 0.",
-        fn: popupStore.SyncStep(async () => {
+        fn: stepsStore.SyncStep(async () => {
           return token.methods.approve(_bancorNetwork.address, 0).send({
             from: _account
           });
@@ -203,9 +211,9 @@ const convert = async (amount = Required("amount")) => {
 
   if (!isAllowed) {
     steps.push(
-      popupStore.Step({
+      stepsStore.Step({
         text: "Approve token withdrawal.",
-        fn: popupStore.SyncStep(async () => {
+        fn: stepsStore.SyncStep(async () => {
           return token.methods.approve(_bancorNetwork.address, amount).send({
             from: _account
           });
@@ -215,9 +223,9 @@ const convert = async (amount = Required("amount")) => {
   }
 
   steps.push(
-    popupStore.Step({
-      text: "Exchange.",
-      fn: popupStore.SyncStep(async () => {
+    stepsStore.Step({
+      text: "Convert.",
+      fn: stepsStore.SyncStep(async () => {
         return _bancorNetwork.methods
           .claimAndConvert(get(path), amount, 1)
           .send({
@@ -227,18 +235,18 @@ const convert = async (amount = Required("amount")) => {
     })
   );
 
-  popupStore.addSteps(steps);
+  stepsStore.addSteps(steps);
 };
 
 export {
   loading,
   errorMsg,
-  tokenA,
-  tokenAInput,
-  tokenB,
-  tokenBInput,
-  tokensA,
-  tokensB,
+  tokenSend,
+  tokenSendInput,
+  tokenReceive,
+  tokenReceiveInput,
+  tokensSend,
+  tokensReceive,
   pairsAreSelected,
   path,
   resetInputs,

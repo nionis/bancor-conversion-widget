@@ -2,38 +2,21 @@
   our default colors and some style related utils
 */
 
-export const lightTheme = {
-  containerBg: "#FFFEFE",
+const colors = {
+  containerBg: "white",
   containerFont: "black",
-  containerBorder: "rgba(11, 46, 87, 0.4)",
-  inputBg: "#FFFEFE",
-  inputFont: "black",
-  inputBorder: "#0B2E57",
-  selectBg: "#F0F0F0",
-  selectFont: "black",
-  selectBorder: "#0B2E57",
-  buttonBg: "#0B2E57",
+  topTokenBg: "#0D1A2C",
+  topTokenFont: "white",
+  bottomTokenBg: "white",
+  bottomTokenFont: "black",
+  orderSummaryBg: "#E1E1E1",
+  selectBorder: "#E1E1E1",
+  orderSummaryFont: "black",
+  disabledFont: "#787878",
+  buttonBg: "#0D1A2C",
   buttonFont: "white",
-  buttonBorder: "#000000",
-  compareArrows: "#0B2E57",
-  selectArrow: "black"
-};
-
-export const darkTheme = {
-  containerBg: "#6B6B6B",
-  containerFont: "white",
-  containerBorder: "#A5A5A5",
-  inputBg: "#353535",
-  inputFont: "white",
-  inputBorder: "#102644",
-  selectBg: "#474747",
-  selectFont: "white",
-  selectBorder: "#102644",
-  buttonBg: "#474747",
-  buttonFont: "white",
-  buttonBorder: "#363636",
-  compareArrows: "white",
-  selectArrow: "white"
+  compareArrows: "black",
+  hoverBackgroundColor: "#EDEDED"
 };
 
 export const Cursor = ({ disabled, loading }) => {
@@ -48,11 +31,9 @@ export const Opacity = ({ disabled, hover }) => {
   return 1;
 };
 
-const Colors = (theme, colors) => {
-  return {
-    ...(theme === "dark" ? darkTheme : lightTheme),
-    ...colors
-  };
-};
+export const Colors = _colors => ({
+  ...colors,
+  ..._colors
+});
 
 export default Colors;

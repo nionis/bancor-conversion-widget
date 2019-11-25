@@ -2,11 +2,12 @@
   /*
     Our widget component
   */
+
   import { onMount } from "svelte";
   import { derived, get } from "svelte/store";
   import useCssVars from "svelte-css-vars";
   import MdCompareArrows from "svelte-icons/md/MdCompareArrows.svelte";
-  import { init as ethInit } from "./stores/eth";
+  import * as ethStore from "./stores/eth";
   import {
     init as registryInit,
     tokens as tokensMap,
@@ -14,186 +15,188 @@
   } from "./stores/tokens";
   import {
     loading as widgetLoading,
-    tokenA as selectedTokenA,
-    tokenAInput,
-    tokensA,
-    tokenB as selectedTokenB,
-    tokenBInput,
-    tokensB,
+    tokenSend as selectedTokenSend,
+    tokenSendInput,
+    tokensSend,
+    tokenReceive as selectedTokenReceive,
+    tokenReceiveInput,
+    tokensReceive,
     convert,
     pairsAreSelected,
     updateReturn,
     errorMsg as widgetErrorMsg
   } from "./stores/widget.js";
   import {
-    isOpen as isPopupOpen,
-    open as openPopup,
-    close as closePopup,
+    isOpen as isStepsOpen,
+    open as openSteps,
+    close as closeSteps,
     steps,
     onStep,
     done
-  } from "./stores/popup.js";
+  } from "./stores/steps.js";
   import Icon from "./components/Icon.svelte";
   import Button from "./components/Button.svelte";
   import Token from "./components/Token.svelte";
-  import Select from "./components/Select.svelte";
-  import PopUp from "./components/PopUp.svelte";
+  import SelectTokens from "./components/SelectTokens/index.svelte";
+  import ConvertSteps from "./components/ConvertSteps/index.svelte";
+  import OrderSummary from "./components/OrderSummary.svelte";
   import Colors from "./utils/Colors.js";
+  import { emptyChar } from "./utils";
 
-  export let orientation = "horizontal";
-  export let theme = "light";
+  export let tokenSend = "ETH";
+  export let tokenReceive = "BNT";
   export let colors = {};
-  export let tokenA = "ETH";
-  export let tokenB = "BNT";
+  export let showRelayTokens = false;
 
-  colors = Colors(theme, colors);
+  // merge provided colors with default colors
+  colors = Colors(colors);
 
   $: cssVars = {
     containerBg: colors.containerBg,
-    containerBorder: colors.containerBorder,
-    textAlign: orientation === "vertical" ? "100px" : "0px",
-    margin: orientation === "vertical" ? "0px" : "19px"
+    orderSummaryBg: colors.orderSummaryBg,
+    textAlign: "0px",
+    margin: "19px"
   };
 
   onMount(async () => {
-    // initialize ethStore
-    // once networkId is set
-    // it will initialize tokensStore
-    await ethInit();
-  });
+    // when network changes, reinitialize
+    ethStore.networkId.subscribe(_networkId => {
+      if (_networkId) registryInit(get(ethStore.eth));
+    });
 
-  // dynamically update orientation if screen width is less than 800
-  const initialOrientation = orientation;
-  let offsetWidth;
-  $: {
-    if (offsetWidth <= 800) {
-      orientation = "vertical";
-    } else if (offsetWidth > 800 && initialOrientation === "horizontal") {
-      orientation = "horizontal";
-    }
-  }
+    // initialize ethStore
+    await ethStore.init();
+  });
 
   // true once default selected tokens are found
   const gettingSelectedTokens = derived(tokensMap, _tokensMap => {
     if ($pairsAreSelected) return false;
 
     const tokens = Array.from(_tokensMap.values());
+    const foundSendToken = tokens.find(t => t.symbol === tokenSend);
+    const foundReceiveToken = tokens.find(t => t.symbol === tokenReceive);
 
-    const foundA = tokens.find(t => t.symbol === tokenA);
-    const foundB = tokens.find(t => t.symbol === tokenB);
-
-    if (foundA) {
-      selectedTokenA.update(() => foundA);
+    if (foundSendToken) {
+      selectedTokenSend.update(() => foundSendToken);
     }
-    if (foundB) {
-      selectedTokenB.update(() => foundB);
+    if (foundReceiveToken) {
+      selectedTokenReceive.update(() => foundReceiveToken);
     }
 
-    return !(foundA && foundB);
+    return !(foundSendToken && foundReceiveToken);
   });
 
   const loading = derived([gettingSelectedTokens, widgetLoading], ([a, b]) => {
     return Boolean(a || b);
   });
-  $: disabledConvert = $loading || $tokenAInput === "0";
+  $: disabledConvert = $loading || $tokenSendInput === "0";
 
-  const swapMessage = "⠀";
+  const swapMessage = emptyChar;
+
+  let isSelectOpen = false;
+  let selectingForTokenName = null;
+  $: selectingForToken =
+    selectingForTokenName === "send" ? selectedTokenSend : selectedTokenReceive;
+  $: selectingList =
+    selectingForTokenName === "send" ? tokensSend : tokensReceive;
+
+  const OpenSelect = sendOrReceive => () => {
+    isSelectOpen = true;
+    selectingForTokenName = sendOrReceive;
+  };
+
+  const closeSelect = () => {
+    isSelectOpen = false;
+  };
 
   // called when user selects token
-  const OnSelect = token => e => {
+  const onSelect = e => {
     const value = e.detail.value;
     if (!$tokensMap.has(value)) return;
 
-    token.update(() => $tokensMap.get(value));
+    selectingForToken.update(() => $tokensMap.get(value));
 
     updateReturn({
-      tokenA: selectedTokenA,
-      tokenB: selectedTokenB,
-      inputA: tokenAInput,
-      inputB: tokenBInput
+      tokenSend: selectedTokenSend,
+      tokenReceive: selectedTokenReceive,
+      inputSend: tokenSendInput,
+      inputReceive: tokenReceiveInput
     });
+
+    closeSelect();
   };
 
   // called when user updates amount input
-  const OnChange = ({ tokenA, tokenB, inputA, inputB }) => e => {
-    inputA.update(() => e.target.value || "0");
+  const OnAmount = ({
+    tokenSend,
+    tokenReceive,
+    inputSend,
+    inputReceive
+  }) => e => {
+    inputSend.update(() => e.detail || "0");
 
     updateReturn({
-      tokenA,
-      tokenB,
-      inputA,
-      inputB
+      tokenSend,
+      tokenReceive,
+      inputSend,
+      inputReceive
     });
   };
 
   // called when user swaps tokens
   const onSwap = () => {
-    const _selectedTokenA = $selectedTokenA;
-    const _selectedTokenB = $selectedTokenB;
+    const _selectedTokenSend = $selectedTokenSend;
+    const _selectedTokenReceive = $selectedTokenReceive;
 
-    selectedTokenA.update(() => _selectedTokenB);
-    selectedTokenB.update(() => _selectedTokenA);
+    selectedTokenSend.update(() => _selectedTokenReceive);
+    selectedTokenReceive.update(() => _selectedTokenSend);
 
     updateReturn({
-      tokenA: selectedTokenA,
-      tokenB: selectedTokenB,
-      inputA: tokenAInput,
-      inputB: tokenBInput
+      tokenSend: selectedTokenSend,
+      tokenReceive: selectedTokenReceive,
+      inputSend: tokenSendInput,
+      inputReceive: tokenReceiveInput
     });
   };
 
   const onConvert = e => {
-    convert(get(tokenAInput));
+    convert(get(tokenSendInput));
   };
 </script>
 
 <style>
   .container {
     display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    border-radius: 10px;
-    background-color: var(--containerBg);
-    border: var(--containerBorder) solid 1px;
-    padding: 10px;
-  }
-
-  .horizontal {
-    flex-direction: row;
-    height: 110px;
-  }
-  .horizontal > div {
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    width: 1225px;
-  }
-
-  .vertical {
-    flex-direction: column;
-    min-width: 375px;
-    height: 325px;
-    max-width: 800px;
-    overflow: hidden;
-  }
-  .vertical > div {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
     align-items: center;
     width: 450px;
-    height: 325px;
+    height: 600px;
+    background-color: var(--orderSummaryBg);
+  }
+
+  .tokenContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    background-color: var(--orderSummaryBg);
+  }
+
+  .positionSwap {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-right: 45px;
+    box-sizing: border-box;
   }
 
   .swapContainer {
-    flex-direction: column;
-    height: 66px;
-    margin-top: var(--margin);
-    justify-content: flex-end;
-    align-items: center;
+    height: 50px;
+    width: 50px;
     display: flex;
-    text-align: center;
-    width: 100px;
+    background: white;
+    border: 2px solid #0d1a2c;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    position: absolute;
   }
 
   .swapText {
@@ -202,78 +205,87 @@
   }
 </style>
 
-<!-- on:close={closePopup} -->
-<div bind:offsetWidth>
-  {#if $isPopupOpen}
-    <PopUp
+<div class="container" use:useCssVars={cssVars}>
+  {#if $isStepsOpen}
+    <ConvertSteps
       bgColor={colors.containerBg}
       fontColor={colors.containerFont}
-      borderColor={colors.containerBorder}
       buttonBgColor={colors.buttonBg}
       buttonFontColor={colors.buttonFont}
-      buttonBorderColor={colors.buttonBorder}
+      disabledFont={colors.disabledFont}
       steps={$steps}
       activeIndex={$onStep}
-      on:close={closePopup} />
-  {/if}
-  <div class="container {orientation}" use:useCssVars={cssVars}>
-    <div>
+      on:close={closeSteps} />
+  {:else if isSelectOpen}
+    <SelectTokens
+      bgColor={colors.containerBg}
+      fontColor={colors.containerFont}
+      disabledFont={colors.disabledFont}
+      selectBorder={colors.selectBorder}
+      hoverBackgroundColor={colors.hoverBackgroundColor}
+      on:close={closeSelect}
+      on:select={onSelect}
+      loading={$fetchingTokens}
+      tokens={$selectingList} />
+  {:else}
+    <div class="tokenContainer">
       <Token
-        {orientation}
-        {colors}
-        text="SEND"
-        tokens={$tokensA}
-        selectedToken={$selectedTokenA}
+        title="SEND"
+        amount={$tokenSendInput}
+        token={$selectedTokenSend}
+        bgColor={colors.topTokenBg}
+        fontColor={colors.topTokenFont}
         loading={$loading}
         disabled={$loading}
-        fetchingTokens={$fetchingTokens}
-        on:select={OnSelect(selectedTokenA)}
-        value={$tokenAInput}
-        on:change={OnChange({
-          tokenA: selectedTokenA,
-          tokenB: selectedTokenB,
-          inputA: tokenAInput,
-          inputB: tokenBInput
+        on:open={OpenSelect('send')}
+        on:amount={OnAmount({
+          tokenSend: selectedTokenSend,
+          tokenReceive: selectedTokenReceive,
+          inputSend: tokenSendInput,
+          inputReceive: tokenReceiveInput
         })} />
-      <div class="swapContainer">
-        <Icon
-          {orientation}
-          color={colors.compareArrows}
-          on:click={onSwap}
-          disabled={$loading}>
-          <MdCompareArrows />
-        </Icon>
-        {#if swapMessage}
-          <div class="swapText">{swapMessage}</div>
-        {/if}
+
+      <div class="positionSwap">
+        <div class="swapContainer">
+          <Icon
+            size="50px"
+            color={colors.compareArrows}
+            on:click={onSwap}
+            disabled={$loading}>
+            <MdCompareArrows />
+          </Icon>
+          {#if swapMessage}
+            <div class="swapText">{swapMessage}</div>
+          {/if}
+        </div>
       </div>
+
       <Token
-        {orientation}
-        {colors}
-        text="RECEIVE"
-        tokens={$tokensB}
-        selectedToken={$selectedTokenB}
+        title="RECEIVE"
+        amount={$tokenReceiveInput}
+        token={$selectedTokenReceive}
+        bgColor={colors.bottomTokenBg}
+        fontColor={colors.bottomTokenFont}
         loading={$loading}
         disabled={$loading}
-        fetchingTokens={$fetchingTokens}
-        on:select={OnSelect(selectedTokenB)}
-        value={$tokenBInput}
-        on:change={OnChange({
-          tokenA: selectedTokenB,
-          tokenB: selectedTokenA,
-          inputA: tokenBInput,
-          inputB: tokenAInput
+        on:open={OpenSelect('receive')}
+        on:amount={OnAmount({
+          tokenSend: selectedTokenReceive,
+          tokenReceive: selectedTokenSend,
+          inputSend: tokenReceiveInput,
+          inputReceive: tokenSendInput
         })} />
+
+      <OrderSummary amount={$tokenSendInput} fee={0} />
+
       <Button
-        {orientation}
         bgColor={colors.buttonBg}
         fontColor={colors.buttonFont}
-        borderColor={colors.buttonBorder}
         on:click={onConvert}
         disabled={disabledConvert}
         message={$widgetErrorMsg || '⠀'}>
         Convert
       </Button>
     </div>
-  </div>
+  {/if}
 </div>

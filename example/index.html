@@ -18,11 +18,10 @@
         new BancorConversionWidget({
           target: document.body,
           props: {
-            orientation: "horizontal", // horizontal, vertical
-            theme: "light", // light, dark
+            tokenSend: "ETH", // pre-selected send token
+            tokenReceive: "BNT", // pre-selected receive token
             colors: {}, // set custom colors, look into "src/utils/Colors.js" for more info
-            tokenA: "ETH", // default left token
-            tokenB: "BNT" // default right token
+            showRelayTokens: false
           }
         });
       };

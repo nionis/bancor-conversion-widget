@@ -20,8 +20,8 @@ const rSingle = async ({ id, fn }) => {
           result
         });
       })
-      .catch(err => {
-        console.log(err);
+      .catch(error => {
+        console.error(error);
         clearTimeout(timer);
 
         resolve({
