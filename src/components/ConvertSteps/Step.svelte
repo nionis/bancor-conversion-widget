@@ -2,6 +2,7 @@
   import useCssVars from "svelte-css-vars";
   import MdCheck from "svelte-icons/md/MdCheck.svelte";
   import Button from "../Button.svelte";
+  import { emptyChar } from "../../utils";
 
   export let bgColor = Required("bgColor");
   export let fontColor = Required("fontColor");
@@ -72,16 +73,16 @@
       </div>
     {/if}
   </div>
-  {#if $step.txHash}
-    <div class="link">
+  <div class="link">
+    {#if $step.txHash}
       <a
         href="https://etherscan.io/tx/{$step.txHash}"
         target="_blank"
         rel="noopener noreferrer">
         etherscan
       </a>
-    </div>
-  {/if}
+    {:else}{emptyChar}{/if}
+  </div>
   {#if active}
     <Button
       bgColor={buttonBgColor}
