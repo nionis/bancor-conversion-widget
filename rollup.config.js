@@ -65,13 +65,14 @@ export default {
     // Minify the production build (npm run build)
     production && terser(),
 
-    // Generate bundle visualization
+    // Generate bundle statistics
     production &&
       bundleVisualizer({
+        filename: "./dist/stats.html",
         template: "treemap"
       }),
 
-    // Get bundle size
+    // Print bundle size
     production && bundleSize()
   ]
 };

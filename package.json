@@ -1,8 +1,8 @@
 {
   "name": "bancor-conversion-widget",
   "svelte": "src/index.svelte",
-  "module": "index.mjs",
-  "main": "index.js",
+  "module": "dist/index.mjs",
+  "main": "dist/index.js",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
