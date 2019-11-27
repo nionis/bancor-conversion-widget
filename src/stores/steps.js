@@ -97,4 +97,19 @@ const addSteps = _steps => {
   steps.update(() => _steps);
 };
 
-export { isOpen, open, close, steps, onStep, done, Step, SyncStep, addSteps };
+const clearSteps = () => {
+  steps.update(() => []);
+};
+
+export {
+  isOpen,
+  open,
+  close,
+  steps,
+  onStep,
+  done,
+  Step,
+  SyncStep,
+  addSteps,
+  clearSteps
+};

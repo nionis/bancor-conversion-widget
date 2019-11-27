@@ -7,6 +7,7 @@ import * as ethStore from "./eth";
 import * as tokensStore from "./tokens";
 import * as stepsStore from "./steps";
 import Contract from "../utils/Contract";
+import { zeroAddress } from "../utils/eth";
 import Required from "../utils/Required";
 import derivedPluck from "../utils/derivedPluck";
 
@@ -87,6 +88,9 @@ const resetInputs = () => {
 const updateReturn = async o => {
   const _selected = get(pairsAreSelected);
   if (!_selected) return;
+
+  // reset steps
+  stepsStore.clearSteps();
 
   const sendAmount = toWei(get(o.inputSend)) || "0";
   if (sendAmount === "0") {
@@ -186,21 +190,7 @@ const convert = async (amount = Required("amount")) => {
 
   const steps = [];
 
-  if (!enoughBalance && _tokenSend.isEth) {
-    steps.push(
-      stepsStore.Step({
-        text: "Deposit ETH.",
-        fn: stepsStore.SyncStep(async () => {
-          return token.methods.deposit().send({
-            from: _account,
-            value: amount
-          });
-        })
-      })
-    );
-  }
-
-  if (!isAllowed && !toBN(allowance).isZero()) {
+  if (!_tokenSend.isEth && !isAllowed && !toBN(allowance).isZero()) {
     steps.push(
       stepsStore.Step({
         text: "Reset token allowance to 0.",
@@ -213,7 +203,7 @@ const convert = async (amount = Required("amount")) => {
     );
   }
 
-  if (!isAllowed) {
+  if (!_tokenSend.isEth && !isAllowed) {
     steps.push(
       stepsStore.Step({
         text: "Approve token withdrawal.",
@@ -230,11 +220,19 @@ const convert = async (amount = Required("amount")) => {
     stepsStore.Step({
       text: "Convert.",
       fn: stepsStore.SyncStep(async () => {
-        return _bancorNetwork.methods
-          .claimAndConvert(get(path), amount, 1)
-          .send({
-            from: _account
-          });
+        const fn = _tokenSend.isEth ? "convert2" : "claimAndConvert2";
+        const ethAmount = _tokenSend.isEth ? amount : undefined;
+
+        return _bancorNetwork.methods[fn](
+          get(path),
+          amount,
+          1,
+          zeroAddress,
+          0
+        ).send({
+          from: _account,
+          value: ethAmount
+        });
       })
     })
   );
