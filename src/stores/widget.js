@@ -123,6 +123,12 @@ const updateReturn = async o => {
 
 // convert tokens
 const convert = async (amount = Required("amount")) => {
+  // if steps are already created, switch to steps view
+  if (get(stepsStore.steps).length > 1) {
+    stepsStore.open();
+    return;
+  }
+
   errorMsg.update(() => undefined);
   amount = toWei(amount) || "0";
 
@@ -177,8 +183,6 @@ const convert = async (amount = Required("amount")) => {
     errorMsg.update(() => "Insufficient funds.");
     return;
   }
-
-  stepsStore.open();
 
   const steps = [];
 
@@ -236,6 +240,11 @@ const convert = async (amount = Required("amount")) => {
   );
 
   stepsStore.addSteps(steps);
+
+  // if only one step is required, don't switch to steps view
+  if (steps.length !== 1) {
+    stepsStore.open();
+  }
 };
 
 export {

@@ -2,6 +2,7 @@
   import useCssVars from "svelte-css-vars";
   import MdCheck from "svelte-icons/md/MdCheck.svelte";
   import Button from "../Button.svelte";
+  import Link from "../Link.svelte";
   import { emptyChar } from "../../utils";
 
   export let bgColor = Required("bgColor");
@@ -17,7 +18,7 @@
     fontColor: active ? fontColor : disabledFont
   };
 
-  $: disabled = !active || $step.success;
+  $: disabled = !active || $step.success || $step.pending;
 </script>
 
 <style>
@@ -51,17 +52,6 @@
     width: 40px;
     height: 40px;
   }
-
-  .link {
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    padding-bottom: 20px;
-  }
-
-  a {
-    color: var(--fontColor);
-  }
 </style>
 
 <div class="container" use:useCssVars={cssVars}>
@@ -73,16 +63,6 @@
       </div>
     {/if}
   </div>
-  <div class="link">
-    {#if $step.txHash}
-      <a
-        href="https://etherscan.io/tx/{$step.txHash}"
-        target="_blank"
-        rel="noopener noreferrer">
-        etherscan
-      </a>
-    {:else}{emptyChar}{/if}
-  </div>
   {#if active}
     <Button
       bgColor={buttonBgColor}
@@ -91,6 +71,13 @@
       {disabled}
       on:click={$step.fn}>
       Accept
+      <span slot="message">
+        {#if $step.txHash}
+          <Link url="https://etherscan.io/tx/{$step.txHash}" {fontColor}>
+            etherscan
+          </Link>
+        {/if}
+      </span>
     </Button>
   {/if}
 </div>

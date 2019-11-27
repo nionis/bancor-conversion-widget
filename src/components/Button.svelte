@@ -12,7 +12,6 @@
 
   export let bgColor = Required("bgColor");
   export let fontColor = Required("fontColor");
-  export let message = emptyChar;
   export let disabled = false;
   export let loading = false;
 
@@ -41,7 +40,6 @@
     justify-content: flex-end;
     align-items: center;
     text-align: center;
-    height: 66px;
     margin-top: var(--margin);
   }
 
@@ -49,7 +47,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 47px;
   }
 
   .btn {
@@ -72,10 +69,6 @@
   .btn:hover {
     opacity: var(--opacityHover) !important;
   }
-
-  .message {
-    width: 200px;
-  }
 </style>
 
 <div class="container" use:useCssVars={cssVars}>
@@ -88,7 +81,5 @@
       {/if}
     </div>
   </div>
-  {#if message}
-    <div class="message">{message}</div>
-  {/if}
+  <slot name="message" />
 </div>

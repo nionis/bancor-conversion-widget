@@ -40,6 +40,7 @@
   import SelectTokens from "./components/SelectTokens/index.svelte";
   import ConvertSteps from "./components/ConvertSteps/index.svelte";
   import OrderSummary from "./components/OrderSummary.svelte";
+  import Link from "./components/Link.svelte";
   import Colors, { colors as defaultColors } from "./utils/Colors.js";
   import { emptyChar } from "./utils";
   import { addresses as defaultAddresses } from "./env";
@@ -96,7 +97,12 @@
   const loading = derived([gettingSelectedTokens, widgetLoading], ([a, b]) => {
     return Boolean(a || b);
   });
-  $: disabledConvert = $loading || $tokenSendInput === "0";
+  const disabledConvert = derived(
+    [loading, tokenSendInput],
+    ([$loading, $tokenSendInput]) => {
+      return $loading || $tokenSendInput === "0";
+    }
+  );
 
   const swapMessage = emptyChar;
 
@@ -166,9 +172,46 @@
     });
   };
 
-  const onConvert = e => {
-    convert(get(tokenSendInput));
+  const onConvert = async () => {
+    await convert(get(tokenSendInput));
+
+    if (get(steps).length === 1) {
+      const step = get(steps)[0];
+      get(step).fn();
+    }
   };
+
+  const firstStep = derived(steps, $steps => {
+    if ($steps.length === 1) return get($steps[0]);
+    return undefined;
+  });
+  const buttonLoading = derived(firstStep, $firstStep => {
+    if ($firstStep) return $firstStep.pending;
+    return false;
+  });
+  const buttonDisabled = derived(
+    [buttonLoading, disabledConvert],
+    ([$buttonLoading, $disabledConvert]) => {
+      return $buttonLoading || $disabledConvert;
+    }
+  );
+  const buttonMessage = derived(
+    [firstStep, widgetErrorMsg],
+    ([$firstStep, $widgetErrorMsg]) => {
+      if ($widgetErrorMsg)
+        return {
+          type: "text",
+          text: $widgetErrorMsg
+        };
+      if ($firstStep && $firstStep.txHash)
+        return {
+          type: "url",
+          url: `https://etherscan.io/tx/${$firstStep.txHash}`
+        };
+
+      return null;
+    }
+  );
 </script>
 
 <style>
@@ -289,9 +332,18 @@
         bgColor={colors.buttonBg}
         fontColor={colors.buttonFont}
         on:click={onConvert}
-        disabled={disabledConvert}
-        message={$widgetErrorMsg || '⠀'}>
+        disabled={$buttonDisabled}
+        loading={$buttonLoading}>
         Convert
+        <span slot="message">
+          {#if $buttonMessage}
+            {#if $buttonMessage.type == 'url'}
+              <Link url={$buttonMessage.url} fontColor={colors.bottomTokenFont}>
+                etherscan
+              </Link>
+            {:else}{$buttonMessage.text}{/if}
+          {/if}
+        </span>
       </Button>
     </div>
   {/if}
