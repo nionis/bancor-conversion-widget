@@ -2,7 +2,7 @@
   our default colors and some style related utils
 */
 
-const colors = {
+export const colors = {
   containerBg: "white",
   containerFont: "black",
   topTokenBg: "#0D1A2C",

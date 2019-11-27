@@ -40,13 +40,15 @@
   import SelectTokens from "./components/SelectTokens/index.svelte";
   import ConvertSteps from "./components/ConvertSteps/index.svelte";
   import OrderSummary from "./components/OrderSummary.svelte";
-  import Colors from "./utils/Colors.js";
+  import Colors, { colors as defaultColors } from "./utils/Colors.js";
   import { emptyChar } from "./utils";
+  import { addresses as defaultAddresses } from "./env";
 
   export let tokenSend = "ETH";
   export let tokenReceive = "BNT";
-  export let colors = {};
+  export let colors = defaultColors;
   export let showRelayTokens = false;
+  export let addresses = defaultAddresses;
 
   // merge provided colors with default colors
   colors = Colors(colors);
@@ -61,7 +63,12 @@
   onMount(async () => {
     // when network changes, reinitialize
     ethStore.networkId.subscribe(_networkId => {
-      if (_networkId) registryInit(get(ethStore.eth));
+      if (_networkId) {
+        registryInit(get(ethStore.eth), {
+          showRelayTokens,
+          addresses
+        });
+      }
     });
 
     // initialize ethStore

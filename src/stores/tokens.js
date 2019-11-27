@@ -7,7 +7,6 @@ import * as ethStore from "./eth";
 import safeFetch from "../utils/safeFetch";
 import Contract from "../utils/Contract";
 import resolve from "../utils/resolve";
-import { addresses } from "../env";
 
 const contractRegistry = writable(undefined); // contractRegistry instance
 const converterRegistry = writable(undefined); // converterRegistry instance
@@ -89,34 +88,30 @@ const getTokenData = async (eth, address) => {
 };
 
 // TODO: improve speed
-const init = async (eth, showRelayTokens = false) => {
+const init = async (eth, { showRelayTokens = false, addresses = {} }) => {
   tokens.update(() => new Map());
 
   const _networkId = get(ethStore.networkId);
   // only mainnet or localhost
   if (!addresses[_networkId]) return;
 
+  const ContractRegistryAddr = addresses[_networkId];
+
   // initialize contracts
   const _contractRegistry = await Contract(
     eth,
     "ContractRegistry",
-    addresses[_networkId].ContractRegistry
+    ContractRegistryAddr
   );
   contractRegistry.update(() => _contractRegistry);
-
-  const _converterRegistry = await Contract(
-    eth,
-    "BancorConverterRegistry",
-    addresses[_networkId].ConverterRegistry
-  );
-  converterRegistry.update(() => _converterRegistry);
 
   // get other contract's addresses using contractRegistry
   const [
     BancorNetworkAddr,
     BNTTokenAddr,
     BNTConverterAddr,
-    NonStandardTokenRegistryAddr
+    NonStandardTokenRegistryAddr,
+    ConverterRegistryAddr
   ] = await Promise.all([
     _contractRegistry.methods
       .addressOf(utf8ToHex("BancorNetwork"))
@@ -132,6 +127,10 @@ const init = async (eth, showRelayTokens = false) => {
       .then(res => bufferToHex(res.buffer)),
     _contractRegistry.methods
       .addressOf(utf8ToHex("NonStandardTokenRegistry"))
+      .call()
+      .then(res => bufferToHex(res.buffer)),
+    _contractRegistry.methods
+      .addressOf(utf8ToHex("BancorConverterRegistry"))
       .call()
       .then(res => bufferToHex(res.buffer))
   ]);
@@ -159,6 +158,13 @@ const init = async (eth, showRelayTokens = false) => {
     NonStandardTokenRegistryAddr
   );
   nonStandardTokenRegistry.update(() => _nonStandardTokenRegistry);
+
+  const _converterRegistry = await Contract(
+    eth,
+    "BancorConverterRegistry",
+    ConverterRegistryAddr
+  );
+  converterRegistry.update(() => _converterRegistry);
 
   // get and add ETH
   _bntConverter.methods
