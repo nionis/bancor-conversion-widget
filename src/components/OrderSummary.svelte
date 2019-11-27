@@ -3,9 +3,6 @@
 
   export let amount = Required("amount");
   export let fee = Required("fee");
-
-  // TODO: use safe addition
-  $: totalCost = Number(amount) + Number(fee);
 </script>
 
 <style>
@@ -36,14 +33,14 @@
   <h1>Order Summary</h1>
   <div class="alignRow">
     <div>Amount</div>
-    <div>{amount} ?</div>
+    <div>{amount} (?)</div>
   </div>
   <div class="alignRow">
     <div>Fee</div>
-    <div>{fee} ?</div>
+    <div>-{fee} (BNT)</div>
   </div>
   <div class="alignRow">
     <div>Total Cost</div>
-    <div>{totalCost} ?</div>
+    <div>{amount} (?)</div>
   </div>
 </div>

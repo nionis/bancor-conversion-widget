@@ -6,6 +6,8 @@
   import { onMount } from "svelte";
   import { derived, get } from "svelte/store";
   import useCssVars from "svelte-css-vars";
+  import { Address } from "web3x-es/address";
+  import { fromWei } from "web3x-es/utils";
   import MdCompareArrows from "svelte-icons/md/MdCompareArrows.svelte";
   import * as ethStore from "./stores/eth";
   import {
@@ -24,7 +26,9 @@
     convert,
     pairsAreSelected,
     updateReturn,
-    errorMsg as widgetErrorMsg
+    errorMsg as widgetErrorMsg,
+    affiliate as widgetAffiliate,
+    affiliateFee
   } from "./stores/widget.js";
   import {
     isOpen as isStepsOpen,
@@ -50,9 +54,23 @@
   export let colors = defaultColors;
   export let showRelayTokens = false;
   export let addresses = defaultAddresses;
+  export let affiliate = undefined;
 
   // merge provided colors with default colors
   colors = Colors(colors);
+
+  // validate affiliate data
+  if (affiliate) {
+    const { account, fee } = affiliate;
+
+    if (typeof account !== "string" || !Address.isAddress(account)) {
+      throw Error(`affiliate account '${account}' is not a valid address`);
+    } else if (typeof fee !== "number" || fee > 3) {
+      throw Error(`affiliate fee '${fee}' is not a valid fee, max 3%`);
+    }
+
+    widgetAffiliate.update(() => affiliate);
+  }
 
   $: cssVars = {
     containerBg: colors.containerBg,
@@ -209,7 +227,7 @@
           url: `https://etherscan.io/tx/${$firstStep.txHash}`
         };
 
-      return null;
+      return undefined;
     }
   );
 </script>
@@ -326,7 +344,9 @@
           inputReceive: tokenSendInput
         })} />
 
-      <OrderSummary amount={$tokenSendInput} fee={0} />
+      <OrderSummary
+        amount={$tokenSendInput}
+        fee={fromWei($affiliateFee, 'ether')} />
 
       <Button
         bgColor={colors.buttonBg}

@@ -17,6 +17,9 @@ const tokenSend = writable(undefined);
 const tokenSendInput = writable("0");
 const tokenReceive = writable(undefined);
 const tokenReceiveInput = writable("0");
+const affiliate = writable(undefined);
+const affiliateFee = writable("0");
+
 const tokensSend = derivedPluck(tokensStore.tokens, tokenReceive); // a Map of all tokens except tokenReceive (used in "Select")
 const tokensReceive = derivedPluck(tokensStore.tokens, tokenSend); // a Map of all tokens except tokenSend (used in "Select")
 const pairsAreSelected = derived(
@@ -82,6 +85,7 @@ const path = derived(
 const resetInputs = () => {
   tokenSendInput.update(() => "0");
   tokenReceiveInput.update(() => "0");
+  affiliateFee.update(() => "0");
 };
 
 // update the other input with convert amount
@@ -91,6 +95,8 @@ const updateReturn = async o => {
 
   // reset steps
   stepsStore.clearSteps();
+  // reset affiliate fee
+  affiliateFee.update(() => "0");
 
   const sendAmount = toWei(get(o.inputSend)) || "0";
   if (sendAmount === "0") {
@@ -107,10 +113,14 @@ const updateReturn = async o => {
 
   const _bancorNetwork = get(tokensStore.bancorNetwork);
 
-  const { receiveAmount = "0", fee = "0" } = await _bancorNetwork.methods
+  const {
+    receiveAmountWei = "0",
+    receiveAmount = "0"
+  } = await _bancorNetwork.methods
     .getReturnByPath(currentPath, sendAmount)
     .call()
     .then(res => ({
+      receiveAmountWei: res["0"],
       receiveAmount: fromWei(res["0"], "ether"),
       fee: res["1"]
     }))
@@ -120,6 +130,20 @@ const updateReturn = async o => {
 
       return {};
     });
+
+  // update fees
+  if (!get(o.tokenReceive).isEth) {
+    affiliateFee.update(() => {
+      const $affiliate = get(affiliate);
+
+      return $affiliate
+        ? toBN(receiveAmountWei)
+            .mul(toBN($affiliate.fee))
+            .div(toBN(100))
+            .toString()
+        : 0;
+    });
+  }
 
   o.inputReceive.update(() => receiveAmount);
   loading.update(() => false);
@@ -222,13 +246,28 @@ const convert = async (amount = Required("amount")) => {
       fn: stepsStore.SyncStep(async () => {
         const fn = _tokenSend.isEth ? "convert2" : "claimAndConvert2";
         const ethAmount = _tokenSend.isEth ? amount : undefined;
+        const $affiliate = get(affiliate);
+        const $affiliateFee = get(affiliateFee);
+
+        const affiliateAccount = $affiliate ? $affiliate.account : zeroAddress;
+        const affiliateFeePPM = $affiliateFee
+          ? toBN($affiliateFee)
+              .mul(toBN(1e6))
+              .div(toBN(100))
+              .toString()
+          : "0";
+
+        console.log({
+          affiliateAccount,
+          affiliateFeePPM
+        });
 
         return _bancorNetwork.methods[fn](
           get(path),
           amount,
           1,
-          zeroAddress,
-          0
+          affiliateAccount,
+          affiliateFeePPM
         ).send({
           from: _account,
           value: ethAmount
@@ -252,6 +291,8 @@ export {
   tokenSendInput,
   tokenReceive,
   tokenReceiveInput,
+  affiliate,
+  affiliateFee,
   tokensSend,
   tokensReceive,
   pairsAreSelected,
