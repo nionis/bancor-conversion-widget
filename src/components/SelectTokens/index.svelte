@@ -112,6 +112,7 @@
     --clearSelectColor: ${fontColor};
     --clearSelectHoverColor: ${fontColor};
     --listMaxHeight: 400px;
+    --virtualListHeight: 1000px;
     --listShadow: none;
     --listBorderRadius: 0px;
     --border: none;
@@ -167,6 +168,7 @@
       {items}
       Item={WrappedItem}
       containerStyles={style}
+      isVirtualList={true}
       bind:this={elem}
       bind:listOpen={open}
       placeholder="Search name, symbol"

@@ -141,7 +141,7 @@ const updateReturn = async o => {
             .mul(toBN($affiliate.fee))
             .div(toBN(100))
             .toString()
-        : 0;
+        : "0";
     });
   }
 
@@ -249,12 +249,13 @@ const convert = async (amount = Required("amount")) => {
         const $affiliateFee = get(affiliateFee);
 
         const affiliateAccount = $affiliate ? $affiliate.account : zeroAddress;
-        const affiliateFeePPM = $affiliateFee
-          ? toBN($affiliateFee)
-              .mul(toBN(1e6))
-              .div(toBN(100))
-              .toString()
-          : "0";
+        const affiliateFeePPM =
+          $affiliate && $affiliateFee
+            ? toBN($affiliate.fee)
+                .mul(toBN(1e6))
+                .div(toBN(100))
+                .toString()
+            : "0";
 
         return _bancorNetwork.methods[fn](
           get(path),

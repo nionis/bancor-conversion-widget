@@ -278,7 +278,6 @@
 </style>
 
 <div class="container" use:useCssVars={cssVars}>
-
   {#if $isStepsOpen}
     <ConvertSteps
       bgColor={colors.containerBg}
