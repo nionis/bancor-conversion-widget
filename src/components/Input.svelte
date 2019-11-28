@@ -12,29 +12,55 @@
   export let value = Required("value");
   export let disabled = false;
 
+  let virtualInput;
+  const minVirtualWidth = 50;
+  const maxVirtualWidth = 200;
+  let virtualWidth = `${minVirtualWidth}px`;
+
+  const onInput = e => {
+    virtualInput.innerText = e.target.value;
+
+    let newWidth = virtualInput.offsetWidth;
+    if (newWidth < minVirtualWidth) newWidth = minVirtualWidth;
+    else if (newWidth > maxVirtualWidth) newWidth = maxVirtualWidth;
+
+    virtualWidth = `${newWidth}px`;
+  };
+
   $: cssVars = {
     opacity: Opacity({ disabled }),
-    fontColor
+    fontColor,
+    fontSize: "calc(30px + 0.35vw)",
+    virtualWidth
   };
 </script>
 
 <style>
-  div {
+  .container {
     background-color: transparent;
     opacity: var(--opacity);
-    width: 40%;
+    margin-right: 15px;
+  }
+
+  .virtualInput {
+    position: absolute;
+    visibility: hidden;
+    font-size: var(--fontSize);
   }
 
   input {
     display: flex;
     height: 30px;
-    width: 100%;
+    width: var(--virtualWidth);
     margin: 0;
     border: none;
     background-color: transparent;
     color: var(--fontColor);
-    font-size: calc(30px + 0.35vw);
+    font-size: var(--fontSize);
     text-overflow: ellipsis;
+  }
+  input:focus {
+    outline: none;
   }
   input[type="number"]::-webkit-inner-spin-button,
   input[type="number"]::-webkit-outer-spin-button {
@@ -43,7 +69,15 @@
   }
 </style>
 
-<div use:useCssVars={cssVars}>
-  <input type="number" min="0" {value} {disabled} on:change />
+<div class="container" use:useCssVars={cssVars}>
+  <div class="virtualInput" bind:this={virtualInput} />
+  <input
+    type="number"
+    min="0"
+    step="0.001"
+    {value}
+    {disabled}
+    on:input={onInput}
+    on:change />
   <slot />
 </div>
