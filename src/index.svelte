@@ -267,6 +267,10 @@
     position: absolute;
   }
 
+  .btnContainer {
+    margin-bottom: 24px;
+  }
+
   .swapText {
     width: 200px;
     margin-left: var(--textAlign);
@@ -274,6 +278,7 @@
 </style>
 
 <div class="container" use:useCssVars={cssVars}>
+
   {#if $isStepsOpen}
     <ConvertSteps
       bgColor={colors.containerBg}
@@ -346,23 +351,27 @@
 
       <Summary amount={$tokenSendInput} fee={fromWei($affiliateFee, 'ether')} />
 
-      <Button
-        bgColor={colors.buttonBg}
-        fontColor={colors.buttonFont}
-        on:click={onConvert}
-        disabled={$buttonDisabled}
-        loading={$buttonLoading}>
-        Convert
-        <span slot="message">
-          {#if $buttonMessage}
-            {#if $buttonMessage.type == 'url'}
-              <Link url={$buttonMessage.url} fontColor={colors.bottomTokenFont}>
-                etherscan
-              </Link>
-            {:else}{$buttonMessage.text}{/if}
-          {/if}
-        </span>
-      </Button>
+      <div class="btnContainer">
+        <Button
+          bgColor={colors.buttonBg}
+          fontColor={colors.buttonFont}
+          on:click={onConvert}
+          disabled={$buttonDisabled}
+          loading={$buttonLoading}>
+          Convert
+          <span slot="message">
+            {#if $buttonMessage}
+              {#if $buttonMessage.type == 'url'}
+                <Link
+                  url={$buttonMessage.url}
+                  fontColor={colors.bottomTokenFont}>
+                  etherscan
+                </Link>
+              {:else}{$buttonMessage.text}{/if}
+            {/if}
+          </span>
+        </Button>
+      </div>
     </div>
   {/if}
 </div>

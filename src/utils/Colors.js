@@ -16,7 +16,8 @@ export const colors = {
   buttonBg: "#0D1A2C",
   buttonFont: "white",
   compareArrows: "black",
-  hoverBackgroundColor: "#EDEDED"
+  hoverBackgroundColor: "#EDEDED",
+  successColor: "#0EAD00"
 };
 
 export const Cursor = ({ disabled, loading }) => {
