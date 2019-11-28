@@ -4,6 +4,7 @@
     A number input component
   */
 
+  import { onMount } from "svelte";
   import useCssVars from "svelte-css-vars";
   import Required from "../utils/Required";
   import { Opacity } from "../utils/Colors.js";
@@ -12,20 +13,35 @@
   export let value = Required("value");
   export let disabled = false;
 
-  let virtualInput;
   const minVirtualWidth = 50;
   const maxVirtualWidth = 200;
+
+  let focused = false;
+  let virtualInput;
   let virtualWidth = `${minVirtualWidth}px`;
 
-  const onInput = e => {
-    virtualInput.innerText = e.target.value;
+  const onFocus = () => (focused = true);
+  const onBlur = () => (focused = false);
 
-    let newWidth = virtualInput.offsetWidth;
+  const updateVirtualInput = value => {
+    virtualInput.innerText = value;
+
+    let newWidth = virtualInput.offsetWidth + 5;
     if (newWidth < minVirtualWidth) newWidth = minVirtualWidth;
     else if (newWidth > maxVirtualWidth) newWidth = maxVirtualWidth;
 
     virtualWidth = `${newWidth}px`;
   };
+
+  // update on every input
+  const onInput = e => {
+    updateVirtualInput(e.target.value);
+  };
+
+  // update when upstream value is changed, only when not focused
+  $: if (virtualInput) {
+    if (!focused) updateVirtualInput(value);
+  }
 
   $: cssVars = {
     opacity: Opacity({ disabled }),
@@ -77,6 +93,8 @@
     step="0.001"
     {value}
     {disabled}
+    on:focus={onFocus}
+    on:blur={onBlur}
     on:input={onInput}
     on:change />
   <slot />
