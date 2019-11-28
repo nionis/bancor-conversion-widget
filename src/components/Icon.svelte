@@ -1,7 +1,7 @@
 <script>
   /*
-    Icon wrapper
-    Gives icon's functionality like onClick and orientation
+    Icon
+    Turn an icon into a button
   */
 
   import { createEventDispatcher } from "svelte";

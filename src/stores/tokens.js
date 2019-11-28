@@ -1,6 +1,7 @@
 /*
-  A store to manage token fetching
+  A store that fetches and stores all tokens in a converterRegistry
 */
+
 import { writable, get } from "svelte/store";
 import { bufferToHex, utf8ToHex } from "web3x-es/utils";
 import * as ethStore from "./eth";
@@ -87,7 +88,6 @@ const getTokenData = async (eth, address) => {
   };
 };
 
-// TODO: improve speed
 const init = async (eth, { showRelayTokens = false, addresses = {} }) => {
   tokens.update(() => new Map());
 

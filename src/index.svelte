@@ -43,7 +43,7 @@
   import Token from "./components/Token.svelte";
   import SelectTokens from "./components/SelectTokens/index.svelte";
   import ConvertSteps from "./components/ConvertSteps/index.svelte";
-  import OrderSummary from "./components/OrderSummary.svelte";
+  import Summary from "./components/Summary.svelte";
   import Link from "./components/Link.svelte";
   import Colors, { colors as defaultColors } from "./utils/Colors.js";
   import { emptyChar } from "./utils";
@@ -74,7 +74,7 @@
 
   $: cssVars = {
     containerBg: colors.containerBg,
-    orderSummaryBg: colors.orderSummaryBg,
+    summaryBg: colors.summaryBg,
     textAlign: "0px",
     margin: "19px"
   };
@@ -238,7 +238,7 @@
     align-items: center;
     width: 450px;
     height: 600px;
-    background-color: var(--orderSummaryBg);
+    background-color: var(--summaryBg);
   }
 
   .tokenContainer {
@@ -246,7 +246,7 @@
     flex-direction: column;
     height: 100%;
     width: 100%;
-    background-color: var(--orderSummaryBg);
+    background-color: var(--summaryBg);
   }
 
   .positionSwap {
@@ -344,9 +344,7 @@
           inputReceive: tokenSendInput
         })} />
 
-      <OrderSummary
-        amount={$tokenSendInput}
-        fee={fromWei($affiliateFee, 'ether')} />
+      <Summary amount={$tokenSendInput} fee={fromWei($affiliateFee, 'ether')} />
 
       <Button
         bgColor={colors.buttonBg}

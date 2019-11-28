@@ -138,9 +138,9 @@ const updateReturn = async o => {
 
       return $affiliate
         ? toBN(receiveAmountWei)
-            .mul(toBN($affiliate.fee))
-            .div(toBN(100))
-            .toString()
+          .mul(toBN($affiliate.fee))
+          .div(toBN(100))
+          .toString()
         : 0;
     });
   }
@@ -190,7 +190,6 @@ const convert = async (amount = Required("amount")) => {
     _tokenSend.address
   );
 
-  // TODO: error msgs
   const [balance, ethBalance, allowance] = await Promise.all([
     token.methods.balanceOf(_account).call(),
     _eth.getBalance(_account),
@@ -252,9 +251,9 @@ const convert = async (amount = Required("amount")) => {
         const affiliateAccount = $affiliate ? $affiliate.account : zeroAddress;
         const affiliateFeePPM = $affiliateFee
           ? toBN($affiliateFee)
-              .mul(toBN(1e6))
-              .div(toBN(100))
-              .toString()
+            .mul(toBN(1e6))
+            .div(toBN(100))
+            .toString()
           : "0";
 
         console.log({

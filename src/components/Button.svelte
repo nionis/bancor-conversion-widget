@@ -1,5 +1,6 @@
 <script>
   /*
+    Button
     A styled button used throughout the widget
   */
 

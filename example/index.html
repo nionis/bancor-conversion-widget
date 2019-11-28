@@ -16,14 +16,11 @@
       new BancorConversionWidget({
         target: document.body,
         props: {
-          tokenSend: "ETH", // pre-selected send token
-          tokenReceive: "BNT", // pre-selected receive token
-          colors: undefined, // set custom colors, look into "src/utils/Colors.js" for more info
-          showRelayTokens: false, // show or hide relay tokens
-          addresses: undefined, // set a different registry address for each network,
+          tokenSend: "ETH",
+          tokenReceive: "BNT",
           affiliate: {
-            account: "0xB9F0F9c5ac768F44dE84933a18aFA818abc65636", // affiliate's ethereum address
-            fee: 1 // fee percentage, max 3%
+            account: "0xB9F0F9c5ac768F44dE84933a18aFA818abc65636",
+            fee: 1
           }
         }
       });

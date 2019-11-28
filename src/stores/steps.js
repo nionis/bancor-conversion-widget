@@ -1,3 +1,8 @@
+/*
+  A store that handles that keeps track of "steps"
+  that need to be taken for a successful conversion.
+*/
+
 import { writable, derived } from "svelte/store";
 
 const isOpen = writable(false);

@@ -1,4 +1,10 @@
 <script>
+  /*
+    Token
+    The token component is used for displaying tokenSend and tokenReceive,
+    it handles selecting a new token and changing a token's amount.
+  */
+
   import { createEventDispatcher } from "svelte";
   import Label from "./Label.svelte";
   import Input from "./Input.svelte";

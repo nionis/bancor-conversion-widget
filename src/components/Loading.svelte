@@ -1,6 +1,7 @@
 <script>
   /*
-    Simple loading circle
+    Loading
+    A loading svg
   */
 
   import useCssVars from "svelte-css-vars";

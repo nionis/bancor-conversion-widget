@@ -76,7 +76,7 @@
   let elem;
   let firstTime = true;
 
-  // a workaround for an issue when opening "svelte-select"
+  // handle focus / blur when using "svelte-select"
   $: {
     const listExists = elem && !elem.$$.ctx.container.querySelector("div");
 

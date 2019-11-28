@@ -1,6 +1,6 @@
 /*
-  A store to initialize and listen to ethereum events.
-  Account and network changes all dynamically updated.
+  A store that initializes and listens to ethereum events.
+  Account and network changes are all dynamically updated.
 */
 
 import { Eth } from "web3x-es/eth";

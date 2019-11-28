@@ -13,7 +13,6 @@
   export let disabledFont = Required("fontColor");
   export let isLoading = true;
 
-  // TODO: investigate why sometimes token is not found
   $: token = (!isLoading && tokens.get(item.value)) || {};
 
   $: cssVars = {

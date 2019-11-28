@@ -1,7 +1,7 @@
 <script>
   /*
-    Label wrapper
-    Adds a label to a component
+    Label
+    Adds a label wrapper ontop of a component
   */
 
   import useCssVars from "svelte-css-vars";

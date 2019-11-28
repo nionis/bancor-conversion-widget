@@ -1,4 +1,9 @@
 <script>
+  /*
+    Link
+    A simple link component that takes care of "rel"
+  */
+
   import useCssVars from "svelte-css-vars";
   import { Opacity } from "../utils/Colors";
   import Required from "../utils/Required";

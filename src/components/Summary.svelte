@@ -1,4 +1,9 @@
 <script>
+  /*
+    Summary
+    Show the summary of the conversion
+  */
+
   import Required from "../utils/Required";
 
   export let amount = Required("amount");
@@ -30,7 +35,7 @@
 </style>
 
 <div class="container">
-  <h1>Order Summary</h1>
+  <h1>Summary</h1>
   <div class="alignRow">
     <div>Amount</div>
     <div>{amount} (?)</div>

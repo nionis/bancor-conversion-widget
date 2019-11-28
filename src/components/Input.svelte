@@ -1,4 +1,9 @@
 <script>
+  /*
+    Input
+    A number input component
+  */
+
   import useCssVars from "svelte-css-vars";
   import Required from "../utils/Required";
   import { Opacity } from "../utils/Colors.js";
