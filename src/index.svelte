@@ -110,14 +110,13 @@
   const loading = derived([gettingSelectedTokens, widgetLoading], ([a, b]) => {
     return Boolean(a || b);
   });
+
   const disabledConvert = derived(
     [loading, tokenSendInput],
     ([$loading, $tokenSendInput]) => {
       return $loading || $tokenSendInput === "0";
     }
   );
-
-  const swapMessage = emptyChar;
 
   let isSelectOpen = false;
   let selectingForTokenName = null;
@@ -196,6 +195,8 @@
     }
   };
 
+  let firstStep;
+  let lastStep;
   let firstStepSub;
   let lastStepSub;
   let firstStepIsPending = writable(false);
@@ -205,16 +206,24 @@
   steps.subscribe($steps => {
     const hasSteps = $steps.length > 0;
     const isSingleStep = $steps.length === 1;
-    const firstStep = hasSteps ? $steps[0] : undefined;
-    const lastStep = hasSteps ? $steps[$steps.length - 1] : undefined;
+    const _firstStep = hasSteps ? $steps[0] : undefined;
+    const _lastStep = hasSteps ? $steps[$steps.length - 1] : undefined;
 
-    if (!firstStep && firstStepSub) {
-      firstStepSub();
-      firstStepSub = undefined;
+    if (!firstStep || firstStep != _firstStep) {
+      firstStep = _firstStep;
+
+      if (firstStepSub) {
+        firstStepSub();
+        firstStepSub = undefined;
+      }
     }
-    if (!lastStep && lastStepSub) {
-      lastStepSub();
-      lastStepSub = undefined;
+    if (!lastStep || lastStep != _lastStep) {
+      lastStep = _lastStep;
+
+      if (lastStepSub) {
+        lastStepSub();
+        lastStepSub = undefined;
+      }
     }
 
     if (!firstStepSub && firstStep) {
@@ -296,11 +305,6 @@
   .btnContainer {
     margin-bottom: 24px;
   }
-
-  .swapText {
-    width: 200px;
-    margin-left: var(--textAlign);
-  }
 </style>
 
 <div class="container" use:useCssVars={cssVars}>
@@ -362,9 +366,6 @@
             disabled={$loading}>
             <MdCompareArrows />
           </Icon>
-          {#if swapMessage}
-            <div class="swapText">{swapMessage}</div>
-          {/if}
         </div>
       </div>
 
