@@ -158,8 +158,11 @@ export const updateReturn = async o => {
 
 // convert tokens
 export const convert = async (amount = Required("amount")) => {
+  const $steps = get(stepsStore.steps);
+  const $lastStep = $steps && $steps[$steps.length - 1];
+
   // if steps are already created, switch to steps view
-  if (get(stepsStore.steps).length > 1) {
+  if ($steps.length > 1 && !$lastStep.success) {
     stepsStore.open();
     return;
   }

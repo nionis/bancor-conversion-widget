@@ -208,13 +208,14 @@
   let lastStep;
   let firstStepSub;
   let lastStepSub;
+  let isSingleStep = false;
   let firstStepIsPending = writable(false);
   let lastStepTxHash = writable(undefined);
   let lastStepError = writable(undefined);
 
   steps.subscribe($steps => {
     const hasSteps = $steps.length > 0;
-    const isSingleStep = $steps.length === 1;
+    isSingleStep = $steps.length === 1;
     const _firstStep = hasSteps ? $steps[0] : undefined;
     const _lastStep = hasSteps ? $steps[$steps.length - 1] : undefined;
 
@@ -241,7 +242,7 @@
       });
     }
 
-    if (!lastStepSub && isSingleStep && lastStep) {
+    if (!lastStepSub && lastStep) {
       lastStepSub = lastStep.subscribe($step => {
         lastStepTxHash.update(() => $step.txHash);
         lastStepError.update(() => $step.error);
@@ -252,7 +253,7 @@
   const buttonDisabled = derived(
     [disabledConvert, firstStepIsPending],
     ([$disabledConvert, $firstStepIsPending]) => {
-      return $disabledConvert || $firstStepIsPending;
+      return $disabledConvert || ($firstStepIsPending && isSingleStep);
     }
   );
 
@@ -266,7 +267,10 @@
     }
   );
 
-  const onSuccessClose = () => success.update(() => false);
+  const onSuccessClose = () => {
+    success.update(() => false);
+    closeSteps();
+  };
 
   $: cssVars = {
     containerBg: colors.containerBg,
@@ -405,7 +409,7 @@
           bgColor={colors.buttonBg}
           fontColor={colors.buttonFont}
           on:click={onConvert}
-          loading={$firstStepIsPending}
+          loading={$firstStepIsPending && isSingleStep}
           disabled={$buttonDisabled}>
           Convert
           <span slot="message">
