@@ -62,7 +62,6 @@
   <h1>Conversion Steps</h1>
   {#each steps as step, i}
     <Step
-      {bgColor}
       {fontColor}
       {buttonBgColor}
       {buttonFontColor}

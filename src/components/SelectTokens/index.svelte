@@ -47,6 +47,8 @@
         ...ops,
         props: {
           item: ops.props.item,
+          getOptionLabel: ops.props.getOptionLabel,
+          filterText: ops.props.filterText,
           isLoading: ops.props.item.value === loadingItem.value,
           tokens,
           backgroundColor: bgColor,
@@ -165,8 +167,8 @@
   <h1>Conversion Steps</h1>
   <div class="selectContainer">
     <Select
-      {items}
       Item={WrappedItem}
+      {items}
       containerStyles={style}
       isVirtualList={true}
       bind:this={elem}

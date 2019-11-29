@@ -5,7 +5,6 @@
   import Link from "../Link.svelte";
   import { emptyChar } from "../../utils";
 
-  export let bgColor = Required("bgColor");
   export let fontColor = Required("fontColor");
   export let buttonBgColor = Required("buttonBgColor");
   export let buttonFontColor = Required("buttonFontColor");

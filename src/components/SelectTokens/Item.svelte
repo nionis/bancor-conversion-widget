@@ -5,6 +5,8 @@
   import Required from "../../utils/Required";
 
   export let item = Required("item");
+  export let getOptionLabel = Required("getOptionLabel");
+  export let filterText = Required("filterText");
   export let tokens = Required("tokens");
   export let backgroundColor = Required("backgroundColor");
   export let hoverColor = Required("hoverColor");
@@ -65,6 +67,6 @@
     <div class="imgContainer">
       <img src={token.img} alt="{token.symbol} logo" />
     </div>
-    <div class="label">{item.label}</div>
+    {@html getOptionLabel(item, filterText)}
   {/if}
 </div>
