@@ -11,15 +11,7 @@
     "dev": "run-p start:dev autobuild",
     "start": "sirv example",
     "start:dev": "sirv example --dev",
-    "test": "jest"
-  },
-  "jest": {
-    "transform": {
-      "^.+\\.svelte$": "jest-transform-svelte"
-    },
-    "setupFilesAfterEnv": [
-      "svelte-testing-library/cleanup-after-each"
-    ]
+    "test": "echo \"No test specified\""
   },
   "dependencies": {
     "bignumber.js": "^9.0.0",
