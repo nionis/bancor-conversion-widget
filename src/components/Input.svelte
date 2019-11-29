@@ -15,6 +15,7 @@
 
   const minVirtualWidth = 50;
   const maxVirtualWidth = 200;
+  const placeholder = "0.001";
 
   let focused = false;
   let virtualInput;
@@ -24,7 +25,7 @@
   const onBlur = () => (focused = false);
 
   const updateVirtualInput = value => {
-    virtualInput.innerText = value;
+    virtualInput.innerText = value || placeholder;
 
     let newWidth = virtualInput.offsetWidth + 5;
     if (newWidth < minVirtualWidth) newWidth = minVirtualWidth;
@@ -93,7 +94,7 @@
     type="number"
     min="0"
     placeholder="0.001"
-    {value}
+    value={value || ''}
     {disabled}
     on:focus={onFocus}
     on:blur={onBlur}
