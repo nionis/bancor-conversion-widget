@@ -68,7 +68,7 @@ export default {
     // Generate bundle statistics
     production &&
       bundleVisualizer({
-        filename: "./dist/stats.html",
+        filename: "./stats.html",
         template: "treemap"
       }),
 

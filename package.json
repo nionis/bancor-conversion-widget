@@ -11,7 +11,8 @@
     "dev": "run-p start:dev autobuild",
     "start": "sirv example",
     "start:dev": "sirv example --dev",
-    "test": "echo \"No test specified\""
+    "test": "echo \"No test specified\"",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "bignumber.js": "^9.0.0",
