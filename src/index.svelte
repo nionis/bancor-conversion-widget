@@ -386,8 +386,9 @@
         })} />
 
       <Summary
+        fontColor={colors.bottomTokenFont}
         amount={$tokenSendInput}
-        symbol={$selectedTokenSend ? $selectedTokenSend.symbol : '?'}
+        symbol={$selectedTokenSend ? $selectedTokenSend.symbol : undefined}
         fee={bntToken ? bntToken.toDisplayAmount($affiliateFee) : '0'} />
 
       <div class="btnContainer">
