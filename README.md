@@ -3,10 +3,10 @@
 An open sourced widget that uses Bancor's smart contracts to allow a user to convert tokens or ethereum.
 
 ### Features
-* 🚴 Fast
-* ⚡ Less than `70kb` gzipped
-* 🔧 Customizable
-* 🙂 Simple usage
+
+- 🚴 Fast
+- 🔧 Customizable
+- 🙂 Simple usage
 
 ### Installing and usage:
 
@@ -15,12 +15,14 @@ npm install bancor-conversion-widget --save
 ```
 
 #### in vanilla
-``` html
-<script src="https://unpkg.com/:package@:version/:file"></script>
+
+```html
+<script src="https://unpkg.com/bancor-conversion-widget@latest"></script>
 
 <body onload="render()">
   <script>
     const render = () => {
+      // render it
       new BancorConversionWidget({
         target: document.body,
         props: {}
@@ -31,28 +33,32 @@ npm install bancor-conversion-widget --save
 ```
 
 #### in react
+
 ```
 npm install react-svelte --save
 ```
+
 ```javascript
 import SvelteComponent from "react-svelte";
 import BancorConversionWidget from "bancor-conversion-widget";
 
-<SvelteComponent
-  this={BancorConversionWidget}
-/>
+// render it
+<SvelteComponent this={BancorConversionWidget} />;
 ```
 
 #### in svelte
+
 ```html
 <script>
   import BancorConversionWidget from "bancor-conversion-widget";
 </script>
 
-<BancorConversionWidget/>
+<!-- render it -->
+<BancorConversionWidget />
 ```
 
 ### Available properties:
+
 | Name              | Description                       | Type      | Default                        |
 | ----------------- | --------------------------------- | --------- | ------------------------------ |
 | tokenSend         | initial "send" token              | `string`  | `"ETH"`                        |
@@ -64,6 +70,7 @@ import BancorConversionWidget from "bancor-conversion-widget";
 | affiliate.fee     | affiliate fee percentage (max 3%) | `number`  | `undefined`                    |
 
 ### Live examples:
-* [vanilla](https://github.com/nionis/bancor-conversion-widget/blob/master/example/index.html)
-* [react](https://codesandbox.io/s/svelte-custom-element-react-wmj7w?fontsize=14&view=preview)
-* [svelte](https://codesandbox.io/s/svelte-custom-element-react-wmj7w?fontsize=14&view=preview)
+
+- [vanilla](https://codesandbox.io/s/bancor-conversion-widget-in-vanilla-2q28g?fontsize=14&hidenavigation=1&theme=dark)
+- [react](https://codesandbox.io/s/awesome-grass-e12df?fontsize=14&hidenavigation=1&theme=dark)
+- [svelte](https://codesandbox.io/s/musing-dirac-8zmr9?fontsize=14&hidenavigation=1&theme=dark)
