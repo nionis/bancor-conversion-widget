@@ -11,25 +11,29 @@ import { zeroAddress } from "../utils/eth";
 import Required from "../utils/Required";
 import derivedPluck from "../utils/derivedPluck";
 
-const loading = writable(false); // is widget loading
-const errorMsg = writable(undefined); // error message to be displayed
-const tokenSend = writable(undefined);
-const tokenSendInput = writable("0");
-const tokenReceive = writable(undefined);
-const tokenReceiveInput = writable("0");
-const affiliate = writable(undefined);
-const affiliateFee = writable("0");
-const success = writable(false);
+export const loading = writable(false); // is widget loading
+export const errorMsg = writable(undefined); // error message to be displayed
+export const tokenSend = writable(undefined); // "send" token
+export const tokenSendInput = writable("0");
+export const tokenReceive = writable(undefined); // "receive" token
+export const tokenReceiveInput = writable("0");
+export const affiliate = writable(undefined);
+export const affiliateFee = writable("0");
+export const success = writable(false); // conversion was successful
 
-const tokensSend = derivedPluck(tokensStore.tokens, tokenReceive); // a Map of all tokens except tokenReceive (used in "Select")
-const tokensReceive = derivedPluck(tokensStore.tokens, tokenSend); // a Map of all tokens except tokenSend (used in "Select")
-const pairsAreSelected = derived(
+export const tokensSend = derivedPluck(tokensStore.tokens, tokenReceive); // a Map of all tokens except tokenReceive (used in "Select")
+export const tokensReceive = derivedPluck(tokensStore.tokens, tokenSend); // a Map of all tokens except tokenSend (used in "Select")
+
+// true if both pairs are selected
+export const pairsAreSelected = derived(
   [tokenSend, tokenReceive],
   ([_tokenSend, _tokenReceive]) => {
     return Boolean(_tokenSend && _tokenReceive);
   }
-); // true if both pairs are selected
-const path = derived(
+);
+
+// BancorNetwork path to be used for exchanging
+export const path = derived(
   [tokenSend, tokenReceive],
   ([_tokenSend, _tokenReceive]) => {
     if (!get(pairsAreSelected)) return [];
@@ -80,17 +84,17 @@ const path = derived(
       ];
     }
   }
-); // BancorNetwork path to be used for exchanging
+);
 
 // reset both inputs
-const resetInputs = () => {
+export const resetInputs = () => {
   tokenSendInput.update(() => "0");
   tokenReceiveInput.update(() => "0");
   affiliateFee.update(() => "0");
 };
 
 // update the other input with convert amount
-const updateReturn = async o => {
+export const updateReturn = async o => {
   const _selected = get(pairsAreSelected);
   if (!_selected) return;
 
@@ -140,9 +144,9 @@ const updateReturn = async o => {
 
       return $affiliate
         ? toBN(receiveAmountWei)
-            .mul(toBN($affiliate.fee))
-            .div(toBN(100))
-            .toString()
+          .mul(toBN($affiliate.fee))
+          .div(toBN(100))
+          .toString()
         : "0";
     });
   }
@@ -152,7 +156,7 @@ const updateReturn = async o => {
 };
 
 // convert tokens
-const convert = async (amount = Required("amount")) => {
+export const convert = async (amount = Required("amount")) => {
   // if steps are already created, switch to steps view
   if (get(stepsStore.steps).length > 1) {
     stepsStore.open();
@@ -256,9 +260,9 @@ const convert = async (amount = Required("amount")) => {
         const affiliateFeePPM =
           $affiliate && $affiliateFee
             ? toBN($affiliate.fee)
-                .mul(toBN(1e6))
-                .div(toBN(100))
-                .toString()
+              .mul(toBN(1e6))
+              .div(toBN(100))
+              .toString()
             : "0";
 
         return _bancorNetwork.methods[fn](
@@ -284,23 +288,4 @@ const convert = async (amount = Required("amount")) => {
   if (steps.length !== 1) {
     stepsStore.open();
   }
-};
-
-export {
-  loading,
-  errorMsg,
-  tokenSend,
-  tokenSendInput,
-  tokenReceive,
-  tokenReceiveInput,
-  affiliate,
-  affiliateFee,
-  success,
-  tokensSend,
-  tokensReceive,
-  pairsAreSelected,
-  path,
-  resetInputs,
-  updateReturn,
-  convert
 };

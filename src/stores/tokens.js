@@ -10,16 +10,16 @@ import Contract from "../utils/Contract";
 import resolve from "../utils/resolve";
 import { fromDecimals, toDecimals } from "../utils/eth";
 
-const contractRegistry = writable(undefined); // contractRegistry instance
-const converterRegistry = writable(undefined); // converterRegistry instance
-const bancorNetwork = writable(undefined); // bancorNetwork instance
-const bntToken = writable(undefined); // bancorNetwork's token instance
-const bntConverter = writable(undefined); // bancorNetwork's token converter instance
-const fetchingTokens = writable(false); // are we currently fetching tokens
-const tokens = writable(new Map()); // all tokens keyed by address
+export const contractRegistry = writable(undefined); // contractRegistry instance
+export const converterRegistry = writable(undefined); // converterRegistry instance
+export const bancorNetwork = writable(undefined); // bancorNetwork instance
+export const bntToken = writable(undefined); // bancorNetwork's token instance
+export const bntConverter = writable(undefined); // bancorNetwork's token converter instance
+export const fetchingTokens = writable(false); // are we currently fetching tokens
+export const tokens = writable(new Map()); // all tokens keyed by address
 
 // using Bancor's API, get token's img url
-const getTokenImg = async symbol => {
+export const getTokenImg = async symbol => {
   return safeFetch(`https://api.bancor.network/0.1/currencies/${symbol}`).then(
     res => {
       if (!res || !res.data) return;
@@ -33,7 +33,7 @@ const getTokenImg = async symbol => {
 };
 
 // get relevant token data
-const getTokenData = async (eth, address) => {
+export const getTokenData = async (eth, address) => {
   const _bancorNetwork = get(bancorNetwork);
   const _bntToken = get(bntToken);
   const _converter = get(converterRegistry);
@@ -89,7 +89,7 @@ const getTokenData = async (eth, address) => {
   };
 };
 
-const init = async (eth, { showRelayTokens = false, addresses = {} }) => {
+export const init = async (eth, { showRelayTokens = false, addresses = {} }) => {
   tokens.update(() => new Map());
 
   const _networkId = get(ethStore.networkId);
@@ -212,17 +212,4 @@ const init = async (eth, { showRelayTokens = false, addresses = {} }) => {
     .finally(() => {
       fetchingTokens.update(() => false);
     });
-};
-
-export {
-  contractRegistry,
-  converterRegistry,
-  bancorNetwork,
-  bntToken,
-  bntConverter,
-  fetchingTokens,
-  tokens,
-  getTokenImg,
-  getTokenData,
-  init
 };

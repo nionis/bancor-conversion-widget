@@ -3,17 +3,29 @@
   that need to be taken for a successful conversion.
 */
 
-import { writable, derived, get } from "svelte/store";
+import { writable, get } from "svelte/store";
 
-const isOpen = writable(false);
-const open = () => {
+// if ConvertSteps view is Open 
+export const isOpen = writable(false);
+export const open = () => {
   isOpen.update(() => true);
 };
-const close = () => {
+export const close = () => {
   isOpen.update(() => false);
 };
 
-const Step = ({ text, fn, onSuccess, onFailure }) => {
+// keep track of steps
+export const steps = writable([]);
+export const onStep = writable(0);
+export const addSteps = _steps => {
+  steps.update(() => _steps);
+};
+export const clearSteps = () => {
+  steps.update(() => []);
+};
+
+// create a step
+export const Step = ({ text, fn, onSuccess, onFailure }) => {
   const step = writable({
     text,
     error: undefined,
@@ -37,7 +49,8 @@ const Step = ({ text, fn, onSuccess, onFailure }) => {
   return step;
 };
 
-const SyncStep = fn => step => {
+// keep track of ETH tx
+export const SyncStep = fn => step => {
   step.update(o => ({
     ...o,
     error: undefined,
@@ -96,27 +109,4 @@ const SyncStep = fn => step => {
       console.error(error);
       fail(error);
     });
-};
-
-const steps = writable([]);
-const onStep = writable(0);
-
-const addSteps = _steps => {
-  steps.update(() => _steps);
-};
-
-const clearSteps = () => {
-  steps.update(() => []);
-};
-
-export {
-  isOpen,
-  open,
-  close,
-  steps,
-  onStep,
-  Step,
-  SyncStep,
-  addSteps,
-  clearSteps
 };
