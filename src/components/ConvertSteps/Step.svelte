@@ -14,7 +14,9 @@
   export let active = Required("active");
 
   $: cssVars = {
-    fontColor: active ? fontColor : disabledFont
+    fontColor: active ? fontColor : disabledFont,
+    height: active ? "auto" : "125px",
+    flexGrow: active ? 1 : "unset"
   };
 
   $: disabled = !active || $step.success || $step.pending;
@@ -23,10 +25,11 @@
 <style>
   .container {
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
     align-items: center;
     flex-direction: column;
-    flex-grow: 1;
+    height: var(--height);
+    flex-grow: var(--flexGrow);
     color: var(--fontColor);
     width: 100%;
     border-top: 1px solid #e1e1e1;
@@ -39,11 +42,21 @@
     color: var(--fontColor);
     display: flex;
     flex-direction: row;
-    padding-top: 25px;
     justify-content: space-between;
     align-items: center;
     width: 100%;
     font-size: calc(24px + 0.35vw);
+  }
+
+  .positionLink {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .link {
+    font-size: calc(14px + 0.35vw);
   }
 
   .icon {
@@ -55,7 +68,21 @@
 
 <div class="container" use:useCssVars={cssVars}>
   <div class="step">
-    <div class="text">{position}: {$step.text}</div>
+    <div class="positionLink">
+      <div>{position}: {$step.text}</div>
+      {#if $step.txHash}
+        <div class="link">
+          <Link
+            url="https://etherscan.io/tx/{$step.txHash}"
+            fontColor={active ? fontColor : disabledFont}>
+            etherscan
+          </Link>
+        </div>
+      {:else}
+        <div class="link">{emptyChar}</div>
+      {/if}
+    </div>
+
     {#if $step.success}
       <div class="icon">
         <MdCheck />
@@ -70,13 +97,6 @@
       {disabled}
       on:click={$step.fn}>
       Accept
-      <span slot="message">
-        {#if $step.txHash}
-          <Link url="https://etherscan.io/tx/{$step.txHash}" {fontColor}>
-            etherscan
-          </Link>
-        {/if}
-      </span>
     </Button>
   {/if}
 </div>
