@@ -2,7 +2,7 @@
   A store to manage widget state
 */
 import { writable, derived, get } from "svelte/store";
-import { toBN, fromWei, toWei } from "web3x-es/utils";
+import { toBN } from "web3x-es/utils";
 import * as ethStore from "./eth";
 import * as tokensStore from "./tokens";
 import * as stepsStore from "./steps";
@@ -98,7 +98,8 @@ const updateReturn = async o => {
   // reset affiliate fee
   affiliateFee.update(() => "0");
 
-  const sendAmount = toWei(get(o.inputSend)) || "0";
+  const sendAmount = get(o.tokenSend).toSmallestAmount(get(o.inputSend)) || "0";
+
   if (sendAmount === "0") {
     return resetInputs();
   }
@@ -121,7 +122,7 @@ const updateReturn = async o => {
     .call()
     .then(res => ({
       receiveAmountWei: res["0"],
-      receiveAmount: fromWei(res["0"], "ether"),
+      receiveAmount: get(o.tokenReceive).toDisplayAmount(res["0"]),
       fee: res["1"]
     }))
     .catch(error => {
@@ -158,7 +159,6 @@ const convert = async (amount = Required("amount")) => {
   }
 
   errorMsg.update(() => undefined);
-  amount = toWei(amount) || "0";
 
   const _eth = get(ethStore.eth);
   if (!_eth) {
@@ -170,6 +170,8 @@ const convert = async (amount = Required("amount")) => {
   if (!_tokenSend || !_tokenReceive) {
     throw Error("pairs not selected");
   }
+
+  const weiAmount = _tokenSend.toSmallestAmount(amount);
 
   let _account = get(ethStore.account);
   if (!_account) {
@@ -196,9 +198,9 @@ const convert = async (amount = Required("amount")) => {
     token.methods.allowance(_account, _bancorNetwork.address).call()
   ]);
 
-  const enoughBalance = toBN(balance).gte(toBN(amount));
-  const enoughEthBalance = toBN(ethBalance).gte(toBN(amount));
-  const isAllowed = toBN(allowance).gte(toBN(amount));
+  const enoughBalance = toBN(balance).gte(toBN(weiAmount));
+  const enoughEthBalance = toBN(ethBalance).gte(toBN(weiAmount));
+  const isAllowed = toBN(allowance).gte(toBN(weiAmount));
   const insufficientBalance =
     (!enoughBalance && !_tokenSend.isEth) ||
     (!enoughBalance && _tokenSend.isEth && !enoughEthBalance);
@@ -231,7 +233,7 @@ const convert = async (amount = Required("amount")) => {
       stepsStore.Step({
         text: "Approve token withdrawal.",
         fn: stepsStore.SyncStep(async () => {
-          return token.methods.approve(_bancorNetwork.address, amount).send({
+          return token.methods.approve(_bancorNetwork.address, weiAmount).send({
             from: _account
           });
         })
@@ -244,7 +246,7 @@ const convert = async (amount = Required("amount")) => {
       text: "Convert.",
       fn: stepsStore.SyncStep(async () => {
         const fn = _tokenSend.isEth ? "convert2" : "claimAndConvert2";
-        const ethAmount = _tokenSend.isEth ? amount : undefined;
+        const ethAmount = _tokenSend.isEth ? weiAmount : undefined;
         const $affiliate = get(affiliate);
         const $affiliateFee = get(affiliateFee);
 
@@ -259,7 +261,7 @@ const convert = async (amount = Required("amount")) => {
 
         return _bancorNetwork.methods[fn](
           get(path),
-          amount,
+          weiAmount,
           1,
           affiliateAccount,
           affiliateFeePPM

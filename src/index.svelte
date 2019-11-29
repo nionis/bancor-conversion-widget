@@ -7,12 +7,12 @@
   import { derived, get } from "svelte/store";
   import useCssVars from "svelte-css-vars";
   import { Address } from "web3x-es/address";
-  import { fromWei } from "web3x-es/utils";
   import MdCompareArrows from "svelte-icons/md/MdCompareArrows.svelte";
   import * as ethStore from "./stores/eth";
   import {
     init as registryInit,
     tokens as tokensMap,
+    bntToken as bntTokenInstance,
     fetchingTokens
   } from "./stores/tokens";
   import {
@@ -47,6 +47,7 @@
   import Link from "./components/Link.svelte";
   import Colors, { colors as defaultColors } from "./utils/Colors.js";
   import { emptyChar } from "./utils";
+  import { fromDecimals } from "./utils/eth";
   import { addresses as defaultAddresses } from "./env";
 
   export let tokenSend = "ETH";
@@ -71,13 +72,6 @@
 
     widgetAffiliate.update(() => affiliate);
   }
-
-  $: cssVars = {
-    containerBg: colors.containerBg,
-    summaryBg: colors.summaryBg,
-    textAlign: "0px",
-    margin: "19px"
-  };
 
   onMount(async () => {
     // when network changes, reinitialize
@@ -157,6 +151,8 @@
     closeSelect();
   };
 
+  $: bntToken = $bntTokenInstance && $tokensMap.get($bntTokenInstance.address);
+
   // called when user updates amount input
   const OnAmount = ({
     tokenSend,
@@ -230,6 +226,13 @@
       return undefined;
     }
   );
+
+  $: cssVars = {
+    containerBg: colors.containerBg,
+    summaryBg: colors.summaryBg,
+    textAlign: "0px",
+    margin: "19px"
+  };
 </script>
 
 <style>
@@ -348,7 +351,10 @@
           inputReceive: tokenSendInput
         })} />
 
-      <Summary amount={$tokenSendInput} fee={fromWei($affiliateFee, 'ether')} />
+      <Summary
+        amount={$tokenSendInput}
+        symbol={$selectedTokenSend ? $selectedTokenSend.symbol : '?'}
+        fee={bntToken ? bntToken.toDisplayAmount($affiliateFee) : '0'} />
 
       <div class="btnContainer">
         <Button

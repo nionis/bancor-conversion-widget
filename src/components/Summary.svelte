@@ -7,7 +7,11 @@
   import Required from "../utils/Required";
 
   export let amount = Required("amount");
+  export let symbol = Required("symbol");
   export let fee = Required("fee");
+
+  $: feeDisplay =
+    fee === "0" || Number(fee) > 0.001 ? Number(fee).toFixed(5) : "<0.001";
 </script>
 
 <style>
@@ -38,14 +42,14 @@
   <h1>Summary</h1>
   <div class="alignRow">
     <div>Amount</div>
-    <div>{amount} (?)</div>
+    <div>{amount} ({symbol})</div>
   </div>
   <div class="alignRow">
     <div>Fee</div>
-    <div>-{fee} (BNT)</div>
+    <div>{feeDisplay} (BNT)</div>
   </div>
   <div class="alignRow">
     <div>Total Cost</div>
-    <div>{amount} (?)</div>
+    <div>{amount} ({symbol})</div>
   </div>
 </div>

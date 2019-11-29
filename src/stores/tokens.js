@@ -8,13 +8,13 @@ import * as ethStore from "./eth";
 import safeFetch from "../utils/safeFetch";
 import Contract from "../utils/Contract";
 import resolve from "../utils/resolve";
+import { fromDecimals, toDecimals } from "../utils/eth";
 
 const contractRegistry = writable(undefined); // contractRegistry instance
 const converterRegistry = writable(undefined); // converterRegistry instance
 const bancorNetwork = writable(undefined); // bancorNetwork instance
 const bntToken = writable(undefined); // bancorNetwork's token instance
 const bntConverter = writable(undefined); // bancorNetwork's token converter instance
-const nonStandardTokenRegistry = writable(undefined); // nonStandardTokenRegistry instance
 const fetchingTokens = writable(false); // are we currently fetching tokens
 const tokens = writable(new Map()); // all tokens keyed by address
 
@@ -36,7 +36,6 @@ const getTokenImg = async symbol => {
 const getTokenData = async (eth, address) => {
   const _bancorNetwork = get(bancorNetwork);
   const _bntToken = get(bntToken);
-  const _nonStandardTokenRegistry = get(nonStandardTokenRegistry);
   const _converter = get(converterRegistry);
 
   let relay = address;
@@ -65,12 +64,12 @@ const getTokenData = async (eth, address) => {
 
   const token = await Contract(eth, "ERC20Token", address);
 
-  const [name, symbol, isEth, isBNT, isNSToken] = await Promise.all([
+  const [name, symbol, decimals = 18, isEth, isBNT] = await Promise.all([
     token.methods.name().call(),
     token.methods.symbol().call(),
+    token.methods.decimals().call(),
     _bancorNetwork.methods.etherTokens(token.address).call(),
-    token.address === _bntToken.address,
-    _nonStandardTokenRegistry.methods.listedAddresses(token.address).call()
+    token.address === _bntToken.address
   ]);
 
   const img = await getTokenImg(symbol);
@@ -79,10 +78,12 @@ const getTokenData = async (eth, address) => {
     address,
     name,
     symbol,
+    decimals,
+    toSmallestAmount: amount => toDecimals(amount, decimals),
+    toDisplayAmount: amount => fromDecimals(amount, decimals),
     relay,
     isEth,
     isBNT,
-    isNSToken,
     isRelay: relay === address,
     img
   };
@@ -110,7 +111,6 @@ const init = async (eth, { showRelayTokens = false, addresses = {} }) => {
     BancorNetworkAddr,
     BNTTokenAddr,
     BNTConverterAddr,
-    NonStandardTokenRegistryAddr,
     ConverterRegistryAddr
   ] = await Promise.all([
     _contractRegistry.methods
@@ -123,10 +123,6 @@ const init = async (eth, { showRelayTokens = false, addresses = {} }) => {
       .then(res => bufferToHex(res.buffer)),
     _contractRegistry.methods
       .addressOf(utf8ToHex("BNTConverter"))
-      .call()
-      .then(res => bufferToHex(res.buffer)),
-    _contractRegistry.methods
-      .addressOf(utf8ToHex("NonStandardTokenRegistry"))
       .call()
       .then(res => bufferToHex(res.buffer)),
     _contractRegistry.methods
@@ -151,13 +147,6 @@ const init = async (eth, { showRelayTokens = false, addresses = {} }) => {
     BNTConverterAddr
   );
   bntConverter.update(() => _bntConverter);
-
-  const _nonStandardTokenRegistry = await Contract(
-    eth,
-    "NonStandardTokenRegistry",
-    NonStandardTokenRegistryAddr
-  );
-  nonStandardTokenRegistry.update(() => _nonStandardTokenRegistry);
 
   const _converterRegistry = await Contract(
     eth,
@@ -231,7 +220,6 @@ export {
   bancorNetwork,
   bntToken,
   bntConverter,
-  nonStandardTokenRegistry,
   fetchingTokens,
   tokens,
   getTokenImg,
