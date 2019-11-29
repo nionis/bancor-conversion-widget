@@ -19,6 +19,7 @@ const tokenReceive = writable(undefined);
 const tokenReceiveInput = writable("0");
 const affiliate = writable(undefined);
 const affiliateFee = writable("0");
+const success = writable(false);
 
 const tokensSend = derivedPluck(tokensStore.tokens, tokenReceive); // a Map of all tokens except tokenReceive (used in "Select")
 const tokensReceive = derivedPluck(tokensStore.tokens, tokenSend); // a Map of all tokens except tokenSend (used in "Select")
@@ -133,7 +134,7 @@ const updateReturn = async o => {
     });
 
   // update fees
-  if (!get(o.tokenReceive).isEth) {
+  if (!get(o.tokenSend).isBNT && !get(o.tokenReceive).isEth) {
     affiliateFee.update(() => {
       const $affiliate = get(affiliate);
 
@@ -159,6 +160,7 @@ const convert = async (amount = Required("amount")) => {
   }
 
   errorMsg.update(() => undefined);
+  success.update(() => false);
 
   const _eth = get(ethStore.eth);
   if (!_eth) {
@@ -269,7 +271,10 @@ const convert = async (amount = Required("amount")) => {
           from: _account,
           value: ethAmount
         });
-      })
+      }),
+      onSuccess: () => {
+        success.update(() => true);
+      }
     })
   );
 
@@ -290,6 +295,7 @@ export {
   tokenReceiveInput,
   affiliate,
   affiliateFee,
+  success,
   tokensSend,
   tokensReceive,
   pairsAreSelected,

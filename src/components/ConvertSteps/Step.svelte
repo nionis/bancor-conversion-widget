@@ -97,6 +97,11 @@
       {disabled}
       on:click={$step.fn}>
       Accept
+      <span slot="message">
+        {#if $step.error}
+          <span>{$step.error.message}</span>
+        {/if}
+      </span>
     </Button>
   {/if}
 </div>

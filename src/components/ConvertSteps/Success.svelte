@@ -19,6 +19,7 @@
   export let disabledFont = Required("disabledFont");
   export let buttonBgColor = Required("buttonBgColor");
   export let buttonFontColor = Required("buttonFontColor");
+  export let txHash = Required("txHash");
 
   const dispatch = createEventDispatcher();
 
@@ -84,7 +85,7 @@
 
 <div class="container" use:useCssVars={cssVars}>
   <div class="closeContainer">
-    <Icon color={disabledFont}>
+    <Icon color={disabledFont} on:click={onClose}>
       <MdClose />
     </Icon>
   </div>
@@ -96,18 +97,16 @@
     </div>
     <h1>Conversion</h1>
     <h1>Successful!</h1>
-    <Link url="https://etherscan.io" fontColor={disabledFont}>etherscan</Link>
+    <Link url="https://etherscan.io/tx/{txHash}" fontColor={disabledFont}>
+      etherscan
+    </Link>
   </div>
   <div class="btnContainer">
-    <Button bgColor={buttonBgColor} fontColor={buttonFontColor}>Done</Button>
+    <Button
+      bgColor={buttonBgColor}
+      fontColor={buttonFontColor}
+      on:click={onClose}>
+      Done
+    </Button>
   </div>
 </div>
-
-<!-- example -->
-<!-- <Success
-    bgColor={colors.containerBg}
-    fontColor={colors.containerFont}
-    successColor={colors.successColor}
-    disabledFont={colors.disabledFont}
-    buttonBgColor={colors.buttonBg}
-    buttonFontColor={colors.buttonFont} /> -->

@@ -4,7 +4,7 @@
   */
 
   import { onMount } from "svelte";
-  import { derived, get } from "svelte/store";
+  import { writable, derived, get } from "svelte/store";
   import useCssVars from "svelte-css-vars";
   import { Address } from "web3x-es/address";
   import MdCompareArrows from "svelte-icons/md/MdCompareArrows.svelte";
@@ -28,21 +28,22 @@
     updateReturn,
     errorMsg as widgetErrorMsg,
     affiliate as widgetAffiliate,
-    affiliateFee
+    affiliateFee,
+    success
   } from "./stores/widget.js";
   import {
     isOpen as isStepsOpen,
     open as openSteps,
     close as closeSteps,
     steps,
-    onStep,
-    done
+    onStep
   } from "./stores/steps.js";
   import Icon from "./components/Icon.svelte";
   import Button from "./components/Button.svelte";
   import Token from "./components/Token.svelte";
   import SelectTokens from "./components/SelectTokens/index.svelte";
   import ConvertSteps from "./components/ConvertSteps/index.svelte";
+  import Success from "./components/ConvertSteps/Success.svelte";
   import Summary from "./components/Summary.svelte";
   import Link from "./components/Link.svelte";
   import Colors, { colors as defaultColors } from "./utils/Colors.js";
@@ -195,37 +196,59 @@
     }
   };
 
-  const firstStep = derived(steps, $steps => {
-    if ($steps.length === 1) return get($steps[0]);
-    return undefined;
+  let firstStepSub;
+  let lastStepSub;
+  let firstStepIsPending = writable(false);
+  let lastStepTxHash = writable(undefined);
+  let lastStepError = writable(undefined);
+
+  steps.subscribe($steps => {
+    const hasSteps = $steps.length > 0;
+    const isSingleStep = $steps.length === 1;
+    const firstStep = hasSteps ? $steps[0] : undefined;
+    const lastStep = hasSteps ? $steps[$steps.length - 1] : undefined;
+
+    if (!firstStep && firstStepSub) {
+      firstStepSub();
+      firstStepSub = undefined;
+    }
+    if (!lastStep && lastStepSub) {
+      lastStepSub();
+      lastStepSub = undefined;
+    }
+
+    if (!firstStepSub && firstStep) {
+      firstStepSub = firstStep.subscribe($step => {
+        firstStepIsPending.update(() => $step.pending);
+      });
+    }
+
+    if (!lastStepSub && isSingleStep && lastStep) {
+      lastStepSub = lastStep.subscribe($step => {
+        lastStepTxHash.update(() => $step.txHash);
+        lastStepError.update(() => $step.error);
+      });
+    }
   });
-  const buttonLoading = derived(firstStep, $firstStep => {
-    if ($firstStep) return $firstStep.pending;
-    return false;
-  });
+
   const buttonDisabled = derived(
-    [buttonLoading, disabledConvert],
-    ([$buttonLoading, $disabledConvert]) => {
-      return $buttonLoading || $disabledConvert;
+    [disabledConvert, firstStepIsPending],
+    ([$disabledConvert, $firstStepIsPending]) => {
+      return $disabledConvert || $firstStepIsPending;
     }
   );
-  const buttonMessage = derived(
-    [firstStep, widgetErrorMsg],
-    ([$firstStep, $widgetErrorMsg]) => {
-      if ($widgetErrorMsg)
-        return {
-          type: "text",
-          text: $widgetErrorMsg
-        };
-      if ($firstStep && $firstStep.txHash)
-        return {
-          type: "url",
-          url: `https://etherscan.io/tx/${$firstStep.txHash}`
-        };
+
+  const buttonError = derived(
+    [widgetErrorMsg, lastStepError],
+    ([$widgetErrorMsg, $lastStepError]) => {
+      if ($widgetErrorMsg) return $widgetErrorMsg;
+      if ($lastStepError) return $lastStepError.message;
 
       return undefined;
     }
   );
+
+  const onSuccessClose = () => success.update(() => false);
 
   $: cssVars = {
     containerBg: colors.containerBg,
@@ -281,7 +304,17 @@
 </style>
 
 <div class="container" use:useCssVars={cssVars}>
-  {#if $isStepsOpen}
+  {#if $success}
+    <Success
+      bgColor={colors.containerBg}
+      fontColor={colors.containerFont}
+      successColor={colors.successColor}
+      disabledFont={colors.disabledFont}
+      buttonBgColor={colors.buttonBg}
+      buttonFontColor={colors.buttonFont}
+      on:close={onSuccessClose}
+      txHash={$lastStepTxHash} />
+  {:else if $isStepsOpen}
     <ConvertSteps
       bgColor={colors.containerBg}
       fontColor={colors.containerFont}
@@ -361,18 +394,18 @@
           bgColor={colors.buttonBg}
           fontColor={colors.buttonFont}
           on:click={onConvert}
-          disabled={$buttonDisabled}
-          loading={$buttonLoading}>
+          loading={$firstStepIsPending}
+          disabled={$buttonDisabled}>
           Convert
           <span slot="message">
-            {#if $buttonMessage}
-              {#if $buttonMessage.type == 'url'}
-                <Link
-                  url={$buttonMessage.url}
-                  fontColor={colors.bottomTokenFont}>
-                  etherscan
-                </Link>
-              {:else}{$buttonMessage.text}{/if}
+            {#if $lastStepTxHash}
+              <Link
+                url={`https://etherscan.io/tx/${$lastStepTxHash}`}
+                fontColor={colors.bottomTokenFont}>
+                etherscan
+              </Link>
+            {:else if $buttonError}
+              <span>{$buttonError}</span>
             {/if}
           </span>
         </Button>

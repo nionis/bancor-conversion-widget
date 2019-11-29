@@ -7,7 +7,6 @@
   import { createEventDispatcher } from "svelte";
   import useCssVars from "svelte-css-vars";
   import Loading from "./Loading.svelte";
-  import { emptyChar } from "../utils";
   import { Cursor, Opacity } from "../utils/Colors.js";
   import Required from "../utils/Required";
 
@@ -70,6 +69,10 @@
   .btn:hover {
     opacity: var(--opacityHover) !important;
   }
+
+  .message {
+    height: 20px;
+  }
 </style>
 
 <div class="container" use:useCssVars={cssVars}>
@@ -82,5 +85,7 @@
       {/if}
     </div>
   </div>
-  <slot name="message" />
+  <div class="message">
+    <slot name="message" />
+  </div>
 </div>

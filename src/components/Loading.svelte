@@ -25,7 +25,6 @@
     display: inline-block;
     text-align: center;
     vertical-align: top;
-    padding: 1em;
   }
 
   svg {
