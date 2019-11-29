@@ -103,7 +103,8 @@ export const updateReturn = async o => {
   // reset affiliate fee
   affiliateFee.update(() => "0");
 
-  const sendAmount = get(o.inputSend) && get(o.tokenSend).toSmallestAmount(get(o.inputSend))
+  const sendAmount =
+    get(o.inputSend) && get(o.tokenSend).toSmallestAmount(get(o.inputSend));
 
   if (!sendAmount || sendAmount === "0") {
     return resetInputs();
@@ -144,9 +145,9 @@ export const updateReturn = async o => {
 
       return $affiliate
         ? toBN(receiveAmountWei)
-          .mul(toBN($affiliate.fee))
-          .div(toBN(100))
-          .toString()
+            .mul(toBN($affiliate.fee))
+            .div(toBN(100))
+            .toString()
         : "0";
     });
   }
@@ -260,9 +261,9 @@ export const convert = async (amount = Required("amount")) => {
         const affiliateFeePPM =
           $affiliate && $affiliateFee
             ? toBN($affiliate.fee)
-              .mul(toBN(1e6))
-              .div(toBN(100))
-              .toString()
+                .mul(toBN(1e6))
+                .div(toBN(100))
+                .toString()
             : "0";
 
         return _bancorNetwork.methods[fn](

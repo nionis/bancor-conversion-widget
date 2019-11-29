@@ -7,6 +7,7 @@
   import { writable, derived, get } from "svelte/store";
   import useCssVars from "svelte-css-vars";
   import { Address } from "web3x-es/address";
+  import BigNumber from "bignumber.js";
   import MdCompareArrows from "svelte-icons/md/MdCompareArrows.svelte";
   import * as ethStore from "./stores/eth";
   import {
@@ -160,7 +161,15 @@
     inputSend,
     inputReceive
   }) => e => {
-    inputSend.update(() => e.detail);
+    const rawAmount = e.detail;
+    if (!rawAmount) return;
+
+    const amount = new BigNumber(rawAmount).toString();
+    const smallest = get(tokenSend).toSmallestAmount(amount);
+    const isValid = new BigNumber(smallest).gt("1");
+    if (!isValid) return;
+
+    inputSend.update(() => rawAmount);
 
     updateReturn({
       tokenSend,

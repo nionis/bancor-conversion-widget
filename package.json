@@ -22,6 +22,7 @@
     ]
   },
   "dependencies": {
+    "bignumber.js": "^9.0.0",
     "lodash": "^4.17.15",
     "svelte-css-vars": "0.0.1",
     "svelte-icons": "^1.1.0",
