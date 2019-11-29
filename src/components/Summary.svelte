@@ -9,14 +9,14 @@
   import Required from "../utils/Required";
 
   export let fontColor = Required("fontColor");
-  export let amount = Required("amount");
-  export let fee = Required("fee");
+  export let fee;
+  export let amount;
   export let symbol;
 
-  $: amountDisplay = Number(amount) === 0 ? "0.0" : amount;
+  $: amountDisplay = !amount || Number(amount) === 0 ? "0.0" : amount;
 
   $: feeDisplay =
-    Number(fee) === 0
+    !fee || Number(fee) === 0
       ? "0.0"
       : Number(fee) > 0.001
       ? Number(fee).toFixed(5)

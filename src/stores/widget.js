@@ -14,9 +14,9 @@ import derivedPluck from "../utils/derivedPluck";
 export const loading = writable(false); // is widget loading
 export const errorMsg = writable(undefined); // error message to be displayed
 export const tokenSend = writable(undefined); // "send" token
-export const tokenSendInput = writable("0");
+export const tokenSendInput = writable(undefined);
 export const tokenReceive = writable(undefined); // "receive" token
-export const tokenReceiveInput = writable("0");
+export const tokenReceiveInput = writable(undefined);
 export const affiliate = writable(undefined);
 export const affiliateFee = writable("0");
 export const success = writable(false); // conversion was successful
@@ -88,8 +88,8 @@ export const path = derived(
 
 // reset both inputs
 export const resetInputs = () => {
-  tokenSendInput.update(() => "0");
-  tokenReceiveInput.update(() => "0");
+  tokenSendInput.update(() => undefined);
+  tokenReceiveInput.update(() => undefined);
   affiliateFee.update(() => "0");
 };
 
@@ -103,9 +103,9 @@ export const updateReturn = async o => {
   // reset affiliate fee
   affiliateFee.update(() => "0");
 
-  const sendAmount = get(o.tokenSend).toSmallestAmount(get(o.inputSend)) || "0";
+  const sendAmount = get(o.inputSend) && get(o.tokenSend).toSmallestAmount(get(o.inputSend))
 
-  if (sendAmount === "0") {
+  if (!sendAmount || sendAmount === "0") {
     return resetInputs();
   }
 

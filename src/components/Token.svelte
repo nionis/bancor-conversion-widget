@@ -13,12 +13,12 @@
   import { emptyChar } from "../utils";
 
   export let title = Required("title");
-  export let amount = Required("amount");
   export let bgColor = Required("bgColor");
   export let fontColor = Required("fontColor");
   export let loading = false;
   export let disabled = false;
   export let message = emptyChar;
+  export let amount;
   // default selected token (should never show)
   export let token = {
     name: "?",

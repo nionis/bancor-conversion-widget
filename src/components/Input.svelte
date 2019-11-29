@@ -10,7 +10,7 @@
   import { Opacity } from "../utils/Colors.js";
 
   export let fontColor = Required("fontColor");
-  export let value = Required("value");
+  export let value;
   export let disabled = false;
 
   const minVirtualWidth = 50;
@@ -47,7 +47,8 @@
     opacity: Opacity({ disabled }),
     fontColor,
     fontSize: "calc(30px + 0.35vw)",
-    virtualWidth
+    virtualWidth,
+    underline: focused ? `1px solid ${fontColor}` : "none"
   };
 </script>
 
@@ -74,6 +75,7 @@
     color: var(--fontColor);
     font-size: var(--fontSize);
     text-overflow: ellipsis;
+    border-bottom: var(--underline);
   }
   input:focus {
     outline: none;
@@ -90,7 +92,7 @@
   <input
     type="number"
     min="0"
-    step="0.001"
+    placeholder="0.001"
     {value}
     {disabled}
     on:focus={onFocus}

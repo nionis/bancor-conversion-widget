@@ -114,7 +114,7 @@
   const disabledConvert = derived(
     [loading, tokenSendInput],
     ([$loading, $tokenSendInput]) => {
-      return $loading || $tokenSendInput === "0";
+      return $loading || !$tokenSendInput || $tokenSendInput === "0";
     }
   );
 
@@ -160,7 +160,7 @@
     inputSend,
     inputReceive
   }) => e => {
-    inputSend.update(() => e.detail || "0");
+    inputSend.update(() => e.detail);
 
     updateReturn({
       tokenSend,
@@ -388,8 +388,8 @@
       <Summary
         fontColor={colors.bottomTokenFont}
         amount={$tokenSendInput}
-        symbol={$selectedTokenSend ? $selectedTokenSend.symbol : undefined}
-        fee={bntToken ? bntToken.toDisplayAmount($affiliateFee) : '0'} />
+        symbol={$selectedTokenSend && $selectedTokenSend.symbol}
+        fee={bntToken && bntToken.toDisplayAmount($affiliateFee)} />
 
       <div class="btnContainer">
         <Button
