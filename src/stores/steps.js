@@ -20,9 +20,6 @@ export const onStep = writable(0);
 export const addSteps = _steps => {
   steps.update(() => _steps);
 };
-export const clearSteps = () => {
-  steps.update(() => []);
-};
 
 // create a step
 export const Step = ({ text, fn, onSuccess, onFailure }) => {
@@ -109,4 +106,9 @@ export const SyncStep = fn => step => {
       console.error(error);
       fail(error);
     });
+};
+
+export const reset = () => {
+  onStep.update(() => 0);
+  steps.update(() => []);
 };

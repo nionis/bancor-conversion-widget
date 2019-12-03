@@ -99,7 +99,7 @@ export const updateReturn = async o => {
   if (!_selected) return;
 
   // reset steps
-  stepsStore.clearSteps();
+  stepsStore.reset();
   // reset affiliate fee
   affiliateFee.update(() => "0");
 
@@ -145,9 +145,9 @@ export const updateReturn = async o => {
 
       return $affiliate
         ? toBN(receiveAmountWei)
-            .mul(toBN($affiliate.fee))
-            .div(toBN(100))
-            .toString()
+          .mul(toBN($affiliate.fee))
+          .div(toBN(100))
+          .toString()
         : "0";
     });
   }
@@ -264,9 +264,9 @@ export const convert = async (amount = Required("amount")) => {
         const affiliateFeePPM =
           $affiliate && $affiliateFee
             ? toBN($affiliate.fee)
-                .mul(toBN(1e6))
-                .div(toBN(100))
-                .toString()
+              .mul(toBN(1e6))
+              .div(toBN(100))
+              .toString()
             : "0";
 
         return _bancorNetwork.methods[fn](
@@ -282,6 +282,7 @@ export const convert = async (amount = Required("amount")) => {
       }),
       onSuccess: () => {
         success.update(() => true);
+        stepsStore.reset();
       }
     })
   );
