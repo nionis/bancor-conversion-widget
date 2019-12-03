@@ -57,6 +57,8 @@ import BancorConversionWidget from "bancor-conversion-widget";
 <BancorConversionWidget />
 ```
 
+Read a more in-depth integration guide [here](https://github.com/nionis/bancor-conversion-widget/wiki/Integration-guide)
+
 ### Available properties:
 
 | Name              | Description                       | Type      | Default                        |
