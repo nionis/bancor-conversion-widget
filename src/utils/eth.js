@@ -11,3 +11,15 @@ export const toDecimals = (amount, decimals) => {
     .multipliedBy(10 ** Number(decimals))
     .toString(10);
 };
+
+export const toFixed = amount => {
+  const amountInt = Number(amount);
+
+  if (!amount || amountInt === 0) {
+    return "0";
+  } else if (amountInt > 0.001) {
+    return String(amountInt.toFixed(5));
+  } else {
+    return "<0.001";
+  }
+};

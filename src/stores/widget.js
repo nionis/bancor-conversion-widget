@@ -14,6 +14,7 @@ import derivedPluck from "../utils/derivedPluck";
 export const loading = writable(false); // is widget loading
 export const errorMsg = writable(undefined); // error message to be displayed
 export const tokenSend = writable(undefined); // "send" token
+export const tokenSendBalance = writable(undefined); // "send" token user's balance
 export const tokenSendInput = writable(undefined);
 export const tokenReceive = writable(undefined); // "receive" token
 export const tokenReceiveInput = writable(undefined);
@@ -93,6 +94,26 @@ export const resetInputs = () => {
   affiliateFee.update(() => "0");
 };
 
+export const updateBalance = async tokenSend => {
+  const eth = get(ethStore.eth);
+  const account = get(ethStore.account);
+  const $tokenSend = get(tokenSend);
+
+  if (eth && account) {
+    let balance;
+    if ($tokenSend.isEth) {
+      balance = await eth.getBalance(account);
+    } else {
+      const token = await Contract(eth, "ERC20Token", $tokenSend.address);
+      balance = await token.methods.balanceOf(account).call();
+    }
+
+    tokenSendBalance.update(() => balance);
+  } else {
+    tokenSendBalance.update(() => undefined);
+  }
+};
+
 // update the other input with convert amount
 export const updateReturn = async o => {
   const _selected = get(pairsAreSelected);
@@ -145,9 +166,9 @@ export const updateReturn = async o => {
 
       return $affiliate
         ? toBN(receiveAmountWei)
-          .mul(toBN($affiliate.fee))
-          .div(toBN(100))
-          .toString()
+            .mul(toBN($affiliate.fee))
+            .div(toBN(100))
+            .toString()
         : "0";
     });
   }
@@ -264,9 +285,9 @@ export const convert = async (amount = Required("amount")) => {
         const affiliateFeePPM =
           $affiliate && $affiliateFee
             ? toBN($affiliate.fee)
-              .mul(toBN(1e6))
-              .div(toBN(100))
-              .toString()
+                .mul(toBN(1e6))
+                .div(toBN(100))
+                .toString()
             : "0";
 
         return _bancorNetwork.methods[fn](

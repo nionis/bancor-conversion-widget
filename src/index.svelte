@@ -20,12 +20,14 @@
     loading as widgetLoading,
     tokenSend as selectedTokenSend,
     tokenSendInput,
+    tokenSendBalance,
     tokensSend,
     tokenReceive as selectedTokenReceive,
     tokenReceiveInput,
     tokensReceive,
     convert,
     pairsAreSelected,
+    updateBalance,
     updateReturn,
     errorMsg as widgetErrorMsg,
     affiliate as widgetAffiliate,
@@ -100,6 +102,7 @@
 
     if (foundSendToken) {
       selectedTokenSend.update(() => foundSendToken);
+      updateBalance(selectedTokenSend);
     }
     if (foundReceiveToken) {
       selectedTokenReceive.update(() => foundReceiveToken);
@@ -149,6 +152,9 @@
       inputReceive: tokenReceiveInput
     });
 
+    // update tokenSend's balance
+    updateBalance(selectedTokenSend);
+
     closeSelect();
   };
 
@@ -193,6 +199,9 @@
       inputSend: tokenSendInput,
       inputReceive: tokenReceiveInput
     });
+
+    // update tokenSend's balance
+    updateBalance(selectedTokenSend);
   };
 
   const onConvert = async () => {
@@ -358,12 +367,19 @@
         title="SEND"
         amount={$tokenSendInput}
         token={$selectedTokenSend}
+        balance={$tokenSendBalance}
         bgColor={colors.topTokenBg}
         fontColor={colors.topTokenFont}
         loading={$loading}
         disabled={$loading}
         on:open={OpenSelect('send')}
         on:amount={OnAmount({
+          tokenSend: selectedTokenSend,
+          tokenReceive: selectedTokenReceive,
+          inputSend: tokenSendInput,
+          inputReceive: tokenReceiveInput
+        })}
+        on:selectBalance={OnAmount({
           tokenSend: selectedTokenSend,
           tokenReceive: selectedTokenReceive,
           inputSend: tokenSendInput,

@@ -7,20 +7,15 @@
   import useCssVars from "svelte-css-vars";
   import Loading from "../components/Loading.svelte";
   import Required from "../utils/Required";
+  import { toFixed } from "../utils/eth";
 
   export let fontColor = Required("fontColor");
   export let fee;
   export let amount;
   export let symbol;
 
-  $: amountDisplay = !amount || Number(amount) === 0 ? "0.0" : amount;
-
-  $: feeDisplay =
-    !fee || Number(fee) === 0
-      ? "0.0"
-      : Number(fee) > 0.001
-      ? Number(fee).toFixed(5)
-      : "<0.001";
+  $: amountDisplay = toFixed(amount);
+  $: feeDisplay = toFixed(fee);
 
   $: cssVars = {
     fontColor
