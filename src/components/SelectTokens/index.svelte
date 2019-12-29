@@ -80,18 +80,18 @@
 
   // handle focus / blur when using "svelte-select"
   $: {
-    const listExists = elem && !elem.$$.ctx.container.querySelector("div");
+    const listExists = elem && !!elem.$$.ctx[0];
 
     if (firstTime && !open && listExists) {
-      elem.$$.ctx.container.click();
+      elem.$$.ctx[0].click();
       firstTime = false;
       dispatch("focus");
     } else if (!open && listExists) {
       // ignore blur and keep it open
       // dispatch("blur");
-      elem.$$.ctx.container.click();
+      elem.$$.ctx[0].click();
     } else if (!open && !listExists) {
-      elem.$$.ctx.container.click();
+      elem.$$.ctx[0].click();
     }
   }
 

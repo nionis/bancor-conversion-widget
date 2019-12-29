@@ -14,12 +14,11 @@ export const contractRegistry = writable(undefined); // contractRegistry instanc
 export const converterRegistry = writable(undefined); // converterRegistry instance
 export const bancorNetwork = writable(undefined); // bancorNetwork instance
 export const bntToken = writable(undefined); // bancorNetwork's token instance
-export const bntConverter = writable(undefined); // bancorNetwork's token converter instance
 export const fetchingTokens = writable(false); // are we currently fetching tokens
 export const tokens = writable(new Map()); // all tokens keyed by address
 
 // using Bancor's API, get token's img url
-export const getTokenImg = async symbol => {
+export const getTokenImgByBancor = async symbol => {
   return safeFetch(`https://api.bancor.network/0.1/currencies/${symbol}`).then(
     res => {
       if (!res || !res.data) return;
@@ -36,31 +35,6 @@ export const getTokenImg = async symbol => {
 export const getTokenData = async (eth, address) => {
   const _bancorNetwork = get(bancorNetwork);
   const _bntToken = get(bntToken);
-  const _converter = get(converterRegistry);
-
-  let relay = address;
-
-  const tokenConverterCount = await _converter.methods
-    .converterCount(address)
-    .call();
-
-  if (Number(tokenConverterCount) > 0) {
-    const tokenConverterAddress = await _converter.methods
-      .converterAddress(address, String(Number(tokenConverterCount) - 1))
-      .call()
-      .then(res => bufferToHex(res.buffer));
-
-    const tokenConverter = await Contract(
-      eth,
-      "BancorConverter",
-      tokenConverterAddress
-    );
-
-    relay = await tokenConverter.methods
-      .token()
-      .call()
-      .then(res => bufferToHex(res.buffer));
-  }
 
   const token = await Contract(eth, "ERC20Token", address);
 
@@ -72,24 +46,26 @@ export const getTokenData = async (eth, address) => {
     token.address === _bntToken.address
   ]);
 
-  const img = await getTokenImg(symbol);
+  // const img = await getTokenImgByBancor(symbol);
+  const img = `https://rawcdn.githack.com/crypti/cryptocurrencies/ed13420a6b22b25bbed53e2cbe6d8db302ec0c6a/images/${symbol}.png`;
 
   return {
     address,
     name,
     symbol,
+    img,
     decimals,
     toSmallestAmount: amount => toDecimals(amount, decimals),
     toDisplayAmount: amount => fromDecimals(amount, decimals),
-    relay,
     isEth,
-    isBNT,
-    isRelay: relay === address,
-    img
+    isBNT
   };
 };
 
-export const init = async (eth, { showRelayTokens = false, addresses = {} }) => {
+export const init = async (
+  eth,
+  { showRelayTokens = false, addresses = {} }
+) => {
   tokens.update(() => new Map());
 
   const _networkId = get(ethStore.networkId);
@@ -110,7 +86,6 @@ export const init = async (eth, { showRelayTokens = false, addresses = {} }) => 
   const [
     BancorNetworkAddr,
     BNTTokenAddr,
-    BNTConverterAddr,
     ConverterRegistryAddr
   ] = await Promise.all([
     _contractRegistry.methods
@@ -122,13 +97,13 @@ export const init = async (eth, { showRelayTokens = false, addresses = {} }) => 
       .call()
       .then(res => bufferToHex(res.buffer)),
     _contractRegistry.methods
-      .addressOf(utf8ToHex("BNTConverter"))
-      .call()
-      .then(res => bufferToHex(res.buffer)),
-    _contractRegistry.methods
       .addressOf(utf8ToHex("BancorConverterRegistry"))
       .call()
       .then(res => bufferToHex(res.buffer))
+      .then(res => {
+        // TODO: remove hardcoded address
+        return "0xf6E2D7F616B67E46D708e4410746E9AAb3a4C518";
+      })
   ]);
 
   const _bancorNetwork = await Contract(
@@ -141,13 +116,6 @@ export const init = async (eth, { showRelayTokens = false, addresses = {} }) => 
   const _bntToken = await Contract(eth, "SmartToken", BNTTokenAddr);
   bntToken.update(() => _bntToken);
 
-  const _bntConverter = await Contract(
-    eth,
-    "BancorConverter",
-    BNTConverterAddr
-  );
-  bntConverter.update(() => _bntConverter);
-
   const _converterRegistry = await Contract(
     eth,
     "BancorConverterRegistry",
@@ -155,61 +123,46 @@ export const init = async (eth, { showRelayTokens = false, addresses = {} }) => 
   );
   converterRegistry.update(() => _converterRegistry);
 
-  // get and add ETH
-  _bntConverter.methods
-    .connectorTokens(0)
-    .call()
-    .then(res => bufferToHex(res.buffer))
-    .then(async address => {
-      const data = await getTokenData(eth, address);
+  try {
+    fetchingTokens.update(() => true);
 
-      tokens.update(v => {
-        v.set(address, data);
-
-        return v;
+    // fetch all erc20 tokens
+    let tokensAddress = await _converterRegistry.methods
+      .getConvertibleTokens()
+      .call()
+      .then(res => {
+        return res.map(res => bufferToHex(res.buffer)).reverse();
       });
-    });
 
-  // add BNT
-  getTokenData(eth, _bntToken.address).then(data => {
-    tokens.update(v => {
-      v.set(_bntToken.address, data);
-
-      return v;
-    });
-  });
-
-  // add tokens registered in converter
-  _converterRegistry.methods
-    .tokenCount()
-    .call()
-    .then(count => {
-      fetchingTokens.update(() => true);
-
-      return resolve(
-        Array.from(Array(Number(count))).map((v, i) => ({
-          id: i,
-          fn: async () => {
-            const tokenAddress = await _converterRegistry.methods
-              .tokens(String(i))
-              .call()
-              .then(res => bufferToHex(res.buffer));
-
-            const data = await getTokenData(eth, tokenAddress);
-
-            // hide relay tokens
-            if (!showRelayTokens && data.isRelay) return;
-
-            tokens.update(v => {
-              v.set(tokenAddress, data);
-
-              return v;
-            });
-          }
-        }))
+    // fetch all relay tokens
+    if (showRelayTokens) {
+      tokensAddress = tokensAddress.concat(
+        await _converterRegistry.methods
+          .getSmartTokens()
+          .call()
+          .then(res => {
+            return res.map(res => bufferToHex(res.buffer));
+          })
       );
-    })
-    .finally(() => {
-      fetchingTokens.update(() => false);
-    });
+    }
+
+    return resolve(
+      tokensAddress.map((tokenAddress, i) => ({
+        id: i,
+        fn: async () => {
+          const data = await getTokenData(eth, tokenAddress);
+
+          tokens.update(v => {
+            v.set(tokenAddress, data);
+
+            return v;
+          });
+        }
+      }))
+    );
+  } catch (error) {
+    console.error(error);
+  } finally {
+    fetchingTokens.update(() => false);
+  }
 };

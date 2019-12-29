@@ -33,59 +33,20 @@ export const pairsAreSelected = derived(
   }
 );
 
-// BancorNetwork path to be used for exchanging
-export const path = derived(
-  [tokenSend, tokenReceive],
-  ([_tokenSend, _tokenReceive]) => {
-    if (!get(pairsAreSelected)) return [];
-
-    const _bntToken = get(tokensStore.tokens).get(
-      get(tokensStore.bntToken).address
-    );
-    const oneIsEth = _tokenSend.isEth || _tokenReceive.isEth;
-    const oneIsBNT = _tokenSend.isBNT || _tokenReceive.isBNT;
-
-    if (oneIsEth && oneIsBNT) {
-      if (_tokenSend.isEth) {
-        return [_tokenSend.address, _tokenReceive.relay, _tokenReceive.address];
-      } else {
-        return [_tokenSend.address, _tokenSend.relay, _tokenReceive.address];
+export const getPath = (tokenSendAddress, tokenReceiveAddress) => {
+  return get(ethStore.bancorSdk)
+    .generatePath(
+      {
+        blockchainType: "ethereum",
+        blockchainId: tokenSendAddress
+      },
+      {
+        blockchainType: "ethereum",
+        blockchainId: tokenReceiveAddress
       }
-    } else if (oneIsBNT) {
-      if (_tokenSend.isBNT) {
-        return [_tokenSend.address, _tokenReceive.relay, _tokenReceive.address];
-      } else {
-        return [_tokenSend.address, _tokenSend.relay, _tokenReceive.address];
-      }
-    } else if (oneIsEth) {
-      if (_tokenSend.isEth) {
-        return [
-          _tokenSend.address,
-          _bntToken.relay,
-          _bntToken.address,
-          _tokenReceive.relay,
-          _tokenReceive.address
-        ];
-      } else {
-        return [
-          _tokenSend.address,
-          _tokenSend.relay,
-          _bntToken.address,
-          _bntToken.relay,
-          _tokenReceive.address
-        ];
-      }
-    } else {
-      return [
-        _tokenSend.address,
-        _tokenSend.relay,
-        _bntToken.address,
-        _tokenReceive.relay,
-        _tokenReceive.address
-      ];
-    }
-  }
-);
+    )
+    .then(res => res.paths[0].path);
+};
 
 // reset both inputs
 export const resetInputs = () => {
@@ -133,11 +94,10 @@ export const updateReturn = async o => {
 
   loading.update(() => true);
 
-  const _path = get(path);
-  const currentPath =
-    get(o.tokenSend).address === get(tokenSend).address
-      ? _path
-      : _path.reverse();
+  const currentPath = await getPath(
+    get(o.tokenSend).address,
+    get(o.tokenReceive).address
+  );
 
   const _bancorNetwork = get(tokensStore.bancorNetwork);
 
@@ -290,8 +250,10 @@ export const convert = async (amount = Required("amount")) => {
                 .toString()
             : "0";
 
+        const path = await getPath(_tokenSend.address, _tokenReceive.address);
+
         return _bancorNetwork.methods[fn](
-          get(path),
+          path,
           weiAmount,
           1,
           affiliateAccount,
@@ -304,6 +266,7 @@ export const convert = async (amount = Required("amount")) => {
       onSuccess: () => {
         success.update(() => true);
         stepsStore.reset();
+        updateBalance(tokenSend);
       }
     })
   );

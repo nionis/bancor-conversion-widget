@@ -6,12 +6,14 @@
 import { Eth } from "web3x-es/eth";
 import { LegacyProviderAdapter } from "web3x-es/providers";
 import { writable, derived, get } from "svelte/store";
+import _bancorSdk from "bancor-sdk";
 
 export const eth = writable(undefined); // ethereum instance
 export const installed = writable(false); // metamask is installed on user's browser
 export const accepted = writable(false); // user has accepted this website on metamask
 export const account = writable(undefined); // current account address
 export const networkId = writable(undefined); // current networkId
+export const bancorSdk = writable(_bancorSdk); // bancor sdk's instance
 export const isLoggedIn = derived(account, v => !!v); // is user logged in (account exists)
 
 export const getEth = async () => {
@@ -89,6 +91,11 @@ export const sync = async () => {
 // initialize and subscribe to ethereum events
 export const init = async () => {
   const _eth = await getEth();
+  // TODO: handle other networks
+  await get(bancorSdk).init({
+    ethereumNodeEndpoint:
+      "https://mainnet.infura.io/v3/ec2c4801bcf44d9daa49f2e541851706"
+  });
   await sync();
 
   if (window.ethereum) {
