@@ -12,7 +12,8 @@
   export let fontColor = Required("fontColor");
   export let fee;
   export let amount;
-  export let symbol;
+  export let sendSymbol;
+  export let receiveSymbol;
 
   $: amountDisplay = toFixed(amount);
   $: feeDisplay = toFixed(fee);
@@ -56,8 +57,8 @@
   <h1>Summary</h1>
   <div class="alignRow">
     <div>Amount</div>
-    {#if symbol}
-      <div>{amountDisplay} ({symbol})</div>
+    {#if sendSymbol}
+      <div>{amountDisplay} ({sendSymbol})</div>
     {:else}
       <div class="loadingContainer">
         <Loading color={fontColor} />
@@ -66,12 +67,19 @@
   </div>
   <div class="alignRow">
     <div>Fee</div>
-    <div>{feeDisplay} (BNT)</div>
+    {#if receiveSymbol}
+      <!-- <div>{feeDisplay} ({receiveSymbol})</div> -->
+      <div>{feeDisplay} (BNT)</div>
+    {:else}
+      <div class="loadingContainer">
+        <Loading color={fontColor} />
+      </div>
+    {/if}
   </div>
   <div class="alignRow">
     <div>Total Cost</div>
-    {#if symbol}
-      <div>{amountDisplay} ({symbol})</div>
+    {#if sendSymbol}
+      <div>{amountDisplay} ({sendSymbol})</div>
     {:else}
       <div class="loadingContainer">
         <Loading color={fontColor} />

@@ -12,7 +12,8 @@
     "start": "sirv example",
     "start:dev": "sirv example --dev",
     "test": "echo \"No test specified\"",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "deploy": "npm run build && now switch nionis && now -n bancor-conversion-widget --prod ./example"
   },
   "dependencies": {
     "bancor-sdk": "git+https://github.com/nionis/bancor-sdk.git",

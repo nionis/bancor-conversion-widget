@@ -103,7 +103,8 @@ export const updateReturn = async o => {
 
   const {
     receiveAmountWei = "0",
-    receiveAmount = "0"
+    receiveAmount = "0",
+    fee = "0"
   } = await _bancorNetwork.methods
     .getReturnByPath(currentPath, sendAmount)
     .call()
@@ -123,11 +124,12 @@ export const updateReturn = async o => {
   if (!get(o.tokenSend).isBNT && !get(o.tokenReceive).isEth) {
     affiliateFee.update(() => {
       const $affiliate = get(affiliate);
+      const precision = 1e18;
 
       return $affiliate
         ? toBN(receiveAmountWei)
-            .mul(toBN($affiliate.fee))
-            .div(toBN(100))
+            .mul(toBN(String($affiliate.fee * precision)))
+            .div(toBN(String(100 * precision)))
             .toString()
         : "0";
     });
@@ -240,13 +242,14 @@ export const convert = async (amount = Required("amount")) => {
         const ethAmount = _tokenSend.isEth ? weiAmount : undefined;
         const $affiliate = get(affiliate);
         const $affiliateFee = get(affiliateFee);
+        const precision = 1e18;
 
         const affiliateAccount = $affiliate ? $affiliate.account : zeroAddress;
         const affiliateFeePPM =
           $affiliate && $affiliateFee
-            ? toBN($affiliate.fee)
+            ? toBN(String($affiliate.fee * precision))
                 .mul(toBN(1e6))
-                .div(toBN(100))
+                .div(toBN(String(100 * precision)))
                 .toString()
             : "0";
 

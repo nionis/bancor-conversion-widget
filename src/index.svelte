@@ -417,7 +417,8 @@
       <Summary
         fontColor={colors.bottomTokenFont}
         amount={$tokenSendInput}
-        symbol={$selectedTokenSend && $selectedTokenSend.symbol}
+        sendSymbol={$selectedTokenSend && $selectedTokenSend.symbol}
+        receiveSymbol={$selectedTokenReceive && $selectedTokenReceive.symbol}
         fee={bntToken && bntToken.toDisplayAmount($affiliateFee)} />
 
       <div class="btnContainer">
