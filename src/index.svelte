@@ -60,6 +60,7 @@
   export let showRelayTokens = false;
   export let addresses = defaultAddresses;
   export let affiliate = undefined;
+  export let onChange = undefined;
 
   // merge provided colors with default colors
   colors = Colors(colors);
@@ -155,6 +156,14 @@
     // update tokenSend's balance
     updateBalance(selectedTokenSend);
 
+    // emit changes
+    if (onChange) {
+      onChange({
+        tokenSend: get(selectedTokenSend),
+        tokenReceive: get(selectedTokenReceive)
+      });
+    }
+
     closeSelect();
   };
 
@@ -192,6 +201,14 @@
 
     selectedTokenSend.update(() => _selectedTokenReceive);
     selectedTokenReceive.update(() => _selectedTokenSend);
+
+    // emit changes
+    if (onChange) {
+      onChange({
+        tokenSend: _selectedTokenReceive,
+        tokenReceive: _selectedTokenSend
+      });
+    }
 
     updateReturn({
       tokenSend: selectedTokenSend,
