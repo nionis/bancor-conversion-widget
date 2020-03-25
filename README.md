@@ -61,15 +61,16 @@ Read a more in-depth integration guide [here](https://github.com/nionis/bancor-c
 
 ### Available properties:
 
-| Name              | Description                       | Type      | Default                        |
-| ----------------- | --------------------------------- | --------- | ------------------------------ |
-| tokenSend         | initial "send" token              | `string`  | `"ETH"`                        |
-| tokenReceive      | initial "receive" token           | `string`  | `"BNT"`                        |
-| colors            | custom colors                     | `object`  | [src](/src/utils/Colors.js#L5) |
-| showRelayTokens   | show or hide relay tokens         | `boolean` | `false`                        |
-| addresses         | custom registry addresses         | `object`  | [src](/src/env.js#L4)          |
-| affiliate.account | affiliate ethereum address        | `string`  | `undefined`                    |
-| affiliate.fee     | affiliate fee percentage (max 3%) | `number`  | `undefined`                    |
+| Name              | Description                       | Type       | Default                        |
+| ----------------- | --------------------------------- | ---------- | ------------------------------ |
+| tokenSend         | initial "send" token              | `string`   | `"ETH"`                        |
+| tokenReceive      | initial "receive" token           | `string`   | `"BNT"`                        |
+| colors            | custom colors                     | `object`   | [src](/src/utils/Colors.js#L5) |
+| showRelayTokens   | show or hide relay tokens         | `boolean`  | `false`                        |
+| addresses         | custom registry addresses         | `object`   | [src](/src/env.js#L4)          |
+| affiliate.account | affiliate ethereum address        | `string`   | `undefined`                    |
+| affiliate.fee     | affiliate fee percentage (max 3%) | `number`   | `undefined`                    |
+| onChange          | event triggered on token change   | `function` | `undefined`                    |
 
 ### Live examples:
 
