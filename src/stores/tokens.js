@@ -8,7 +8,7 @@ import * as ethStore from "./eth";
 import safeFetch from "../utils/safeFetch";
 import Contract from "../utils/Contract";
 import resolve from "../utils/resolve";
-import { fromDecimals, toDecimals } from "../utils/eth";
+import { fromDecimals, toDecimals, toChecksumAddress } from "../utils/eth";
 
 export const contractRegistry = writable(undefined); // contractRegistry instance
 export const converterRegistry = writable(undefined); // converterRegistry instance
@@ -47,7 +47,9 @@ export const getTokenData = async (eth, address) => {
   ]);
 
   // const img = await getTokenImgByBancor(symbol);
-  const img = `https://rawcdn.githack.com/crypti/cryptocurrencies/ed13420a6b22b25bbed53e2cbe6d8db302ec0c6a/images/${symbol}.png`;
+  const img = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${toChecksumAddress(
+    token.address
+  )}/logo.png`;
 
   return {
     address,

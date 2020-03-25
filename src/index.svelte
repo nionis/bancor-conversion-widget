@@ -9,7 +9,11 @@
   import { Address } from "web3x-es/address";
   import BigNumber from "bignumber.js";
   import MdCompareArrows from "svelte-icons/md/MdCompareArrows.svelte";
-  import * as ethStore from "./stores/eth";
+  import {
+    init as ethStoreInit,
+    networkId as ethStoreNetworkId,
+    eth as ethStoreEth
+  } from "./stores/eth";
   import {
     init as registryInit,
     tokens as tokensMap,
@@ -49,6 +53,7 @@
   import Success from "./components/ConvertSteps/Success.svelte";
   import Summary from "./components/Summary.svelte";
   import Link from "./components/Link.svelte";
+  import Initializing from "./components/Initializing.svelte";
   import Colors, { colors as defaultColors } from "./utils/Colors.js";
   import { emptyChar } from "./utils";
   import { fromDecimals } from "./utils/eth";
@@ -80,9 +85,9 @@
 
   onMount(async () => {
     // when network changes, reinitialize
-    ethStore.networkId.subscribe(_networkId => {
+    ethStoreNetworkId.subscribe(_networkId => {
       if (_networkId) {
-        registryInit(get(ethStore.eth), {
+        registryInit(get(ethStoreEth), {
           showRelayTokens,
           addresses
         });
@@ -90,7 +95,7 @@
     });
 
     // initialize ethStore
-    await ethStore.init();
+    await ethStoreInit();
   });
 
   // true once default selected tokens are found
@@ -347,6 +352,13 @@
 </style>
 
 <div class="container" use:useCssVars={cssVars}>
+  {#if $ethStoreNetworkId === undefined || $ethStoreNetworkId !== 1}
+    <Initializing
+      bgColor="black"
+      fontColor={colors.buttonFont}
+      status={$ethStoreNetworkId === undefined ? 'initializing' : 'wrong_networkId'} />
+  {/if}
+
   {#if $success}
     <Success
       bgColor={colors.containerBg}

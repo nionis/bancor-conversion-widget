@@ -1,4 +1,5 @@
 import BigNumber from "bignumber.js";
+import { Address } from "web3x-es/address";
 
 export const zeroAddress = "0x0000000000000000000000000000000000000000";
 
@@ -22,4 +23,8 @@ export const toFixed = amount => {
   } else {
     return "<0.001";
   }
+};
+
+export const toChecksumAddress = address => {
+  return Address.toChecksumAddress(address);
 };
