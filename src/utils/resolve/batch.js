@@ -1,8 +1,8 @@
 import rSingle from "./single";
 
-const rBatch = batch => {
+const rBatch = (batch) => {
   return Promise.all(
-    batch.map(item => {
+    batch.map((item) => {
       return rSingle(item);
     })
   );

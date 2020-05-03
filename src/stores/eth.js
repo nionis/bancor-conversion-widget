@@ -3,28 +3,27 @@
   Account and network changes are all dynamically updated.
 */
 
-import { Eth } from "web3x-es/eth";
-import { LegacyProviderAdapter } from "web3x-es/providers";
+import Web3 from "web3";
 import { writable, derived, get } from "svelte/store";
-import _bancorSdk from "bancor-sdk";
+import { SDK as BancorSDK } from "bancor-sdk";
 
 export const eth = writable(undefined); // ethereum instance
 export const installed = writable(false); // metamask is installed on user's browser
 export const accepted = writable(false); // user has accepted this website on metamask
 export const account = writable(undefined); // current account address
 export const networkId = writable(undefined); // current networkId
-export const bancorSdk = writable(_bancorSdk); // bancor sdk's instance
-export const isLoggedIn = derived(account, v => !!v); // is user logged in (account exists)
+export const bancorSDK = writable(undefined); // bancor sdk's instance
+export const isLoggedIn = derived(account, (v) => !!v); // is user logged in (account exists)
 
 export const getEth = async () => {
   let _eth = undefined;
 
   if (window.ethereum) {
     console.log(`Injected ethereum detected.`);
-    _eth = new Eth(new LegacyProviderAdapter(window.ethereum));
+    _eth = new Web3(window.ethereum);
   } else if (window.web3) {
     console.log(`Injected web3 detected.`);
-    _eth = new Eth(new LegacyProviderAdapter(window.web3.currentProvider));
+    _eth = new Web3(window.web3.currentProvider);
   }
 
   if (_eth) {
@@ -39,11 +38,11 @@ export const getNetworkId = async () => {
   const _eth = get(eth);
   if (!_eth) return undefined;
 
-  return _eth.getId();
+  return _eth.eth.net.getId();
 };
 
 export const getAccept = async () => {
-  const _accepted = await new Promise(resolve => {
+  const _accepted = await new Promise((resolve) => {
     if (window.ethereum) {
       console.log("Requesting accept.");
 
@@ -54,7 +53,7 @@ export const getAccept = async () => {
 
           resolve(true);
         })
-        .catch(error => {
+        .catch((error) => {
           console.error(error);
           console.log(`Rejected.`);
 
@@ -74,7 +73,7 @@ export const getAccept = async () => {
 };
 
 export const getAccount = async () => {
-  const accounts = (await get(eth).getAccounts()) || [];
+  const accounts = (await get(eth).eth.getAccounts()) || [];
 
   return accounts[0] || undefined;
 };
@@ -91,19 +90,20 @@ export const sync = async () => {
 // initialize and subscribe to ethereum events
 export const init = async () => {
   const _eth = await getEth();
-  // TODO: handle other networks
-  await get(bancorSdk).init({
+
+  const _bancorSDK = await BancorSDK.create({
     ethereumNodeEndpoint:
-      "https://mainnet.infura.io/v3/ec2c4801bcf44d9daa49f2e541851706"
+      "wss://mainnet.infura.io/ws/v3/fa917c0fa5d0484bad5cb44f1205c6d6",
   });
+  bancorSDK.update(() => _bancorSDK);
   await sync();
 
   if (window.ethereum) {
-    window.ethereum.on("accountsChanged", accounts => {
+    window.ethereum.on("accountsChanged", (accounts) => {
       account.update(() => accounts[0] || undefined);
     });
 
-    window.ethereum.on("networkChanged", _networkId => {
+    window.ethereum.on("networkChanged", (_networkId) => {
       networkId.update(() => _networkId);
     });
   } else {

@@ -1,6 +1,6 @@
 import rBatch from "./batch";
 
-const rBatches = async batches => {
+const rBatches = async (batches) => {
   const results = [];
 
   let batch;

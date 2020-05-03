@@ -25,7 +25,7 @@ npm install bancor-conversion-widget --save
       // render it
       new BancorConversionWidget({
         target: document.body,
-        props: {}
+        props: {},
       });
     };
   </script>

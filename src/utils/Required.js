@@ -1,4 +1,4 @@
-const Required = name => {
+const Required = (name) => {
   throw new Error(`prop ${name} not provided`);
 };
 

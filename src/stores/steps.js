@@ -5,7 +5,7 @@
 
 import { writable, get } from "svelte/store";
 
-// if ConvertSteps view is Open 
+// if ConvertSteps view is Open
 export const isOpen = writable(false);
 export const open = () => {
   isOpen.update(() => true);
@@ -17,7 +17,7 @@ export const close = () => {
 // keep track of steps
 export const steps = writable([]);
 export const onStep = writable(0);
-export const addSteps = _steps => {
+export const addSteps = (_steps) => {
   steps.update(() => _steps);
 };
 
@@ -31,11 +31,11 @@ export const Step = ({ text, fn, onSuccess, onFailure }) => {
     success: undefined,
     txHash: undefined,
     onSuccess,
-    onFailure
+    onFailure,
   });
 
   // wrap fn to provide step instance
-  step.update(_step => {
+  step.update((_step) => {
     _step.fn = () => {
       return fn(step);
     };
@@ -47,65 +47,59 @@ export const Step = ({ text, fn, onSuccess, onFailure }) => {
 };
 
 // keep track of ETH tx
-export const SyncStep = fn => step => {
-  step.update(o => ({
+export const SyncStep = (fn) => (step) => {
+  step.update((o) => ({
     ...o,
     error: undefined,
     success: undefined,
-    pending: true
+    pending: true,
   }));
 
-  const fail = error => {
-    step.update(o => ({
+  const fail = (error) => {
+    step.update((o) => ({
       ...o,
       error,
       success: undefined,
-      pending: false
+      pending: false,
     }));
 
     const onFailure = get(step).onFailure;
     if (onFailure) onFailure(step);
   };
 
-  return fn(step)
-    .then(tx => {
-      tx.getTxHash()
-        .then(txHash => {
-          step.update(o => ({
-            ...o,
-            txHash
-          }));
-        })
-        .catch(error => {
-          console.error(error);
-          fail(error);
-        });
+  return new Promise((resolve, reject) => {
+    fn(step)
+      .then((txFn) => {
+        txFn()
+          .on("transactionHash", (txHash) => {
+            step.update((o) => ({
+              ...o,
+              txHash,
+            }));
+          })
+          .on("receipt", () => {
+            step.update((o) => ({
+              ...o,
+              success: true,
+              pending: false,
+            }));
 
-      return tx
-        .getReceipt()
-        .then(() => {
-          step.update(o => ({
-            ...o,
-            success: true,
-            pending: false
-          }));
+            onStep.update((val) => {
+              return ++val;
+            });
 
-          onStep.update(val => {
-            return ++val;
-          });
+            const onSuccess = get(step).onSuccess;
+            if (onSuccess) onSuccess(step);
 
-          const onSuccess = get(step).onSuccess;
-          if (onSuccess) onSuccess(step);
-        })
-        .catch(error => {
-          console.error(error);
-          fail(error);
-        });
-    })
-    .catch(error => {
-      console.error(error);
-      fail(error);
-    });
+            resolve();
+          })
+          .on("error", reject);
+      })
+      .catch(reject);
+  }).catch((error) => {
+    console.error(error);
+    fail(error);
+  });
 };
 
 export const reset = () => {

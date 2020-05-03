@@ -2,7 +2,7 @@
   A store to manage widget state
 */
 import { writable, derived, get } from "svelte/store";
-import { toBN } from "web3x-es/utils";
+import Web3 from "web3";
 import * as ethStore from "./eth";
 import * as tokensStore from "./tokens";
 import * as stepsStore from "./steps";
@@ -10,6 +10,8 @@ import Contract from "../utils/Contract";
 import { zeroAddress } from "../utils/eth";
 import Required from "../utils/Required";
 import derivedPluck from "../utils/derivedPluck";
+
+const { toBN } = Web3.utils;
 
 export const loading = writable(false); // is widget loading
 export const errorMsg = writable(undefined); // error message to be displayed
@@ -33,19 +35,17 @@ export const pairsAreSelected = derived(
   }
 );
 
-export const getPath = (tokenSendAddress, tokenReceiveAddress) => {
-  return get(ethStore.bancorSdk)
-    .generatePath(
-      {
-        blockchainType: "ethereum",
-        blockchainId: tokenSendAddress
-      },
-      {
-        blockchainType: "ethereum",
-        blockchainId: tokenReceiveAddress
-      }
-    )
-    .then(res => res.paths[0].path);
+export const getPathAndRate = (tokenSendAddress, tokenReceiveAddress) => {
+  return get(ethStore.bancorSDK).pricing.getPathAndRate(
+    {
+      blockchainType: "ethereum",
+      blockchainId: tokenSendAddress,
+    },
+    {
+      blockchainType: "ethereum",
+      blockchainId: tokenReceiveAddress,
+    }
+  );
 };
 
 // reset both inputs
@@ -55,7 +55,7 @@ export const resetInputs = () => {
   affiliateFee.update(() => "0");
 };
 
-export const updateBalance = async tokenSend => {
+export const updateBalance = async (tokenSend) => {
   const eth = get(ethStore.eth);
   const account = get(ethStore.account);
   const $tokenSend = get(tokenSend);
@@ -63,7 +63,7 @@ export const updateBalance = async tokenSend => {
   if (eth && account) {
     let balance;
     if ($tokenSend.isEth) {
-      balance = await eth.getBalance(account);
+      balance = await eth.eth.getBalance(account);
     } else {
       const token = await Contract(eth, "ERC20Token", $tokenSend.address);
       balance = await token.methods.balanceOf(account).call();
@@ -76,7 +76,7 @@ export const updateBalance = async tokenSend => {
 };
 
 // update the other input with convert amount
-export const updateReturn = async o => {
+export const updateReturn = async (o) => {
   const _selected = get(pairsAreSelected);
   if (!_selected) return;
 
@@ -94,26 +94,26 @@ export const updateReturn = async o => {
 
   loading.update(() => true);
 
-  const currentPath = await getPath(
+  const currentPath = await getPathAndRate(
     get(o.tokenSend).address,
     get(o.tokenReceive).address
-  );
+  ).then((res) => res.path.map((o) => o.blockchainId));
 
   const _bancorNetwork = get(tokensStore.bancorNetwork);
 
   const {
     receiveAmountWei = "0",
     receiveAmount = "0",
-    fee = "0"
+    fee = "0",
   } = await _bancorNetwork.methods
     .getReturnByPath(currentPath, sendAmount)
     .call()
-    .then(res => ({
+    .then((res) => ({
       receiveAmountWei: res["0"],
       receiveAmount: get(o.tokenReceive).toDisplayAmount(res["0"]),
-      fee: res["1"]
+      fee: res["1"],
     }))
-    .catch(error => {
+    .catch((error) => {
       console.error(error);
       resetInputs();
 
@@ -187,8 +187,8 @@ export const convert = async (amount = Required("amount")) => {
 
   const [balance, ethBalance, allowance] = await Promise.all([
     token.methods.balanceOf(_account).call(),
-    _eth.getBalance(_account),
-    token.methods.allowance(_account, _bancorNetwork.address).call()
+    _eth.eth.getBalance(_account),
+    token.methods.allowance(_account, _bancorNetwork.options.address).call(),
   ]);
 
   const enoughBalance = toBN(balance).gte(toBN(weiAmount));
@@ -213,10 +213,11 @@ export const convert = async (amount = Required("amount")) => {
       stepsStore.Step({
         text: "Reset token allowance to 0.",
         fn: stepsStore.SyncStep(async () => {
-          return token.methods.approve(_bancorNetwork.address, 0).send({
-            from: _account
-          });
-        })
+          return () =>
+            token.methods.approve(_bancorNetwork.options.address, 0).send({
+              from: _account,
+            });
+        }),
       })
     );
   }
@@ -226,10 +227,13 @@ export const convert = async (amount = Required("amount")) => {
       stepsStore.Step({
         text: "Approve token withdrawal.",
         fn: stepsStore.SyncStep(async () => {
-          return token.methods.approve(_bancorNetwork.address, weiAmount).send({
-            from: _account
-          });
-        })
+          return () =>
+            token.methods
+              .approve(_bancorNetwork.options.address, weiAmount)
+              .send({
+                from: _account,
+              });
+        }),
       })
     );
   }
@@ -253,24 +257,28 @@ export const convert = async (amount = Required("amount")) => {
                 .toString()
             : "0";
 
-        const path = await getPath(_tokenSend.address, _tokenReceive.address);
+        const path = await getPathAndRate(
+          _tokenSend.address,
+          _tokenReceive.address
+        ).then((res) => res.path.map((o) => o.blockchainId));
 
-        return _bancorNetwork.methods[fn](
-          path,
-          weiAmount,
-          1,
-          affiliateAccount,
-          affiliateFeePPM
-        ).send({
-          from: _account,
-          value: ethAmount
-        });
+        return () =>
+          _bancorNetwork.methods[fn](
+            path,
+            weiAmount,
+            1,
+            affiliateAccount,
+            affiliateFeePPM
+          ).send({
+            from: _account,
+            value: ethAmount,
+          });
       }),
       onSuccess: () => {
         success.update(() => true);
         stepsStore.reset();
         updateBalance(tokenSend);
-      }
+      },
     })
   );
 

@@ -6,7 +6,7 @@
   import { onMount } from "svelte";
   import { writable, derived, get } from "svelte/store";
   import useCssVars from "svelte-css-vars";
-  import { Address } from "web3x-es/address";
+  import Web3 from "web3";
   import BigNumber from "bignumber.js";
   import MdCompareArrows from "svelte-icons/md/MdCompareArrows.svelte";
   import {
@@ -74,7 +74,7 @@
   if (affiliate) {
     const { account, fee } = affiliate;
 
-    if (typeof account !== "string" || !Address.isAddress(account)) {
+    if (typeof account !== "string" || !Web3.utils.isAddress(account)) {
       throw Error(`affiliate account '${account}' is not a valid address`);
     } else if (typeof fee !== "number" || fee > 3) {
       throw Error(`affiliate fee '${fee}' is not a valid fee, max 3%`);

@@ -1,7 +1,7 @@
-import json from "rollup-plugin-json";
+import json from "@rollup/plugin-json";
+import commonjs from "@rollup/plugin-commonjs";
+import resolve from "@rollup/plugin-node-resolve";
 import svelte from "rollup-plugin-svelte";
-import resolve from "rollup-plugin-node-resolve";
-import commonjs from "rollup-plugin-commonjs";
 import builtins from "rollup-plugin-node-builtins";
 import globals from "rollup-plugin-node-globals";
 import livereload from "rollup-plugin-livereload";
@@ -14,8 +14,8 @@ const production = !process.env.ROLLUP_WATCH;
 
 const name = pkg.name
   .replace(/^(@\S+\/)?(svelte-)?(\S+)/, "$3")
-  .replace(/^\w/, m => m.toUpperCase())
-  .replace(/-\w/g, m => m[1].toUpperCase());
+  .replace(/^\w/, (m) => m.toUpperCase())
+  .replace(/-\w/g, (m) => m[1].toUpperCase());
 
 export default {
   input: "src/index.svelte",
@@ -24,13 +24,13 @@ export default {
       sourcemap: !production,
       format: "iife",
       name,
-      file: "example/bundle.js"
-    }
+      file: "example/bundle.js",
+    },
   ].concat(
     production
       ? [
           { file: pkg.module, format: "es" },
-          { file: pkg.main, format: "umd", name }
+          { file: pkg.main, format: "umd", name },
         ]
       : []
   ),
@@ -39,25 +39,22 @@ export default {
 
     svelte({
       dev: !production,
-      customElement: false // TODO: gotta try this once react supports custom components fully
+      customElement: false, // TODO: gotta try this once react supports custom components fully
     }),
 
     resolve({
       mainFields: ["jsnext", "main"],
       browser: true,
       preferBuiltins: true,
-      dedupe: importee =>
-        importee === "svelte" || importee.startsWith("svelte/")
+      dedupe: (importee) =>
+        importee === "svelte" || importee.startsWith("svelte/"),
     }),
 
     // If you have external dependencies installed from
-    // npm, you'll most likely need these plugins. In
-    // some cases you'll need additional configuration —
-    // consult the documentation for details:
-    // https://github.com/rollup/rollup-plugin-commonjs
+    // npm, you'll most likely need these plugins.
     commonjs(),
-    builtins(),
     globals(),
+    builtins(),
 
     // Enable live reloading in development mode
     !production && livereload("example"),
@@ -69,10 +66,10 @@ export default {
     production &&
       bundleVisualizer({
         filename: "./stats.html",
-        template: "treemap"
+        template: "treemap",
       }),
 
     // Print bundle size
-    production && bundleSize()
-  ]
+    production && bundleSize(),
+  ],
 };

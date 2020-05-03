@@ -1,26 +1,26 @@
 const rSingle = async ({ id, fn }) => {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const timer = setTimeout(() => {
       resolve({
         id,
         fn,
         success: false,
-        result: undefined
+        result: undefined,
       });
     }, 5e3);
 
     fn()
-      .then(result => {
+      .then((result) => {
         clearTimeout(timer);
 
         resolve({
           id,
           fn,
           success: true,
-          result
+          result,
         });
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
         clearTimeout(timer);
 
@@ -28,7 +28,7 @@ const rSingle = async ({ id, fn }) => {
           id,
           fn,
           success: false,
-          result: undefined
+          result: undefined,
         });
       });
   });

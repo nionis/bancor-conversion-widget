@@ -1,5 +1,5 @@
 const safeFetch = async (...args) => {
-  return fetch(...args).then(res => {
+  return fetch(...args).then((res) => {
     if (res.ok) {
       return res.json();
     }

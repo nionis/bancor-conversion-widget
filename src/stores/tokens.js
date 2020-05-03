@@ -3,12 +3,14 @@
 */
 
 import { writable, get } from "svelte/store";
-import { bufferToHex, utf8ToHex } from "web3x-es/utils";
+import Web3 from "web3";
 import * as ethStore from "./eth";
 import safeFetch from "../utils/safeFetch";
 import Contract from "../utils/Contract";
 import resolve from "../utils/resolve";
 import { fromDecimals, toDecimals, toChecksumAddress } from "../utils/eth";
+
+const { toHex } = Web3.utils;
 
 export const contractRegistry = writable(undefined); // contractRegistry instance
 export const converterRegistry = writable(undefined); // converterRegistry instance
@@ -18,9 +20,9 @@ export const fetchingTokens = writable(false); // are we currently fetching toke
 export const tokens = writable(new Map()); // all tokens keyed by address
 
 // using Bancor's API, get token's img url
-export const getTokenImgByBancor = async symbol => {
+export const getTokenImgByBancor = async (symbol) => {
   return safeFetch(`https://api.bancor.network/0.1/currencies/${symbol}`).then(
-    res => {
+    (res) => {
       if (!res || !res.data) return;
 
       const imgFile = res.data.primaryCommunityImageName || "";
@@ -42,13 +44,13 @@ export const getTokenData = async (eth, address) => {
     token.methods.name().call(),
     token.methods.symbol().call(),
     token.methods.decimals().call(),
-    _bancorNetwork.methods.etherTokens(token.address).call(),
-    token.address === _bntToken.address
+    _bancorNetwork.methods.etherTokens(token.options.address).call(),
+    token.options.address === _bntToken.options.address,
   ]);
 
   // const img = await getTokenImgByBancor(symbol);
   const img = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${toChecksumAddress(
-    token.address
+    token.options.address
   )}/logo.png`;
 
   return {
@@ -57,10 +59,10 @@ export const getTokenData = async (eth, address) => {
     symbol,
     img,
     decimals,
-    toSmallestAmount: amount => toDecimals(amount, decimals),
-    toDisplayAmount: amount => fromDecimals(amount, decimals),
+    toSmallestAmount: (amount) => toDecimals(amount, decimals),
+    toDisplayAmount: (amount) => fromDecimals(amount, decimals),
     isEth,
-    isBNT
+    isBNT,
   };
 };
 
@@ -88,24 +90,17 @@ export const init = async (
   const [
     BancorNetworkAddr,
     BNTTokenAddr,
-    ConverterRegistryAddr
+    ConverterRegistryAddr,
   ] = await Promise.all([
+    _contractRegistry.methods.addressOf(toHex("BancorNetwork")).call(),
+    _contractRegistry.methods.addressOf(toHex("BNTToken")).call(),
     _contractRegistry.methods
-      .addressOf(utf8ToHex("BancorNetwork"))
+      .addressOf(toHex("BancorConverterRegistry"))
       .call()
-      .then(res => bufferToHex(res.buffer)),
-    _contractRegistry.methods
-      .addressOf(utf8ToHex("BNTToken"))
-      .call()
-      .then(res => bufferToHex(res.buffer)),
-    _contractRegistry.methods
-      .addressOf(utf8ToHex("BancorConverterRegistry"))
-      .call()
-      .then(res => bufferToHex(res.buffer))
-      .then(res => {
+      .then((res) => {
         // TODO: remove hardcoded address
         return "0xf6E2D7F616B67E46D708e4410746E9AAb3a4C518";
-      })
+      }),
   ]);
 
   const _bancorNetwork = await Contract(
@@ -132,19 +127,14 @@ export const init = async (
     let tokensAddress = await _converterRegistry.methods
       .getConvertibleTokens()
       .call()
-      .then(res => {
-        return res.map(res => bufferToHex(res.buffer)).reverse();
+      .then((res) => {
+        return res.reverse();
       });
 
     // fetch all relay tokens
     if (showRelayTokens) {
       tokensAddress = tokensAddress.concat(
-        await _converterRegistry.methods
-          .getSmartTokens()
-          .call()
-          .then(res => {
-            return res.map(res => bufferToHex(res.buffer));
-          })
+        await _converterRegistry.methods.getSmartTokens().call()
       );
     }
 
@@ -152,14 +142,18 @@ export const init = async (
       tokensAddress.map((tokenAddress, i) => ({
         id: i,
         fn: async () => {
-          const data = await getTokenData(eth, tokenAddress);
+          try {
+            const data = await getTokenData(eth, tokenAddress);
 
-          tokens.update(v => {
-            v.set(tokenAddress, data);
+            tokens.update((v) => {
+              v.set(tokenAddress, data);
 
-            return v;
-          });
-        }
+              return v;
+            });
+          } catch (err) {
+            console.error("error while getting token data", err, tokenAddress);
+          }
+        },
       }))
     );
   } catch (error) {

@@ -9,7 +9,7 @@ import rBatches from "./batches";
 
 const ops = {
   maxTries: 2,
-  chunkSize: 5
+  chunkSize: 5,
 };
 
 const resolve = (
@@ -20,7 +20,7 @@ const resolve = (
 
   const batches = chunk(items, chunkSize);
 
-  return rBatches(batches).then(results => {
+  return rBatches(batches).then((results) => {
     const resultItems = flatten(results);
 
     const newItems = resultItems.reduce((result, item) => {
@@ -28,7 +28,7 @@ const resolve = (
 
       result.push({
         id: item.id,
-        fn: item.fn
+        fn: item.fn,
       });
 
       return result;
@@ -37,7 +37,7 @@ const resolve = (
     if (newItems.length)
       return resolve(newItems, {
         maxTries: --maxTries,
-        chunkSize
+        chunkSize,
       });
     return resultItems;
   });

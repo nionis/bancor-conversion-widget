@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { Address } from "web3x-es/address";
+import Web3 from "web3";
 
 export const zeroAddress = "0x0000000000000000000000000000000000000000";
 
@@ -13,7 +13,7 @@ export const toDecimals = (amount, decimals) => {
     .toString(10);
 };
 
-export const toFixed = amount => {
+export const toFixed = (amount) => {
   const amountInt = Number(amount);
 
   if (!amount || amountInt === 0) {
@@ -25,6 +25,6 @@ export const toFixed = amount => {
   }
 };
 
-export const toChecksumAddress = address => {
-  return Address.toChecksumAddress(address);
+export const toChecksumAddress = (address) => {
+  return Web3.utils.toChecksumAddress(address);
 };

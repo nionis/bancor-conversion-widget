@@ -17,7 +17,7 @@ export const colors = {
   buttonFont: "white",
   compareArrows: "black",
   hoverBackgroundColor: "#EDEDED",
-  successColor: "#0EAD00"
+  successColor: "#0EAD00",
 };
 
 export const Cursor = ({ disabled, loading }) => {
@@ -32,9 +32,9 @@ export const Opacity = ({ disabled, hover }) => {
   return 1;
 };
 
-export const Colors = _colors => ({
+export const Colors = (customColors) => ({
   ...colors,
-  ..._colors
+  ...customColors,
 });
 
 export default Colors;
