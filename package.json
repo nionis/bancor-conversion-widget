@@ -47,6 +47,7 @@
     "svelte-testing-library": "^1.6.0"
   },
   "resolutions": {
-    "asn1.js": "5.2.0"
+    "asn1.js": "5.2.0",
+    "bancor-sdk/web3": "^1.2.7"
   }
 }
