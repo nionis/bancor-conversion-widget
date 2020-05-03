@@ -12,7 +12,7 @@
     "start:dev": "sirv example --dev",
     "test": "echo \"No test specified\"",
     "prepublishOnly": "npm run build",
-    "deploy": "npm run build && now switch nionis && now -n bancor-conversion-widget --prod ./example",
+    "deploy": "npm run build && now switch nionis && now --prod ./example",
     "patch:builtins": "node ./scripts/patch-builtins.js"
   },
   "dependencies": {
