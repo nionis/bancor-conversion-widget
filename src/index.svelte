@@ -99,8 +99,8 @@
   });
 
   // true once default selected tokens are found
-  const gettingSelectedTokens = derived(tokensMap, _tokensMap => {
-    if ($pairsAreSelected) return false;
+  const gettingSelectedTokens = derived(tokensMap, (_tokensMap) => {
+    // if ($pairsAreSelected) return false;
 
     const tokens = Array.from(_tokensMap.values());
     const foundSendToken = tokens.find(t => t.symbol === tokenSend);
